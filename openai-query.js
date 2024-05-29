@@ -1,8 +1,6 @@
-const OPENAI_API_KEY = "sk-proj-lKIBXlJGJI0lQ7CgzB9gT3BlbkFJ9ptXykabwGdtgHOfJZPH"
-// const GOOGLE_API_KEY = "AIzaSyCpVQ1QnnWN1KY_BymkyM-WyJT57-ywvqw"
-
+import {OPENAI_API_KEY} from "./config.js"
 import OpenAI from "openai";
-import prompt from "prompt-sync"
+import prompt from "prompt-sync";
 
 const openai = new OpenAI({apiKey: OPENAI_API_KEY});
 

@@ -1,12 +1,11 @@
 import axios from 'axios';
-
-// const AUTH_TOKEN = BQA3dO4K67_3_4r5F_NqKPRn23yWdfUIte9nyV25YF3JSjWDd9iS0uBqZj9tO5g92g3u_67PDp9YmYITPLXaWb8ayKbDgsAiM7HzjdrqdiiRh1lyiPM
+import {SPOTIFY_AUTH_TOKEN} from "./config.js";
 
 const fetchSpotifyApi = async (endpoint) => {
     try {
         const res = await axios.get(`https://api.spotify.com/${endpoint}`, {
             headers: {
-                Authorization: 'Bearer BQBb9d44UA_cAj7YQ50wcziIIMe4-brI3iGxFZ-JxpD0GiypMP1rvXoYc66MCXc92IIq3-L4SqrynbJOljv0Dj7W4VIwyWH2RADCu3oBL0BC1Wv7mussPsa10ukX9uvf5Oi7YeVKtgNIm-rCz9AIX5DBTCd5WTN3KGsn0C4Yf7M7bC_BiBxhWzUtHFpiUrNrw8Q1Ft3CoZjXGxcG2RnfvCAApjdBPzda7sVATwbjrq2RKtd9jDWmCKSSwHjL8EP_XR8AvkfpG6IsVtFFF03m1eD6'
+                Authorization: `Bearer ${SPOTIFY_AUTH_TOKEN}`
             }
         })
         return await res.data

@@ -1,11 +1,11 @@
 import puppeteer from "puppeteer"
 import queryApi from "./openai-query.js"
-
 import axios from "axios";
+import {WEATHERAPI_TOKEN} from "./config.js";
 
 const getTemperature = async () => {
     try {
-        const res = await axios.get("http://api.weatherapi.com/v1/current.json?key=1459eb711f3843df97844058242805&q=Edmonton&aqi=yes")
+        const res = await axios.get(`http://api.weatherapi.com/v1/current.json?key=${WEATHERAPI_TOKEN}&q=Edmonton&aqi=yes`)
         const conditionsToPassToLLM = res.data["current"]["condition"]["text"];
         const tempToPassToLLM = res.data["current"].temp_c
         await getMoods(conditionsToPassToLLM, tempToPassToLLM);
