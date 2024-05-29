@@ -1,0 +1,20 @@
+{
+  "name": "open-api-test",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "googleapis": "^137.1.0",
+    "openai": "^4.47.1",
+    "prompt-sync": "^4.2.0",
+    "puppeteer": "^22.10.0"
+  },
+  "type": "module"
+}
