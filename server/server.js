@@ -3,9 +3,10 @@ import {SPOTIFY_AUTH_TOKEN} from "./config.js";
 import {SPOTIFY_CLIENT_ID} from "./config.js";
 import {SPOTIFY_CLIENT_SECRET} from "./config.js";
 import express from "express";
-import {logging} from "googleapis/build/src/apis/logging/index.js";
+const PORT = process.env.PORT || 8080;
+const app = express();
 
-const app = express()
+app.use(express.static("build"))
 
 
 const fetchPostmanMock = async () => {
@@ -100,12 +101,13 @@ await storeTrackAudioFeatures(arrOfTrackIds)
 
 // console.log(danceability, energy, valence)
 
+const items = ["hello", "world", "goodbye"]
 
-app.get("/api/home", (req, res) => {
-    res.json({message: arrOfTrackIds});
+app.get("/api/items", (req, res) => {
+    res.send(items);
 })
 
-app.listen(8080, () => {
+app.listen(PORT, () => {
     console.log("Server is running on http://localhost:8080")
 })
 
