@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="output.css" rel="stylesheet">
+
+    <title>Tune Weather</title>
+</head>
+<body>
+<!--navigation bar-->
+<nav class="flex flex-row mx-auto bg-gray-200 justify-between rounded-b-full items-center">
+    <div id="productName" class="flex flex-row p-6 ml-7 sm:text-2xl mb-0.5">
+        <h1 class="text-3xl font-extrabold sm:text-2xl md:text-3xl lg:text-3xl xl:text-4xl">
+            <strong class="text-[#030d15]">Tune</strong> <strong class="text-indigo-700">Weather</strong></h1>
+    </div>
+
+    <!--        username/loggedin status-->
+    <div class="flex flex-row  rounded-full items-center h-12 pr-1 mr-7">
+        <h2 id="userLoginStatus"
+            class="text-md text-center text-[#030d15] tracking-wider px-4 font-extrabold sm:text-sm md:text-md lg:text-md xl:text-xl">
+            username</h2>
+    </div>
+</nav>
+
+<!--Hero-->
+<section id="hero" class="flex flex-col-reverse my-24 mx-32">
+    <div id="headText" class="flex flex-col items-center justify-between rounded-2xl">
+        <h2 class="text-white  text-4xl font-extrabold leading-tight justify-center relative md:text-5xl xl:text-6xl">
+            Welcome to <strong class="text-indigo-600">Tune-Weather.</strong> A product that lets <strong
+                class="text-indigo-600">nature</strong> decide what you listen to . . .</h2>
+    </div>
+</section>
+
+<!--Location Dropdown-->
+<div class="h-screen/2 grid place-items-center z-1">
+    <div class="flex relative flex-col justify-between w-[240px] items-center rounded-lg px-6">
+        <button id="dropDown"
+                class="bg-indigo-700 py-4 shadow-xl shadow-gray-900 flex-col justify-between font-bold text-white w-full rounded-full shadow-amber-300 hover:bg-transparentIndigoBlue hover:text-indigo-700 trans duration-100 active:bg-darkerTransparentIndigoBlue">
+            Get Tracks
+        </button>
+    </div>
+</div>
+
+<!--Button to fetch songs-->
+
+</body>
+</html>
