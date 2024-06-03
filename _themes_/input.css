@@ -4,4 +4,13 @@
 
 body {
     background-color: rgb(3, 13, 21);
+
 }
+
+
+/*@media(max-width: 576px) {*/
+/*    body {*/
+/*        background-position: 50px -50px;*/
+/*        background-size: 645px;*/
+/*    }*/
+/*}*/

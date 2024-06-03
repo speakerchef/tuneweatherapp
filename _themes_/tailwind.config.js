@@ -11,7 +11,8 @@ module.exports = {
     extend: {
       colors: {
         transparentIndigoBlue: "#05111c",
-        darkerTransparentIndigoBlue: "#030c13"
+        darkerTransparentIndigoBlue: "#030c13",
+        veryDarkBlue: "#031633"
       }
     },
   },
