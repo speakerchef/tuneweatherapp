@@ -4,7 +4,7 @@ import prompt from "prompt-sync";
 
 const openai = new OpenAI({apiKey: OPENAI_API_KEY});
 
-export default async function queryApi(messageStr) {
+export default async function queryOpenAiApi(messageStr) {
     const completion = await openai.chat.completions.create({
         messages: [{role: "system", content: `${messageStr}`}],
         model: "gpt-4o",
