@@ -8,24 +8,26 @@ const Buttons = () => {
         <div className=" -translate-x-30 m-auto ">
 
             {/*Button to link spotify*/}
-            <div className="flex-col flex  items-center fle text-center">
-                <div className=" text-center  -my-7 rounded-lg">
-                    <button id="dropDown"
-                            className="bg-spotifyGreen py-4 px-8 shadow-sm shadow-gray-600 font-bold text-white rounded-full hover:bg-transparentIndigoBlue hover:text-indigo-700 trans duration-100 active:bg-darkerTransparentIndigoBlue">
+            {!loggedIn && <div className="flex-col flex items-center fle text-center">
+                <div className=" text-center -my-14 ">
+                    <button onClick={() => setLoggedIn((prev) => !prev)} id="spotifyButton"
+                            className="bg-darkerTransparentIndigoBlue py-3.5 rounded-lg hover:rounded-3xl hover:bg-darkerTransparentIndigoBlue hover:text-indigo-700 transition-all duration-200 ease-linear px-8 shadow-sm shadow-gray-600 font-bold text-white active:bg-darkerTransparentIndigoBlue">
                         Link Spotify
                     </button>
                 </div>
-            </div>
+            </div>}
 
             {/*Button to fetch songs*/}
-            <div className="flex flex-col items-center mx-auto fle text-center">
-                <div className=" text-center -my-7 rounded-lg">
-                    <button id="dropDown"
-                            className="bg-gray-200 py-4 px-8 shadow-sm shadow-gray-600 font-bold text-indigo-700 rounded-full hover:bg-transparentIndigoBlue hover:text-indigo-700 trans duration-100 active:bg-darkerTransparentIndigoBlue">
-                        Get Tracks
-                    </button>
+            {loggedIn && <>
+                <div className="flex flex-col items-center mx-auto fle text-center">
+                    <div className=" text-center -my-7 rounded-md">
+                        <button id="dropDown"
+                                className="bg-gray-200 py-3.5 rounded-lg hover:rounded-3xl hover:bg-darkerTransparentIndigoBlue hover:text-indigo-700 transition-all duration-200 ease-linear px-8 shadow-sm shadow-gray-600 font-bold text-white active:bg-darkerTransparentIndigoBlue">
+                            Get Tracks
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </>}
 
         </div>
     );
