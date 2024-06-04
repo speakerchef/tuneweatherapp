@@ -27,13 +27,5 @@ const getMoods = async (condition, temp) => {
     console.log(moods)
 }
 
-/*
-let condition, temp = getTemperature();
-
-
-if (!condition) {
-
-}
-*/
 
 getTemperature();
