@@ -1,0 +1,7 @@
+config.js
+node_modules
+
+
+curl -X POST "https://accounts.spotify.com/api/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=client_credentials&client_id=a4fcad31b33a473990e70cb0594be641&client_secret=b6e47e46824d4a94a6a2d67592d09719"
