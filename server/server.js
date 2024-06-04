@@ -5,6 +5,7 @@ import {SPOTIFY_CLIENT_SECRET} from "./config.js";
 import express from "express";
 const PORT = process.env.PORT || 8080;
 const app = express();
+export const USER_LOCATION = "Edmonton";
 
 // app.use(express.static("build"));
 app.use(express.urlencoded({extended: false}));
