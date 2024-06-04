@@ -1,0 +1,9 @@
+export const OPENAI_API_KEY = "sk-proj-lKIBXlJGJI0lQ7CgzB9gT3BlbkFJ9ptXykabwGdtgHOfJZPH"
+export const SPOTIFY_AUTH_TOKEN = "BQCtp_FD-9tfr7HhllQmd3TI_dTnZTXeXWUBQq2troZfR1TBbo4XUQk0ynDEUD4sA6t2R3UvJ8jblIM0_AGh62Uliub_560ucTkbLghAxdSX7m9W_FYUK9WHMRjhXDs7MnG6udDGFx-XwPJfwDDjYGRwp8M-_dcjbGapzyQB5Xuv26pfcV18eFa1e53rctkIMLZl0ZyrEYwE-6tvdvnhDHnylhAAg-Ed7PRjDt33QkSAkA2HpM7-qCu4SAfMtm17swp5aJTHsnc5VUpr1a8vD9Kj"
+export const WEATHERAPI_TOKEN = "1459eb711f3843df97844058242805"
+export const SPOTIFY_CLIENT_ID = "a4fcad31b33a473990e70cb0594be641"
+export const SPOTIFY_CLIENT_SECRET = "1d9ff66edb394d6982c1ac9bec0339d8"
+
+/*
+mock audio features url: https://71242a6c-2412-43c5-ae45-0cc2b404d9ab.mock.pstmn.io
+*/
