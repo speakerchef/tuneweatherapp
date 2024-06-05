@@ -1,5 +1,6 @@
 config.js
-node_modules
+./node_modules
+./Components/test.js
 
 
 curl -X POST "https://accounts.spotify.com/api/token" \

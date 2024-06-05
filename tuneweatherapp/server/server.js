@@ -8,6 +8,7 @@ import {getWeatherConditions} from "./Components/weather-mood-info.js";
 
 const PORT = process.env.PORT || 5001;
 const app = express();
+const currentDate = new Date()
 
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
@@ -31,17 +32,7 @@ const fetchSpotifyApi = async (endpoint) => {
 
 // API POST new playlist (user authentication)
 app.post('/login', (req, res) => {
-    const createPlaylist = async(userId) => {
-        await axios.post(`https://api.spotify.com/users/${userId}/playlists`, {
-            header:{
-                Authorization: `Bearer ${SPOTIFY_AUTH_TOKEN}`,
-                "Content-Type": "application/json",
-            },
-            body: {
-                "name": `TuneWeatherApp Playlist ${Date.}`
-            }
-        })
-    }
+
 })
 
 
@@ -93,11 +84,27 @@ const getRecommendedTracks = async (seedTracks, danceability, energy, valence, l
     } catch (err) {
         console.log(err)
     }
-
-
 }
 
+const createPlaylist = async(userId) => {
+    try{
+        await axios.post(`https://api.spotify.com/users/${userId}/playlists`, {
+            header:{
+                Authorization: `Bearer ${SPOTIFY_AUTH_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: {
+                "name": `TuneWeatherApp Playlist ${currentDate.toDateString()}`,
+                "description": "A Playlist by the TuneWeather App",
+                "public": false
+            }
+        })
+    }catch(err){
+        console.log(err.status)
+    }
+}
 
+// TODO: to be put in app.get for fetching recommendations
 const arrOfTrackIds = await getTopTrackIds()
 console.log(arrOfTrackIds)
 const trackFeatures = await getWeatherConditions()
