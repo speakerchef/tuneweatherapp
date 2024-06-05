@@ -1,37 +1,26 @@
 import axios from 'axios';
-// import {SPOTIFY_AUTH_TOKEN} from "./config.js";
-import {SPOTIFY_CLIENT_ID} from "./config.js";
-import {SPOTIFY_CLIENT_SECRET} from "./config.js";
 import express from "express";
 import cors from "cors";
 import {getWeatherConditions} from "./Components/weather-mood-info.js";
 import * as querystring from "node:querystring";
-import session from 'express-session'
+import {client_id, client_secret} from "./config.js";
 
 const PORT = process.env.PORT || 5001;
 const app = express();
 const currentDate = new Date()
 let SPOTIFY_AUTH_TOKEN;
 
-app.use(session({
-    secret: PORT,
-    resave: false,
-    saveUninitialized: false,
-}))
 app.use(cors());
 app.use(express.urlencoded({extended: false}));
 
-
-
 // GET User auth token
-const client_id = "a4fcad31b33a473990e70cb0594be641"
-const client_secret = "95d0bb1072284766aa51613c401d018d"
+
 const redirect_uri = 'http://localhost:5001/callback'
 
 
 
 app.get('/login', (req, res) => {
-    const scope = 'user-read-private user-read-email playlist-modify-private user-top-read user-library-read';
+    const scope = 'user-read-private ugc-image-upload playlist-read-private user-read-email playlist-modify-private playlist-modify-public user-top-read user-library-modify user-library-read';
     const authUrl = 'https://accounts.spotify.com/authorize';
 
     res.redirect(`${authUrl}?${querystring.stringify({
@@ -68,7 +57,7 @@ app.get('/callback', async (req, res) => {
         const access_token = response.data.access_token.toString()
 
 
-        console.log('Access token:', access_token);
+        console.log('Access token:', access_token, body);
         SPOTIFY_AUTH_TOKEN = access_token;
         res.redirect('/home')
     } catch (error) {
@@ -77,13 +66,8 @@ app.get('/callback', async (req, res) => {
 });
 
 app.get('/home',  (req, res) => {
-
-
-
-res.send("at home")
-
+    res.send("at home")
     runOperations()
-
 })
 
 
@@ -144,6 +128,7 @@ const getRecommendedTracks = async (seedTracks, danceability, energy, valence, l
                 {artist: (await response).tracks[i].album.artists[0].name},
                 {image: (await response).tracks[i].album.images[1].url},
                 {link: (await response).tracks[i].external_urls},
+                {uri: (await response).tracks[i].uri},
             )
         }
 
@@ -155,24 +140,70 @@ const getRecommendedTracks = async (seedTracks, danceability, energy, valence, l
     }
 }
 
-const createPlaylist = async (userId) => {
-    try {
-        const request = await axios.post(`https://api.spotify.com/users/${userId}/playlists`, {
-            header: {
-                Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
-                "Content-Type": "application/json",
-            }, data: {
-                "name": `TuneWeatherApp Playlist ${currentDate.toDateString()}`,
-                "description": "A Playlist by the TuneWeather App",
-                "public": false
-            }
-        })
-        console.log(JSON.stringify(await request))
-    } catch (err) {
-        console.log(err.response.status)
-        console.log("Playlist could not be created")
+const getCurrentUserInfo = async () => {
+
+    const res = await fetchSpotifyApi(`v1/me`);
+    return {
+        'name': await res.display_name,
+        'email': await res.email,
+        'userId': await res.id,
+        'userProfileImage': await res.images.url
     }
 }
+
+const createPlaylist = async (tracks) => {
+    let trackUris = ''
+    const makePlaylist = async () => {
+        const userName = (await getCurrentUserInfo()).name
+        trackUris = tracks.map(track => typeof track.uri !== 'undefined' ? track.uri.replaceAll(':','%3A'):'').join(',').replaceAll(',,,,','')
+        console.log(trackUris)
+        console.log(userName)
+        const targetUrl = 'https://api.spotify.com/v1/me/playlists'
+        const payload = {
+            url: targetUrl,
+            headers: {
+                Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
+                "Content-Type": "application/json",
+
+            }, data: {
+                name: `Playlist for ${userName} by TuneWeather`,
+                description: "A Playlist by the TuneWeather App",
+                public: false
+            },
+            method:'post'
+        }
+
+
+
+        try {
+            const request = await axios(payload)
+            return request.data.id
+        } catch (err) {
+            console.log(err)
+            console.log("Playlist could not be created")
+        }
+    }
+    const pid = await makePlaylist(tracks);
+    console.log("playlist id", pid)
+    console.log(trackUris)
+    const trackPayload = {
+        header: {
+            Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
+            "Content-Type": "application/json",
+        },
+        body: {
+            uris: trackUris
+        }
+
+    }
+    try {
+        await axios.post(`https://api.spotify.com/v1/playlists/${pid}/tracks`, trackPayload)
+    }catch (e) {
+        console.log(e.data)
+    }
+}
+
+
 
 const runOperations = async() => {
     const arrOfTrackIds = await getTopTrackIds('p0aoh7sazk08iu9vdsc92tstd')
@@ -184,9 +215,9 @@ const runOperations = async() => {
     let recommendedTracks = await getRecommendedTracks(arrOfTrackIds, db, eg, vl)
     console.log(await recommendedTracks)
 
-    await createPlaylist('p0aoh7sazk08iu9vdsc92tstd').catch(() => {
-        console.log('playlist created')
-    })
+    const pid = await createPlaylist(recommendedTracks)
+
+
 
     console.log("THIS IS THE ACCESS TOKEN AT THE END OF THE PROGRAM", SPOTIFY_AUTH_TOKEN)
 }
