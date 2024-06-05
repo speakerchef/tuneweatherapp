@@ -1,4 +1,4 @@
-import {OPENAI_API_KEY} from "./config.js"
+import {OPENAI_API_KEY} from "../config.js"
 import OpenAI from "openai";
 import prompt from "prompt-sync";
 

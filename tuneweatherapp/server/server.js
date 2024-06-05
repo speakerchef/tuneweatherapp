@@ -4,13 +4,15 @@ import {SPOTIFY_CLIENT_ID} from "./config.js";
 import {SPOTIFY_CLIENT_SECRET} from "./config.js";
 import express from "express";
 import cors from "cors";
+import {getWeatherConditions} from "./Components/weather-mood-info.js";
 
 const PORT = process.env.PORT || 5001;
 const app = express();
 
 app.use(cors());
+app.use(express.urlencoded({ extended: false }));
 
-// Gets results from spotify API
+// Get from spotify API
 const fetchSpotifyApi = async (endpoint) => {
     try {
         const res = await axios.get(`https://api.spotify.com/${endpoint}`, {
@@ -27,27 +29,28 @@ const fetchSpotifyApi = async (endpoint) => {
 }
 
 
-// Gets the users top tracks
-app.get('/track-reccomendations', async (req, res) => {
-
-    let arrOfTrackIds = await getTopTrackIds()
-    let danceability = []
-    let energy = []
-    let valence = []
-
-    await storeTrackAudioFeatures(arrOfTrackIds)
-        .then(res => {
-            console.log(res)
-            danceability.push(res[0])
-            energy.push(res[1])
-            valence.push(res[2])
+// API POST new playlist (user authentication)
+app.post('/login', (req, res) => {
+    const createPlaylist = async(userId) => {
+        await axios.post(`https://api.spotify.com/users/${userId}/playlists`, {
+            header:{
+                Authorization: `Bearer ${SPOTIFY_AUTH_TOKEN}`,
+                "Content-Type": "application/json",
+            },
+            body: {
+                "name": `TuneWeatherApp Playlist ${Date.}`
+            }
         })
-        .catch(() => console.log("The audio features could not be loaded"))
-
-    console.log(danceability, energy, valence)
-
-
+    }
 })
+
+
+// API GET (track recommendations)
+// app.get('/track-recommendations', async (req, res) => {
+
+// #######################################################
+
+// })
 
 
 const getTopTrackIds = async () => {
@@ -67,59 +70,48 @@ const getTopTrackIds = async () => {
     }
 }
 
-const getTrackAudioFeatures = async (trackId) => {
-    const trackFeatures = await fetchSpotifyApi(`v1/audio-features/${trackId}`)
-    return await trackFeatures
-}
-
-// Storing track features into an array (NOW IN MOCK MODE)
-const storeTrackAudioFeatures = async (arr) => {
-    let trackDanceability = []
-    let trackEnergy = []
-    let trackValence = []
-    let trackFeatures = []
-    let features = []
-    try {
-        for (let i = 0; i < 5; i++) {
-            features.push(await getTrackAudioFeatures(arr[i]))
-            trackDanceability.push((await features[i].danceability))
-            trackEnergy.push((await features[i].energy))
-            trackValence.push((await features[i].valence))
-        }
-        trackFeatures.push(trackDanceability, trackEnergy, trackValence)
-        return trackFeatures;
-    } catch (err) {
-        // console.log(err.response.status)
-        console.log("Track audio features could not be stored :(", err.response.status)
-    }
-}
-
 
 // Getting recommended songs from spotify based on parameters
 
-const getRecommendedTracks = async (danceability, energy, valence, limit = 10) => {
-    const res = fetchSpotifyApi(`v1/recommendations?limit=${limit}&min_danceability=${danceability}&min_energy=${energy}&min_valence=${valence}`, {
-        header: {
-            Authorization: `Bearer ${SPOTIFY_AUTH_TOKEN}`
+const getRecommendedTracks = async (seedTracks, danceability, energy, valence, limit = 10) => {
+    try {
+
+        const res = fetchSpotifyApi(`v1/recommendations?seed_tracks=${seedTracks.map((trackId, index) => {
+            return (index !== seedTracks.length - 1 ? `${trackId}%2C` : trackId)
+        })}&target_danceability=${danceability}&target_energy=${energy}&target_valence=${valence}\`.replaceAll(',','')`, {
+            header: {
+                Authorization: `Bearer ${SPOTIFY_AUTH_TOKEN}`
+            }
+        })
+        let recommendedTracks = []
+        for (let i = 0; i < limit; i++) {
+            recommendedTracks.push({name: (await res).tracks[i].name}, {artist: (await res).tracks[i].album.artists[0].name}, {image: (await res).tracks[i].album.images[1].url}, {link: (await res).tracks[i].external_urls},)
         }
-    })
-    let recommendedTracks = []
-    for (let i = 0; i < limit; i++) {
-        recommendedTracks.push({name: await res['tracks'][i]["name"]})
+
+        return recommendedTracks
+
+    } catch (err) {
+        console.log(err)
     }
 
-    console.log(recommendedTracks)
 
 }
 
 
-// console.log("Array of track IDS", arrOfTrackIds)
-
-// Get track's audio features for recommendations (NOT USED NOW)
-
+const arrOfTrackIds = await getTopTrackIds()
+console.log(arrOfTrackIds)
+const trackFeatures = await getWeatherConditions()
+const db = trackFeatures['audio-features'].danceability
+const eg = trackFeatures['audio-features'].energy
+const vl = trackFeatures['audio-features'].valence
+let recommendedTracks = await getRecommendedTracks(arrOfTrackIds, db, eg, vl)
+console.log(recommendedTracks)
 
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
+
 })
 
+
+//
