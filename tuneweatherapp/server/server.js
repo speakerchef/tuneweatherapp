@@ -4,6 +4,7 @@ import cors from "cors";
 import {getWeatherConditions} from "./Components/weather-mood-info.js";
 import * as querystring from "node:querystring";
 import {client_id, client_secret} from "./config.js";
+import {resolveObject} from "url";
 
 const PORT = process.env.PORT || 5001;
 const app = express();
@@ -16,7 +17,6 @@ app.use(express.urlencoded({extended: false}));
 // GET User auth token
 
 const redirect_uri = 'http://localhost:5001/callback'
-
 
 
 app.get('/login', (req, res) => {
@@ -42,9 +42,9 @@ app.get('/callback', async (req, res) => {
         url: tokenUrl,
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: `Basic ${Buffer.from(client_id + ':' + client_secret).toString('base64').replace('=','')}`,
+            Authorization: `Basic ${Buffer.from(client_id + ':' + client_secret).toString('base64').replace('=', '')}`,
         },
-        data:{
+        data: {
             code: authCode,
             redirect_uri: redirect_uri,
             grant_type: 'authorization_code',
@@ -65,7 +65,7 @@ app.get('/callback', async (req, res) => {
     }
 });
 
-app.get('/home',  (req, res) => {
+app.get('/home', (req, res) => {
     res.send("at home")
     runOperations()
 })
@@ -117,14 +117,15 @@ const getRecommendedTracks = async (seedTracks, danceability, energy, valence, l
 
         const response = fetchSpotifyApi(`v1/recommendations?seed_tracks=${seedTracks.map((trackId, index) => {
             return (index !== seedTracks.length - 1 ? `${trackId}%2C` : trackId)
-        })}&target_danceability=${danceability}&target_energy=${energy}&target_valence=${valence}`.replaceAll(',',''), {
+        })}&target_danceability=${danceability}&target_energy=${energy}&target_valence=${valence}`.replaceAll(',', ''), {
             header: {
                 Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`
             }
         })
         let recommendedTracks = []
         for (let i = 0; i < limit; i++) {
-            recommendedTracks.push({name: (await response).tracks[i].name},
+            recommendedTracks.push(
+                {name: (await response).tracks[i].name},
                 {artist: (await response).tracks[i].album.artists[0].name},
                 {image: (await response).tracks[i].album.images[1].url},
                 {link: (await response).tracks[i].external_urls},
@@ -152,60 +153,62 @@ const getCurrentUserInfo = async () => {
 }
 
 const createPlaylist = async (tracks) => {
-    let trackUris = ''
-    const makePlaylist = async () => {
-        const userName = (await getCurrentUserInfo()).name
-        trackUris = tracks.map(track => typeof track.uri !== 'undefined' ? track.uri.replaceAll(':','%3A'):'').join(',').replaceAll(',,,,','')
-        console.log(trackUris)
-        console.log(userName)
-        const targetUrl = 'https://api.spotify.com/v1/me/playlists'
-        const payload = {
-            url: targetUrl,
-            headers: {
-                Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
-                "Content-Type": "application/json",
+    const userName = (await getCurrentUserInfo()).name
+    console.log(userName)
+    const targetUrl = 'https://api.spotify.com/v1/me/playlists'
+    const payload = {
+        url: targetUrl,
+        headers: {
+            Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
+            "Content-Type": "application/json",
 
-            }, data: {
-                name: `Playlist for ${userName} by TuneWeather`,
-                description: "A Playlist by the TuneWeather App",
-                public: false
-            },
-            method:'post'
-        }
-
-
-
-        try {
-            const request = await axios(payload)
-            return request.data.id
-        } catch (err) {
-            console.log(err)
-            console.log("Playlist could not be created")
-        }
+        }, data: {
+            name: `Playlist for ${userName} by TuneWeather`,
+            description: "A Playlist by the TuneWeather App",
+            public: false
+        },
+        method: 'post'
     }
-    const pid = await makePlaylist(tracks);
+    const request = await axios(payload).catch((err) => console.log(err))
+
+    const trackUris = tracks
+        .map(track => {
+            return typeof track.uri !== 'undefined' ? track.uri : ''
+        })
+        .filter(uri => uri !== '')
+    console.log(tracks)
+    const pid = await request.data.id
+
     console.log("playlist id", pid)
     console.log(trackUris)
     const trackPayload = {
+        url: `https://api.spotify.com/v1/playlists/3lOK4sXpYNqvJHSMK3oLcN/tracks`,
+        method: 'post',
         header: {
-            Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
+            Authorization: `Bearer ${'BQDQQAmvWeSFgLWwln8-pPT7xYNAqcr0-tIhzPn1O0sk6RGVaVsaeglNqO2FtibcDqv0Tpw6TWbukdeddN1AO-u5JV_Yu9MlR_KNUUSNLU9IrYTCa2wS9DG3D3tvhan6rbZxd1XN-0Bnc84IvCg6CqT-71wtXxkGtphF7K0nAtTv4bKAr-p1CGapd80Ki9-Dk6un0JuL1vfk7rIZm4iyA5mquOdjJksQUPIRZHAZkbhsQSIX7e1xipy4fwKvjcsbKddCwCFjGev8DrailZ3n8RVP'}`,
             "Content-Type": "application/json",
         },
-        body: {
-            uris: trackUris
+        data: {
+            "uris": trackUris,
         }
 
     }
     try {
-        await axios.post(`https://api.spotify.com/v1/playlists/${pid}/tracks`, trackPayload)
-    }catch (e) {
-        console.log(e.data)
+        await fetch(`https://api.spotify.com/v1/playlists/${pid}/tracks?uris=${trackUris.join(',')}`,{
+            headers: {
+                Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
+            },
+            method: 'POST',
+
+        })
+        console.log("Items have been added")
+    } catch (e) {
+        console.log(e.response)
     }
+
 }
 
-
-
-const runOperations = async() => {
+const addTracks = async () => {
     const arrOfTrackIds = await getTopTrackIds('p0aoh7sazk08iu9vdsc92tstd')
     console.log(arrOfTrackIds)
     const trackFeatures = await getWeatherConditions()
@@ -213,21 +216,20 @@ const runOperations = async() => {
     const eg = await trackFeatures['audio-features'].energy
     const vl = await trackFeatures['audio-features'].valence
     let recommendedTracks = await getRecommendedTracks(arrOfTrackIds, db, eg, vl)
-    console.log(await recommendedTracks)
+    await createPlaylist(recommendedTracks)
 
-    const pid = await createPlaylist(recommendedTracks)
+}
 
 
+const runOperations = async () => {
+
+    await addTracks()
 
     console.log("THIS IS THE ACCESS TOKEN AT THE END OF THE PROGRAM", SPOTIFY_AUTH_TOKEN)
 }
 
 
-
-
-
 // Get from spotify API
-
 
 
 app.listen(PORT, () => {
