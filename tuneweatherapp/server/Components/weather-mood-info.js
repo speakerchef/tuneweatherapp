@@ -23,3 +23,5 @@ const getTrackFeatures = async (condition, temp) => {
     moods = moods.replace("```", "").replace("json", "").replace("```", "").trim()
     return JSON.parse(moods)
 }
+
+console.log(await getWeatherConditions())

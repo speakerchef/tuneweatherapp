@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {SPOTIFY_AUTH_TOKEN} from "./config.js";
+// import {SPOTIFY_AUTH_TOKEN} from "./config.js";
 import {SPOTIFY_CLIENT_ID} from "./config.js";
 import {SPOTIFY_CLIENT_SECRET} from "./config.js";
 import express from "express";
@@ -11,6 +11,7 @@ import session from 'express-session'
 const PORT = process.env.PORT || 5001;
 const app = express();
 const currentDate = new Date()
+let SPOTIFY_AUTH_TOKEN;
 
 app.use(session({
     secret: PORT,
@@ -29,9 +30,8 @@ const redirect_uri = 'http://localhost:5001/callback'
 
 
 
-
 app.get('/login', (req, res) => {
-    const scope = 'user-read-email playlist-modify-private';
+    const scope = 'user-read-private user-read-email playlist-modify-private user-top-read user-library-read';
     const authUrl = 'https://accounts.spotify.com/authorize';
 
     res.redirect(`${authUrl}?${querystring.stringify({
@@ -42,7 +42,6 @@ app.get('/login', (req, res) => {
     })}`);
 });
 
-console.log("CHECK THIS:", Buffer.from(client_id + ':' + client_secret).toString('base64').replace('=',''))
 
 app.get('/callback', async (req, res) => {
     const authCode = req.query.code;
@@ -65,55 +64,68 @@ app.get('/callback', async (req, res) => {
 
     try {
         const response = await axios(authOptions);
-        const { access_token } = response.data;
+        const body = response.data;
+        const access_token = response.data.access_token.toString().trim().replace(' ', '')
 
         // Store the access token in session or other server-side storage
-        req.session.access_token = access_token;
+        // req.session.access_token = access_token;
 
         console.log('Access token:', access_token);
-        res.send('Login successful');
+        SPOTIFY_AUTH_TOKEN = access_token;
+        res.redirect('/home')
     } catch (error) {
         console.error('Error fetching access token', error.response ? error.response.data : error.message);
-        res.status(500).send('Authentication failed');
+        // res.status(500).send('Authentication failed');
     }
 });
 
+app.get('/home',  (req, res) => {
 
 
-// Get from spotify API
+
+res.send("at home")
+
+    runOperations()
+
+
+
+
+
+
+
+// Getting recommended songs from spotify based on parameters
+
+
+
+// TODO: to be put in app.get for fetching recommendations
+
+
+    // setTimeout(async () => {
+    //
+    // }, 10000)
+
+})
+
 const fetchSpotifyApi = async (endpoint) => {
     try {
-        const res = await axios.get(`https://api.spotify.com/${endpoint}`, {
+        const response = await axios.get(`https://api.spotify.com/${endpoint}`, {
             headers: {
-                Authorization: `Bearer BQAX9KV3uHNu4ClmkxI0g3AOzZFtYZRsys5jABFpUnL55AdwImQfZHocbuB4CzecT2vRPs9K5mPeSzcGPqkJV72IkB5GO9uEBvgKFnIBSebB15sevjja0xxw8JDw27Oc-DpY5tbcrc76rBuhT602siHlerh9ZF8GClYTnp-cjKy5RcAPN7vViJ3Zami5EzWQGB48PVzsjDk9998I-AESQye19AR6T7bfxr_FQ1nF`
+                Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`
             }
         })
-        return await res.data
+        return await response.data
     } catch (err) {
-        console.log(err)
+        console.log(err.response.status)
+        console.log('THIS IS THE ACCESS TOKEN AT FETCHSPOTIFYAPI', SPOTIFY_AUTH_TOKEN)
         // console.error(`Status: ${err.response.status}`)
-        console.log("Something went wrong :(")
+        console.log("spotify API could not be reached")
     }
 }
 
 
-// API POST new playlist (user authentication)
-app.post('/login', (req, res) => {
-
-})
-
-
-// API GET (track recommendations)
-// app.get('/track-recommendations', async (req, res) => {
-
-// #######################################################
-
-// })
-
-
-const getTopTrackIds = async () => {
+const getTopTrackIds = async (userId) => {
     try {
-        const topTracks = await fetchSpotifyApi("v1/me/top/tracks?time_range=long_term&limit=5")
+        const topTracks = await fetchSpotifyApi(`v1/me/top/tracks?limit=5`)
         let arrOfTopTrackID = []
         for (let i = 0; i < 5; i++) {
 
@@ -123,37 +135,36 @@ const getTopTrackIds = async () => {
         }
         return arrOfTopTrackID
     } catch (err) {
-        console.log(err)
-        console.log("Something went wrong :(")
+        console.log(err.response)
+
+        console.log("Top tracks could not be fetched")
     }
 }
-
-
-// Getting recommended songs from spotify based on parameters
 
 const getRecommendedTracks = async (seedTracks, danceability, energy, valence, limit = 10) => {
     try {
 
-        const res = fetchSpotifyApi(`v1/recommendations?seed_tracks=${seedTracks.map((trackId, index) => {
+        const response = fetchSpotifyApi(`v1/recommendations?seed_tracks=${seedTracks.map((trackId, index) => {
             return (index !== seedTracks.length - 1 ? `${trackId}%2C` : trackId)
         })}&target_danceability=${danceability}&target_energy=${energy}&target_valence=${valence}`.replaceAll(',',''), {
             header: {
-                Authorization: `Bearer BQAX9KV3uHNu4ClmkxI0g3AOzZFtYZRsys5jABFpUnL55AdwImQfZHocbuB4CzecT2vRPs9K5mPeSzcGPqkJV72IkB5GO9uEBvgKFnIBSebB15sevjja0xxw8JDw27Oc-DpY5tbcrc76rBuhT602siHlerh9ZF8GClYTnp-cjKy5RcAPN7vViJ3Zami5EzWQGB48PVzsjDk9998I-AESQye19AR6T7bfxr_FQ1nF`
+                Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`
             }
         })
         let recommendedTracks = []
         for (let i = 0; i < limit; i++) {
-            recommendedTracks.push({name: (await res).tracks[i].name},
-                {artist: (await res).tracks[i].album.artists[0].name},
-                {image: (await res).tracks[i].album.images[1].url},
-                {link: (await res).tracks[i].external_urls},
-                )
+            recommendedTracks.push({name: (await response).tracks[i].name},
+                {artist: (await response).tracks[i].album.artists[0].name},
+                {image: (await response).tracks[i].album.images[1].url},
+                {link: (await response).tracks[i].external_urls},
+            )
         }
 
         return recommendedTracks
 
     } catch (err) {
-        console.log(err)
+        console.log(err.response)
+        console.log("Recommened tracks could not be fetched")
     }
 }
 
@@ -161,7 +172,7 @@ const createPlaylist = async (userId) => {
     try {
         const request = await axios.post(`https://api.spotify.com/users/${userId}/playlists`, {
             header: {
-                Authorization: `Bearer AQBT17rYBwkauIXSA1xnGj0sgGYsYiXZIp4AxoESPiYQIYZEn-tgKHjQvzYknKLOcybWP4w0GGTNymuueo2Koh-caabQBR1bqW9TW-SW-uPCK1mnQhsUoM1f-95v4O-fFh3l6MjGKmXi2fLB2XqLhOJuRsr29bw0f_lNE_cPTItrncOeG6c9DwUYrRowozmEmE0l8F2fOTPyiPucOC2XkFd88g`,
+                Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
                 "Content-Type": "application/json",
             }, data: {
                 "name": `TuneWeatherApp Playlist ${currentDate.toDateString()}`,
@@ -171,21 +182,34 @@ const createPlaylist = async (userId) => {
         })
         console.log(JSON.stringify(await request))
     } catch (err) {
-        console.log(err.response)
+        console.log(err.response.status)
+        console.log("Playlist could not be created")
     }
 }
 
-// TODO: to be put in app.get for fetching recommendations
-const arrOfTrackIds = await getTopTrackIds()
-console.log(arrOfTrackIds)
-const trackFeatures = await getWeatherConditions()
-const db = trackFeatures['audio-features'].danceability
-const eg = trackFeatures['audio-features'].energy
-const vl = trackFeatures['audio-features'].valence
-let recommendedTracks = await getRecommendedTracks(arrOfTrackIds, db, eg, vl)
-console.log(recommendedTracks)
+const runOperations = async() => {
+    const arrOfTrackIds = await getTopTrackIds('p0aoh7sazk08iu9vdsc92tstd')
+    console.log(arrOfTrackIds)
+    const trackFeatures = await getWeatherConditions()
+    const db = await trackFeatures['audio-features'].danceability
+    const eg = await trackFeatures['audio-features'].energy
+    const vl = await trackFeatures['audio-features'].valence
+    let recommendedTracks = await getRecommendedTracks(arrOfTrackIds, db, eg, vl)
+    console.log(await recommendedTracks)
 
-await createPlaylist('wokeboydidit')
+    await createPlaylist('p0aoh7sazk08iu9vdsc92tstd').catch(() => {
+        console.log('playlist created')
+    })
+
+    console.log("THIS IS THE ACCESS TOKEN AT THE END OF THE PROGRAM", SPOTIFY_AUTH_TOKEN)
+}
+
+
+
+
+
+// Get from spotify API
+
 
 
 app.listen(PORT, () => {
