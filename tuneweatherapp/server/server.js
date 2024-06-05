@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 5001;
 const app = express();
 const currentDate = new Date()
 let SPOTIFY_AUTH_TOKEN;
+let recTracks;
 
 app.use(cors());
 app.use(express.urlencoded({extended: false}));
@@ -57,9 +58,22 @@ app.get('/callback', async (req, res) => {
     }
 });
 
-app.get('/home', (req, res) => {
-    res.send("at home")
-    runOperations()
+app.get('/home', async (req, res) => {
+    const trackObj = await runOperations()
+    const tracks = trackObj.tracks
+    const trackName = trackObj.trackNames
+    const artist = trackObj.artist
+    console.log("TRACKNAMES",trackName)
+    await createPlaylist(tracks)
+    const printArr = []
+    for (let i = 0; i < trackName.length; i++) {
+        printArr.push([trackName[i] + ' BY ' + artist[i]])
+    }
+    res.send(printArr.flat(10).toString().replaceAll('[]', ''))
+})
+
+app.get('/get-tracks', (req, res) => {
+
 })
 
 
@@ -170,7 +184,7 @@ const createPlaylist = async (tracks) => {
 
 }
 
-const addTracks = async () => {
+const runOperations = async () => {
     const arrOfTrackIds = await getTopTrackIds('p0aoh7sazk08iu9vdsc92tstd')
     console.log(arrOfTrackIds)
     const trackFeatures = await getWeatherConditions()
@@ -178,17 +192,15 @@ const addTracks = async () => {
     const eg = await trackFeatures['audio-features'].energy
     const vl = await trackFeatures['audio-features'].valence
     let recommendedTracks = await getRecommendedTracks(arrOfTrackIds, db, eg, vl)
-    await createPlaylist(recommendedTracks)
+    const recTracks = recommendedTracks.map(track => track.name).filter(x => typeof x !== 'undefined')
+    const artists = recommendedTracks.map(track => track.artist).filter(x => typeof x !== 'undefined')
+    const trackObj = {tracks: recommendedTracks, trackNames: recTracks, artist: artists}
+    return trackObj
+
 
 }
 
 
-const runOperations = async () => {
-
-    await addTracks()
-
-    console.log("THIS IS THE ACCESS TOKEN AT THE END OF THE PROGRAM", SPOTIFY_AUTH_TOKEN)
-}
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`)
