@@ -20,7 +20,7 @@ const Buttons = () => {
             {/*Button to fetch songs*/}
             {loggedIn && <>
                 <div className="flex flex-col items-center mx-auto fle text-center">
-                    <div className=" text-center -my-7 rounded-md">
+                    <div className=" text-center -my-14 ">
                         <button id="dropDown"
                                 className="bg-gray-200 py-3.5 rounded-lg hover:rounded-3xl hover:bg-darkerTransparentIndigoBlue hover:text-indigo-700 transition-all duration-200 ease-linear px-8 shadow-sm shadow-gray-600 font-bold text-white active:bg-darkerTransparentIndigoBlue">
                             Get Tracks
