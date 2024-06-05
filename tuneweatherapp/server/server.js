@@ -12,55 +12,71 @@ const PORT = process.env.PORT || 5001;
 const app = express();
 const currentDate = new Date()
 
-app.use(express.static('public'));
-
+app.use(session({
+    secret: PORT,
+    resave: false,
+    saveUninitialized: false,
+}))
 app.use(cors());
 app.use(express.urlencoded({extended: false}));
 
 
+
 // GET User auth token
 const client_id = "a4fcad31b33a473990e70cb0594be641"
-const client_secret = "1d9ff66edb394d6982c1ac9bec0339d8"
+const client_secret = "95d0bb1072284766aa51613c401d018d"
 const redirect_uri = 'http://localhost:5001/callback'
 
 
 
 
-app.get('/login', (req, res)=>{
-    const authUrl = 'https://accounts.spotify.com/authorize'
-    const scope = 'user-read-email playlist-modify-private'
-
-
+app.get('/login', (req, res) => {
+    const scope = 'user-read-email playlist-modify-private';
+    const authUrl = 'https://accounts.spotify.com/authorize';
 
     res.redirect(`${authUrl}?${querystring.stringify({
-        response_type: "code",
+        response_type: 'code',
         client_id: client_id,
         scope: scope,
         redirect_uri: redirect_uri,
-    })}`)
-    console.log(req.body)
+    })}`);
+});
+
+console.log("CHECK THIS:", Buffer.from(client_id + ':' + client_secret).toString('base64').replace('=',''))
+
+app.get('/callback', async (req, res) => {
+    const authCode = req.query.code;
 
 
-})
+    const tokenUrl = 'https://accounts.spotify.com/api/token';
+    const authOptions = {
+        method: 'post',
+        url: tokenUrl,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${Buffer.from(client_id + ':' + client_secret).toString('base64').replace('=','')}`,
+        },
+        data:{
+            code: authCode,
+            redirect_uri: redirect_uri,
+            grant_type: 'authorization_code',
+        },
+    };
 
-// app.get('/callback', (req, res) => {
-//     const authCode = req.query.code
-//
-//     const authOptions = {
-//         url: 'https://accounts.spotify.com/api/token',
-//         method: 'POST',
-//         form: {
-//             code: authCode,
-//             redirect_uri: redirect_uri,
-//             grant_type: 'authorization_code',
-//         },
-//         headers: {
-//             'Content-Type': 'application/x-www-form-urlencoded',
-//             Authorization: `Basic ${new Buffer.from(client_id + ':' + client_secret).toString('base64')}`,
-//         },
-//         json: true
-//     }
-// })
+    try {
+        const response = await axios(authOptions);
+        const { access_token } = response.data;
+
+        // Store the access token in session or other server-side storage
+        req.session.access_token = access_token;
+
+        console.log('Access token:', access_token);
+        res.send('Login successful');
+    } catch (error) {
+        console.error('Error fetching access token', error.response ? error.response.data : error.message);
+        res.status(500).send('Authentication failed');
+    }
+});
 
 
 
@@ -69,7 +85,7 @@ const fetchSpotifyApi = async (endpoint) => {
     try {
         const res = await axios.get(`https://api.spotify.com/${endpoint}`, {
             headers: {
-                Authorization: `Bearer ${SPOTIFY_AUTH_TOKEN}`
+                Authorization: `Bearer BQAX9KV3uHNu4ClmkxI0g3AOzZFtYZRsys5jABFpUnL55AdwImQfZHocbuB4CzecT2vRPs9K5mPeSzcGPqkJV72IkB5GO9uEBvgKFnIBSebB15sevjja0xxw8JDw27Oc-DpY5tbcrc76rBuhT602siHlerh9ZF8GClYTnp-cjKy5RcAPN7vViJ3Zami5EzWQGB48PVzsjDk9998I-AESQye19AR6T7bfxr_FQ1nF`
             }
         })
         return await res.data
@@ -122,7 +138,7 @@ const getRecommendedTracks = async (seedTracks, danceability, energy, valence, l
             return (index !== seedTracks.length - 1 ? `${trackId}%2C` : trackId)
         })}&target_danceability=${danceability}&target_energy=${energy}&target_valence=${valence}`.replaceAll(',',''), {
             header: {
-                Authorization: `Bearer ${SPOTIFY_AUTH_TOKEN}`
+                Authorization: `Bearer BQAX9KV3uHNu4ClmkxI0g3AOzZFtYZRsys5jABFpUnL55AdwImQfZHocbuB4CzecT2vRPs9K5mPeSzcGPqkJV72IkB5GO9uEBvgKFnIBSebB15sevjja0xxw8JDw27Oc-DpY5tbcrc76rBuhT602siHlerh9ZF8GClYTnp-cjKy5RcAPN7vViJ3Zami5EzWQGB48PVzsjDk9998I-AESQye19AR6T7bfxr_FQ1nF`
             }
         })
         let recommendedTracks = []
