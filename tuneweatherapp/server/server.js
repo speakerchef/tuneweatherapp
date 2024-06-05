@@ -65,17 +65,14 @@ app.get('/callback', async (req, res) => {
     try {
         const response = await axios(authOptions);
         const body = response.data;
-        const access_token = response.data.access_token.toString().trim().replace(' ', '')
+        const access_token = response.data.access_token.toString()
 
-        // Store the access token in session or other server-side storage
-        // req.session.access_token = access_token;
 
         console.log('Access token:', access_token);
         SPOTIFY_AUTH_TOKEN = access_token;
         res.redirect('/home')
     } catch (error) {
         console.error('Error fetching access token', error.response ? error.response.data : error.message);
-        // res.status(500).send('Authentication failed');
     }
 });
 
@@ -87,25 +84,10 @@ res.send("at home")
 
     runOperations()
 
-
-
-
-
-
-
-// Getting recommended songs from spotify based on parameters
-
-
-
-// TODO: to be put in app.get for fetching recommendations
-
-
-    // setTimeout(async () => {
-    //
-    // }, 10000)
-
 })
 
+
+// GET spotify API
 const fetchSpotifyApi = async (endpoint) => {
     try {
         const response = await axios.get(`https://api.spotify.com/${endpoint}`, {
@@ -122,7 +104,12 @@ const fetchSpotifyApi = async (endpoint) => {
     }
 }
 
+const getUserProfile = async () => {
+    const res = await axios.get
+}
 
+
+// Getting user's top tracks
 const getTopTrackIds = async (userId) => {
     try {
         const topTracks = await fetchSpotifyApi(`v1/me/top/tracks?limit=5`)
