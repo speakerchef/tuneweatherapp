@@ -4,19 +4,43 @@ import cors from "cors";
 import {getWeatherConditions} from "./Components/weather-mood-info.js";
 import * as querystring from "node:querystring";
 import {client_id, client_secret} from "./config.js";
-import {resolveObject} from "url";
+import mongoose, {mongo} from "mongoose";
+import session from "express-session";
+import MongoStore from 'connect-mongo'
+
 
 const PORT = process.env.PORT || 5001;
 const app = express();
 const currentDate = new Date()
+const mongoURI = 'mongodb://localhost:27017/tuneweatherdb'
 let SPOTIFY_AUTH_TOKEN;
-let recTracks;
+let userCity;
 
+mongoose.connect(mongoURI, {
+}).then(res => {
+    console.log("MongoDB connected")
+})
+
+
+app.use(session({
+    secret: 'my secret key',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: mongoURI
+    })
+}))
 app.use(cors());
+app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
 // GET User auth token
 const redirect_uri = 'http://localhost:5001/callback'
+
+app.get('/', (req, res) => {
+    req.session.isAuth = true;
+    res.send("Home")
+})
 
 
 app.get('/login', (req, res) => {
@@ -32,7 +56,6 @@ app.get('/login', (req, res) => {
 app.get('/callback', async (req, res) => {
     const authCode = req.query.code;
 
-
     const tokenUrl = 'https://accounts.spotify.com/api/token';
     const authOptions = {
         method: 'post', url: tokenUrl, headers: {
@@ -47,33 +70,34 @@ app.get('/callback', async (req, res) => {
         const response = await axios(authOptions);
         const body = response.data;
         const access_token = response.data.access_token.toString()
-
+        // req.session.isAuth = true
 
         console.log('Access token:', access_token, body);
         SPOTIFY_AUTH_TOKEN = access_token;
-        res.redirect('/home')
+        res.redirect('/tracks')
     } catch (error) {
         console.error('Error fetching access token', error.response ? error.response.data : error.message);
     }
+
 });
 
-app.get('/home', async (req, res) => {
-    const trackObj = await runOperations()
-    const tracks = trackObj.tracks
-    const trackName = trackObj.trackNames
-    const artist = trackObj.artist
-    console.log("TRACKNAMES", trackName)
-    await createPlaylist(tracks)
-    const printArr = []
-    for (let i = 0; i < trackName.length; i++) {
-        printArr.push([trackName[i] + ' BY ' + artist[i]])
+
+app.get('/location', async (req, res) => {
+    if (req){
+        userCity = req.city
+        if (!userCity){
+            res.status(418).send("Error: City not provided")
+        }else {
+
+        }
     }
-    res.send(printArr.flat(10).toString().replaceAll('[]', ''))
 })
 
-app.get('/get-tracks', (req, res) => {
-
+app.get('/tracks', async (req, res) => {
+    runOperations()
+    //
 })
+
 
 
 // use spotify API
@@ -107,6 +131,7 @@ const getTopTrackIds = async () => {
         }
         return arrOfTopTrackID
     } catch (err) {
+        console.log(err)
         try {
             const topTracks = await fetchSpotifyApi(`v1/me/top/tracks?limit=30`, 'GET')
             let arrOfTopTrackID = []
@@ -208,11 +233,11 @@ const createPlaylist = async (tracks) => {
 
 }
 
-const runOperations = async () => {
+const runOperations = async (location) => {
     let arrOfTrackIds = await getTopTrackIds()
     let randomTracks = []
     for (let i = 0; i < 5; i++) {
-        randomTracks.push(arrOfTrackIds[Math.floor(Math.random() * arrOfTrackIds.length)])
+        randomTracks.push(await arrOfTrackIds[Math.floor(Math.random() * await arrOfTrackIds.length)])
     }
     console.log(randomTracks)
     const trackFeatures = await getWeatherConditions()
@@ -220,12 +245,10 @@ const runOperations = async () => {
     const eg = await trackFeatures['audio-features'].energy
     const vl = await trackFeatures['audio-features'].valence
     let recommendedTracks = await getRecommendedTracks(randomTracks, db, eg, vl)
-    const recTracks = recommendedTracks.map(track => track.name).filter(x => typeof x !== 'undefined')
-    const artists = recommendedTracks.map(track => track.artist).filter(x => typeof x !== 'undefined')
-    const trackObj = {tracks: recommendedTracks, trackNames: recTracks, artist: artists}
-    return trackObj
-
-
+    // const recTracks = recommendedTracks.map(track => track.name).filter(x => typeof x !== 'undefined')
+    // const artists = recommendedTracks.map(track => track.artist).filter(x => typeof x !== 'undefined')
+    // const trackObj = {tracks: recommendedTracks, trackNames: recTracks, artist: artists}
+    // return trackObj
 }
 
 
