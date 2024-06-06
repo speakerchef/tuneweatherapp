@@ -5,7 +5,7 @@ import {WEATHERAPI_TOKEN} from "../config.js";
 
 export async function getWeatherConditions(){
     try {
-        const res = await axios.get(`http://api.weatherapi.com/v1/current.json?key=${WEATHERAPI_TOKEN}&q=edmonton&aqi=yes`)
+        const res = await axios.get(`http://api.weatherapi.com/v1/current.json?key=${WEATHERAPI_TOKEN}&q=toronto&aqi=yes`)
         const conditionsToPassToLLM = res.data["current"]["condition"]["text"];
         const tempToPassToLLM = res.data["current"].temp_c
         return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM);
