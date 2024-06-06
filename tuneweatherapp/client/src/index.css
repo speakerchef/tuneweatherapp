@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 body {
-    @apply bg-indigo-400
+    @apply bg-darkerTransparentIndigoBlue
 }
 
 @layer {
