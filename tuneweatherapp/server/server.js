@@ -1,12 +1,14 @@
 import axios from 'axios';
 import express from "express";
 import cors from "cors";
-import {getWeatherConditions} from "./Components/weather-mood-info.js";
+// import {getWeatherConditions} from "./Components/weather-mood-info.js";
 import * as querystring from "node:querystring";
 import {client_id, client_secret} from "./config.js";
 import mongoose, {mongo} from "mongoose";
 import session from "express-session";
 import MongoStore from 'connect-mongo'
+import queryApi from "./components/openai-query.js"
+import {WEATHERAPI_TOKEN} from "./config.js";
 
 
 const PORT = process.env.PORT || 5001;
@@ -30,7 +32,8 @@ app.use(session({
         mongoUrl: mongoURI
     })
 }))
-app.use(cors());
+
+app.use(cors({origin: 'http://localhost:3000'}));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
 
@@ -70,11 +73,10 @@ app.get('/callback', async (req, res) => {
         const response = await axios(authOptions);
         const body = response.data;
         const access_token = response.data.access_token.toString()
-        // req.session.isAuth = true
-
         console.log('Access token:', access_token, body);
         SPOTIFY_AUTH_TOKEN = access_token;
         res.redirect('/tracks')
+        req.session.isAuth = false
     } catch (error) {
         console.error('Error fetching access token', error.response ? error.response.data : error.message);
     }
@@ -94,7 +96,11 @@ app.get('/location', async (req, res) => {
 })
 
 app.get('/tracks', async (req, res) => {
-    runOperations()
+    if (req.session.isAuth){
+        res.redirect('http://localhost:3000/')
+        const tracks = await runOperations(req)
+        await createPlaylist(tracks)
+    }
     //
 })
 
@@ -233,22 +239,57 @@ const createPlaylist = async (tracks) => {
 
 }
 
-const runOperations = async (location) => {
-    let arrOfTrackIds = await getTopTrackIds()
-    let randomTracks = []
-    for (let i = 0; i < 5; i++) {
-        randomTracks.push(await arrOfTrackIds[Math.floor(Math.random() * await arrOfTrackIds.length)])
+//Getting weather
+async function getWeatherConditions(location){
+    try {
+        const res = await axios.get(`https://api.weatherapi.com/v1/current.json?key=${WEATHERAPI_TOKEN}&q=${location}&aqi=yes`)
+        const conditionsToPassToLLM = res.data["current"]["condition"]["text"];
+        const tempToPassToLLM = res.data["current"].temp_c
+        return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM);
+
+    } catch (err) {
+        console.error(err.response.data);
+        console.log("The requested m :(")
     }
-    console.log(randomTracks)
-    const trackFeatures = await getWeatherConditions()
-    const db = await trackFeatures['audio-features'].danceability
-    const eg = await trackFeatures['audio-features'].energy
-    const vl = await trackFeatures['audio-features'].valence
-    let recommendedTracks = await getRecommendedTracks(randomTracks, db, eg, vl)
-    // const recTracks = recommendedTracks.map(track => track.name).filter(x => typeof x !== 'undefined')
-    // const artists = recommendedTracks.map(track => track.artist).filter(x => typeof x !== 'undefined')
-    // const trackObj = {tracks: recommendedTracks, trackNames: recTracks, artist: artists}
-    // return trackObj
+
+}
+
+// Gets
+const getTrackFeatures = async (condition, temp) => {
+    try {
+        let moods = await queryApi(`what danceability, energy, and valence do ${await condition} weather conditions with a temperature of ${await temp}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users.`)
+        moods = moods.replace("```", "").replace("json", "").replace("```", "").trim()
+        return JSON.parse(moods)
+    }catch (e) {
+        console.log(e)
+    }
+}
+
+console.log(await getWeatherConditions())
+
+const runOperations = async (req, location) => {
+    const trackFeatures = await getWeatherConditions('singapore')
+    console.log(trackFeatures)
+    if (trackFeatures && req.session.isAuth){
+        try{
+            let arrOfTrackIds = await getTopTrackIds()
+            let randomTracks = []
+            for (let i = 0; i < 5; i++) {
+                randomTracks.push(await arrOfTrackIds[Math.floor(Math.random() * arrOfTrackIds.length)])
+            }
+            console.log(randomTracks)
+
+            const db = await trackFeatures['audio-features'].danceability
+            const eg = await trackFeatures['audio-features'].energy
+            const vl = await trackFeatures['audio-features'].valence
+            return await getRecommendedTracks(randomTracks, db, eg, vl)
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
+
+
 }
 
 

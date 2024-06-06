@@ -1,11 +1,9 @@
-import queryApi from "./openai-query.js"
-import axios from "axios";
-import {WEATHERAPI_TOKEN} from "../config.js";
+
 // import {USER_LOCATION} from "./server.js";
 
 export async function getWeatherConditions(location){
     try {
-        const res = await axios.get(`http://api.weatherapi.com/v1/current.json?key=${WEATHERAPI_TOKEN}&q=edmonton&aqi=yes`)
+        const res = await axios.get(`https://api.weatherapi.com/v1/current.json?key=${WEATHERAPI_TOKEN}&q=singapore&aqi=yes`)
         const conditionsToPassToLLM = res.data["current"]["condition"]["text"];
         const tempToPassToLLM = res.data["current"].temp_c
         return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM);
