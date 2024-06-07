@@ -16,8 +16,9 @@ const currentDate = new Date();
 const mongoURI = "mongodb://localhost:27017/tuneweatherdb";
 let SPOTIFY_AUTH_TOKEN;
 let userCity;
-let hashedtoken;
 let sessionExists = false;
+let tokenIsExpired = true;
+let needsRefresh = false;
 
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
@@ -70,8 +71,8 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/callback", async (req, res) => {
-  const authCode = req.query.code;
 
+  const authCode = req.query.code;
   const tokenUrl = "https://accounts.spotify.com/api/token";
   const authOptions = {
     method: "post",
@@ -88,24 +89,21 @@ app.get("/callback", async (req, res) => {
       grant_type: "authorization_code",
     },
   };
-  if (await UserModel.collection.findOne({cookieId: req.session.id})){
+
+  if (await UserModel.collection.findOne({cookieId: req.session.id}) && !needsRefresh){
+    await UserModel.collection.findOne({cookieId: req.session.id}).then(res => SPOTIFY_AUTH_TOKEN = res.access_token).then(_ => console.log(SPOTIFY_AUTH_TOKEN));
     sessionExists = true
-    res.redirect('/')
+    res.redirect('/tracks')
   } else {
     try {
       const response = await axios(authOptions);
       const body = response.data;
-      const access_token = response.data.access_token.toString();
+      const access_token = response.data.access_token;
       console.log("Access token:", access_token);
       console.table(body);
+      await UserModel.collection.insertOne({cookieId: req.session.id, access_token: access_token});
       SPOTIFY_AUTH_TOKEN = access_token;
-      await bcrypt.hash(access_token, 12).then((res) => {
-        hashedtoken = res.toString();
-        UserModel.collection.insertOne({
-          cookieId: req.session.id,
-          access_token: hashedtoken,
-        });
-      });
+      tokenIsExpired = false;
       req.session.isAuth = true;
       res.redirect("http://localhost:3000/");
     } catch (error) {
@@ -129,26 +127,12 @@ app.get("/location", async (req, res) => {
 });
 
 app.get("/tracks", async (req, res) => {
-  // let hasToken = false;
-  // await UserModel.collection
-  //   .findOne({ cookieId: req.session.id })
-  //   .then((res) =>
-  //     bcrypt
-  //       .compare(res.access_token, hashedtoken)
-  //       .then((res) => console.log(res)),
-  //   );
-  if (req.session.isAuth && hasToken) {
-    const tracks = await runOperations(req);
-    if (!tracks) {
-      console.error("Error: Could not get recommendations. Please try again!");
-    } else {
-      await createPlaylist(tracks);
-      res.redirect("http://localhost:3000/");
-    }
-  } else {
-    res.redirect('/login')
+  let testToken;
+  await UserModel.collection.findOne({cookieId: req.session.id}).then(res => testToken = res.access_token);
+  if (SPOTIFY_AUTH_TOKEN == await testToken) {
+    runOperations().then(res => {createPlaylist(res)}).catch(err => console.log(err));
   }
-  //
+
 });
 
 // use spotify API
@@ -163,6 +147,12 @@ const fetchSpotifyApi = async (endpoint, method, body) => {
     });
     return await response.json();
   } catch (err) {
+    if (err){
+      if (err.response.status === 401){
+        needsRefresh = true;
+        await fetch('/login')
+      }
+    }
     console.error(err.response ? err.response : err);
     console.error("spotify API could not be reached");
   }
@@ -307,11 +297,11 @@ const getTrackFeatures = async (condition, temp) => {
 console.log(await getWeatherConditions());
 
 // Runs the server functions
-const runOperations = async (req, location) => {
+const runOperations = async (location) => {
   let trackFeatures = await getWeatherConditions("singapore");
   // TODO: remove log
   console.log(trackFeatures);
-  if (trackFeatures.hasOwnProperty("audio-features") && req.session.isAuth) {
+  if (trackFeatures.hasOwnProperty("audio-features") && sessionExists) {
     try {
       let arrOfTrackIds = await getTopTrackIds();
       let randomTracks = [];
