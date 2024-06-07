@@ -1,18 +1,16 @@
 import axios from "axios";
 import express from "express";
 import cors from "cors";
-// import {getWeatherConditions} from "./Components/weather-mood-info.js";
 import * as querystring from "node:querystring";
-import { client_id, client_secret, WEATHERAPI_TOKEN } from "./config.js";
+import { client_id, client_secret, WEATHERAPI_TOKEN, session_secret } from "./config.js";
 import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import queryApi from "./components/openai-query.js";
-import bcrypt from "bcrypt";
+
 
 const PORT = process.env.PORT || 5001;
 const app = express();
-const currentDate = new Date();
 const mongoURI = "mongodb://localhost:27017/tuneweatherdb";
 let SPOTIFY_AUTH_TOKEN;
 let userCity;
@@ -20,20 +18,22 @@ let sessionExists = false;
 let tokenIsExpired = true;
 let needsRefresh = false;
 
+
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
 });
+
 
 const UserSchema = new mongoose.Schema({
   cookieId: String,
   access_token: String,
 });
-
 const UserModel = mongoose.model("Users", UserSchema);
+
 
 app.use(
   session({
-    secret: "my secret key",
+    secret: session_secret,
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
@@ -71,7 +71,6 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/callback", async (req, res) => {
-
   const authCode = req.query.code;
   const tokenUrl = "https://accounts.spotify.com/api/token";
   const authOptions = {
@@ -90,10 +89,17 @@ app.get("/callback", async (req, res) => {
     },
   };
 
-  if (await UserModel.collection.findOne({cookieId: req.session.id}) && !needsRefresh){
-    await UserModel.collection.findOne({cookieId: req.session.id}).then(res => SPOTIFY_AUTH_TOKEN = res.access_token).then(_ => console.log(SPOTIFY_AUTH_TOKEN));
-    sessionExists = true
-    res.redirect('/tracks')
+
+  if (
+    (await UserModel.collection.findOne({ cookieId: req.session.id })) &&
+    !needsRefresh
+  ) {
+    await UserModel.collection
+      .findOne({ cookieId: req.session.id })
+      .then((res) => (SPOTIFY_AUTH_TOKEN = res.access_token))
+      .then((_) => console.log(SPOTIFY_AUTH_TOKEN));
+    sessionExists = true;
+    res.redirect("/tracks");
   } else {
     try {
       const response = await axios(authOptions);
@@ -101,21 +107,23 @@ app.get("/callback", async (req, res) => {
       const access_token = response.data.access_token;
       console.log("Access token:", access_token);
       console.table(body);
-      await UserModel.collection.insertOne({cookieId: req.session.id, access_token: access_token});
+      await UserModel.collection.insertOne({
+        cookieId: req.session.id,
+        access_token: access_token,
+      });
       SPOTIFY_AUTH_TOKEN = access_token;
       tokenIsExpired = false;
       req.session.isAuth = true;
       res.redirect("http://localhost:3000/");
     } catch (error) {
       console.error(
-          "Error fetching access token",
-          error.response ? error.response.data : error.message,
+        "Error fetching access token",
+        error.response ? error.response.data : error.message,
       );
     }
   }
-
-
 });
+
 
 app.get("/location", async (req, res) => {
   if (req) {
@@ -128,12 +136,18 @@ app.get("/location", async (req, res) => {
 
 app.get("/tracks", async (req, res) => {
   let testToken;
-  await UserModel.collection.findOne({cookieId: req.session.id}).then(res => testToken = res.access_token);
-  if (SPOTIFY_AUTH_TOKEN == await testToken) {
-    runOperations().then(res => {createPlaylist(res)}).catch(err => console.log(err));
+  await UserModel.collection
+    .findOne({ cookieId: req.session.id })
+    .then((res) => (testToken = res.access_token));
+  if (SPOTIFY_AUTH_TOKEN == (await testToken)) {
+    runOperations()
+      .then((res) => {
+        createPlaylist(res);
+      })
+      .catch((err) => console.log(err));
   }
-
 });
+
 
 // use spotify API
 const fetchSpotifyApi = async (endpoint, method, body) => {
@@ -147,16 +161,17 @@ const fetchSpotifyApi = async (endpoint, method, body) => {
     });
     return await response.json();
   } catch (err) {
-    if (err){
-      if (err.response.status === 401){
+    if (err) {
+      if (err.response.status === 401) {
         needsRefresh = true;
-        await fetch('/login')
+        await fetch("/login");
       }
     }
     console.error(err.response ? err.response : err);
     console.error("spotify API could not be reached");
   }
 };
+
 
 // Getting user's top tracks
 const getTopTrackIds = async () => {
@@ -172,6 +187,7 @@ const getTopTrackIds = async () => {
     console.log(err);
   }
 };
+
 
 // Function to get track recommendations
 const getRecommendedTracks = async (
@@ -209,6 +225,7 @@ const getRecommendedTracks = async (
   }
 };
 
+
 const getCurrentUserInfo = async () => {
   const res = await fetchSpotifyApi(`v1/me`, "GET");
   return {
@@ -218,6 +235,7 @@ const getCurrentUserInfo = async () => {
     userProfileImage: (await res).images.url,
   };
 };
+
 
 const createPlaylist = async (tracks) => {
   const userName = (await getCurrentUserInfo()).name;
@@ -261,6 +279,7 @@ const createPlaylist = async (tracks) => {
   }
 };
 
+
 //Getting weather conditions at client location
 async function getWeatherConditions(location) {
   try {
@@ -275,6 +294,7 @@ async function getWeatherConditions(location) {
     console.log("The requested m :(");
   }
 }
+
 
 // Gets track features with weather at clients location
 const getTrackFeatures = async (condition, temp) => {
@@ -295,6 +315,7 @@ const getTrackFeatures = async (condition, temp) => {
 
 // TODO: remove log
 console.log(await getWeatherConditions());
+
 
 // Runs the server functions
 const runOperations = async (location) => {
