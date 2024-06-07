@@ -17,6 +17,7 @@ export default {
         darkerTransparentIndigoBlue: "#030c13",
         veryDarkBlue: "#031633",
         spotifyGreen: "#1DB954",
+        tuneWeatherCream: "#f1efe7"
       }
     },
   },
