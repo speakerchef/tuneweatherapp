@@ -36,6 +36,15 @@ const UserSchema = new mongoose.Schema({
 });
 const UserModel = mongoose.model("Users", UserSchema);
 
+const userHasCookieSession = async (req, res, next) => {
+  const currentUser = await UserModel.collection.findOne({cookieId: req.session.id})
+  if (!currentUser) {
+    res.redirect('/login')
+  } else {
+    next()
+  }
+}
+
 const authTokenHasBeenInitialized = async (req, res, next) => {
   if (!SPOTIFY_AUTH_TOKEN) {
     SPOTIFY_AUTH_TOKEN = (await UserModel.collection.findOne({cookieId: req.session.id})).access_token
@@ -56,13 +65,11 @@ const checkTokenExpired = async (req, res, next) => {
     if (dateDiff >= currentUser.expires_in) {
       needsRefresh = true;
       res.redirect("/login");
-      next();
     } else {
       next();
     }
   } else {
     res.redirect("/login");
-    next();
   }
 };
 
@@ -191,7 +198,7 @@ app.get("/location", async (req, res) => {
   }
 });
 
-app.get("/tracks", checkTokenExpired, authTokenHasBeenInitialized, async (req, res) => {
+app.get("/tracks",userHasCookieSession, checkTokenExpired, authTokenHasBeenInitialized, async (req, res) => {
   res.send("On tracks page")
   const testToken = (await UserModel.collection.findOne({cookieId: req.session.id})).access_token;
   console.error(await testToken)
