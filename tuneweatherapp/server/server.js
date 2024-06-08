@@ -25,7 +25,6 @@ let sessionExists = false;
 let tokenIsExpired = true;
 let needsRefresh = false;
 
-
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
 });
@@ -368,10 +367,6 @@ async function getWeatherConditions(location) {
   }
 }
 
-
-
-
-
 const queryOpenAiApi = async (messageStr) => {
   const completion = await openai.chat.completions.create({
     messages: [{ role: "system", content: `${messageStr}` }],
@@ -379,7 +374,7 @@ const queryOpenAiApi = async (messageStr) => {
   });
 
   return completion.choices[0]["message"]["content"];
-}
+};
 
 // Gets track features with weather at clients location
 const getTrackFeatures = async (condition, temp) => {
@@ -390,7 +385,7 @@ const getTrackFeatures = async (condition, temp) => {
     return;
   }
   try {
-    let moods = await queryApi(
+    let moods = await queryOpenAiApi(
       `what danceability, energy, and valence do ${await condition} weather conditions with a temperature of ${await temp}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users.`,
     );
     moods = moods
