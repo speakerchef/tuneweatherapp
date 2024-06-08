@@ -12,6 +12,7 @@ import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import queryApi from "./components/openai-query.js";
+import * as http from "node:http";
 
 const PORT = process.env.PORT || 5001;
 const app = express();
@@ -35,6 +36,15 @@ const UserSchema = new mongoose.Schema({
 });
 const UserModel = mongoose.model("Users", UserSchema);
 
+const authTokenHasBeenInitialized = async (req, res, next) => {
+  if (!SPOTIFY_AUTH_TOKEN) {
+    SPOTIFY_AUTH_TOKEN = (await UserModel.collection.findOne({cookieId: req.session.id})).access_token
+    next()
+  } else {
+    next()
+  }
+}
+
 // Token auth middleware
 const checkTokenExpired = async (req, res, next) => {
   const currentUser = await UserModel.collection.findOne({
@@ -46,13 +56,13 @@ const checkTokenExpired = async (req, res, next) => {
     if (dateDiff >= currentUser.expires_in) {
       needsRefresh = true;
       res.redirect("/login");
-      next()
+      next();
     } else {
       next();
     }
   } else {
     res.redirect("/login");
-    next()
+    next();
   }
 };
 
@@ -78,10 +88,8 @@ app.get("/", (req, res) => {
   res.send("Home");
 });
 
-
-
 // GET User auth token
-app.get("/login", (req, res) =>{
+app.get("/login", (req, res) => {
   const scope =
     "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
   const authUrl = "https://accounts.spotify.com/authorize";
@@ -141,23 +149,23 @@ app.get("/callback", async (req, res) => {
       });
       if (existingUser) {
         await UserModel.collection.updateOne(
-          { 'cookieId': existingUser.cookieId },
+          { cookieId: existingUser.cookieId },
           {
-            '$set': {
-              'access_token': access_token,
-              'refresh_token': refresh_token,
-              'expires_in': expires_in,
-              'date_issued': Date.now(),
+            $set: {
+              access_token: access_token,
+              refresh_token: refresh_token,
+              expires_in: expires_in,
+              date_issued: Date.now(),
             },
           },
         );
       } else {
         await UserModel.collection.insertOne({
-          'cookieId': req.session.id,
-          'access_token': access_token,
-          'refresh_token': refresh_token,
-          'expires_in': expires_in,
-          'date_issued': Date.now(),
+          cookieId: req.session.id,
+          access_token: access_token,
+          refresh_token: refresh_token,
+          expires_in: expires_in,
+          date_issued: Date.now(),
         });
       }
       SPOTIFY_AUTH_TOKEN = access_token;
@@ -183,16 +191,15 @@ app.get("/location", async (req, res) => {
   }
 });
 
-app.get("/tracks", checkTokenExpired, async (req, res) => {
-  let testToken;
-  await UserModel.collection
-    .findOne({ cookieId: req.session.id })
-    .then((res) => (testToken = res.access_token));
-  if (SPOTIFY_AUTH_TOKEN == (await testToken)) {
+app.get("/tracks", checkTokenExpired, authTokenHasBeenInitialized, async (req, res) => {
+  res.send("On tracks page")
+  const testToken = (await UserModel.collection.findOne({cookieId: req.session.id})).access_token;
+  console.error(await testToken)
+  console.log(SPOTIFY_AUTH_TOKEN)
+
     runOperations()
-      .then((res) => createPlaylist(res))
-      .catch((err) => console.error("ERROR RUNNING OPERATIONS:", err));
-  }
+        .then((res) => createPlaylist(res))
+        .catch((err) => console.error("ERROR RUNNING OPERATIONS:", err));
 });
 
 // use spotify API
@@ -280,7 +287,12 @@ const getCurrentUserInfo = async () => {
 
 const createPlaylist = async (tracks) => {
   const userName = (await getCurrentUserInfo()).name;
+  if (!userName && !tracks){
+    throw new Error("Username or track recommedations could not be retrieved");
+    return
+  }
   console.log(userName);
+  let pid;
   const targetUrl = "v1/me/playlists";
   const payload = {
     name: `Playlist for ${userName} by TuneWeather`,
@@ -289,16 +301,15 @@ const createPlaylist = async (tracks) => {
   };
   const request = await fetchSpotifyApi(targetUrl, "POST", payload);
 
-  const trackUris = tracks
-    .map((track) => {
-      return typeof track.uri !== "undefined" ? track.uri : "";
-    })
-    .filter((uri) => uri !== "");
-  console.log(tracks);
-  const pid = await request.id;
-
-  console.log("playlist id", pid);
-  console.log(trackUris);
+    const trackUris = tracks
+        .map((track) => {
+          return typeof track.uri !== "undefined" ? track.uri : "";
+        })
+        .filter((uri) => uri !== "");
+    console.log(tracks);
+    pid = await request.id;
+    console.log("playlist id", pid);
+    console.log(trackUris);
 
   try {
     await fetchSpotifyApi(
@@ -331,12 +342,16 @@ async function getWeatherConditions(location) {
     return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM);
   } catch (err) {
     console.error(err.response.data);
-    console.log("The requested m :(");
+    console.error("Weather data could not be fetched");
   }
 }
 
 // Gets track features with weather at clients location
 const getTrackFeatures = async (condition, temp) => {
+  if (!condition && !temp){
+    throw new Error("Cannot retrieve track features: Weather information is missing")
+    return
+  }
   try {
     let moods = await queryApi(
       `what danceability, energy, and valence do ${await condition} weather conditions with a temperature of ${await temp}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users.`,
@@ -358,9 +373,11 @@ console.log(await getWeatherConditions());
 // Runs the server functions
 const runOperations = async (location) => {
   let trackFeatures = await getWeatherConditions("singapore");
-  // TODO: remove log
-  console.log(trackFeatures);
-  if (trackFeatures.hasOwnProperty("audio-features") && sessionExists) {
+  if (!trackFeatures){
+    throw new Error("No track features found.");
+    return
+  } else {
+    console.log(trackFeatures);
     try {
       let arrOfTrackIds = await getTopTrackIds();
       let randomTracks = [];
