@@ -12,8 +12,10 @@ import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import queryApi from "./components/openai-query.js";
-import * as http from "node:http";
+import { OPENAI_API_KEY } from "../config.js";
+import OpenAI from "openai";
 
+const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 const PORT = process.env.PORT || 5001;
 const app = express();
 const mongoURI = "mongodb://localhost:27017/tuneweatherdb";
@@ -22,6 +24,7 @@ let userCity;
 let sessionExists = false;
 let tokenIsExpired = true;
 let needsRefresh = false;
+
 
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
@@ -37,22 +40,26 @@ const UserSchema = new mongoose.Schema({
 const UserModel = mongoose.model("Users", UserSchema);
 
 const userHasCookieSession = async (req, res, next) => {
-  const currentUser = await UserModel.collection.findOne({cookieId: req.session.id})
+  const currentUser = await UserModel.collection.findOne({
+    cookieId: req.session.id,
+  });
   if (!currentUser) {
-    res.redirect('/login')
+    res.redirect("/login");
   } else {
-    next()
+    next();
   }
-}
+};
 
 const authTokenHasBeenInitialized = async (req, res, next) => {
   if (!SPOTIFY_AUTH_TOKEN) {
-    SPOTIFY_AUTH_TOKEN = (await UserModel.collection.findOne({cookieId: req.session.id})).access_token
-    next()
+    SPOTIFY_AUTH_TOKEN = (
+      await UserModel.collection.findOne({ cookieId: req.session.id })
+    ).access_token;
+    next();
   } else {
-    next()
+    next();
   }
-}
+};
 
 // Token auth middleware
 const checkTokenExpired = async (req, res, next) => {
@@ -198,16 +205,24 @@ app.get("/location", async (req, res) => {
   }
 });
 
-app.get("/tracks",userHasCookieSession, checkTokenExpired, authTokenHasBeenInitialized, async (req, res) => {
-  res.send("On tracks page")
-  const testToken = (await UserModel.collection.findOne({cookieId: req.session.id})).access_token;
-  console.error(await testToken)
-  console.log(SPOTIFY_AUTH_TOKEN)
+app.get(
+  "/tracks",
+  userHasCookieSession,
+  checkTokenExpired,
+  authTokenHasBeenInitialized,
+  async (req, res) => {
+    res.send("On tracks page");
+    const testToken = (
+      await UserModel.collection.findOne({ cookieId: req.session.id })
+    ).access_token;
+    console.error(await testToken);
+    console.log(SPOTIFY_AUTH_TOKEN);
 
     runOperations()
-        .then((res) => createPlaylist(res))
-        .catch((err) => console.error("ERROR RUNNING OPERATIONS:", err));
-});
+      .then((res) => createPlaylist(res))
+      .catch((err) => console.error("ERROR RUNNING OPERATIONS:", err));
+  },
+);
 
 // use spotify API
 const fetchSpotifyApi = async (endpoint, method, body) => {
@@ -294,9 +309,9 @@ const getCurrentUserInfo = async () => {
 
 const createPlaylist = async (tracks) => {
   const userName = (await getCurrentUserInfo()).name;
-  if (!userName && !tracks){
+  if (!userName && !tracks) {
     throw new Error("Username or track recommedations could not be retrieved");
-    return
+    return;
   }
   console.log(userName);
   let pid;
@@ -308,15 +323,15 @@ const createPlaylist = async (tracks) => {
   };
   const request = await fetchSpotifyApi(targetUrl, "POST", payload);
 
-    const trackUris = tracks
-        .map((track) => {
-          return typeof track.uri !== "undefined" ? track.uri : "";
-        })
-        .filter((uri) => uri !== "");
-    console.log(tracks);
-    pid = await request.id;
-    console.log("playlist id", pid);
-    console.log(trackUris);
+  const trackUris = tracks
+    .map((track) => {
+      return typeof track.uri !== "undefined" ? track.uri : "";
+    })
+    .filter((uri) => uri !== "");
+  console.log(tracks);
+  pid = await request.id;
+  console.log("playlist id", pid);
+  console.log(trackUris);
 
   try {
     await fetchSpotifyApi(
@@ -353,11 +368,26 @@ async function getWeatherConditions(location) {
   }
 }
 
+
+
+
+
+const queryOpenAiApi = async (messageStr) => {
+  const completion = await openai.chat.completions.create({
+    messages: [{ role: "system", content: `${messageStr}` }],
+    model: "gpt-4o",
+  });
+
+  return completion.choices[0]["message"]["content"];
+}
+
 // Gets track features with weather at clients location
 const getTrackFeatures = async (condition, temp) => {
-  if (!condition && !temp){
-    throw new Error("Cannot retrieve track features: Weather information is missing")
-    return
+  if (!condition && !temp) {
+    throw new Error(
+      "Cannot retrieve track features: Weather information is missing",
+    );
+    return;
   }
   try {
     let moods = await queryApi(
@@ -380,9 +410,9 @@ console.log(await getWeatherConditions());
 // Runs the server functions
 const runOperations = async (location) => {
   let trackFeatures = await getWeatherConditions("singapore");
-  if (!trackFeatures){
+  if (!trackFeatures) {
     throw new Error("No track features found.");
-    return
+    return;
   } else {
     console.log(trackFeatures);
     try {
