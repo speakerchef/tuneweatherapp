@@ -11,8 +11,7 @@ import {
 import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
-import queryApi from "./components/openai-query.js";
-import { OPENAI_API_KEY } from "../config.js";
+import { OPENAI_API_KEY } from "./config.js";
 import OpenAI from "openai";
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
@@ -399,8 +398,6 @@ const getTrackFeatures = async (condition, temp) => {
   }
 };
 
-// TODO: remove log
-console.log(await getWeatherConditions());
 
 // Runs the server functions
 const runOperations = async (location) => {

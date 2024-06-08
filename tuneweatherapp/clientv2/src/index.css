@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply bg-darkerTransparentIndigoBlue
+}
+
+@layer {
+    .button-1-class {
+        @apply py-3.5 rounded-lg hover:rounded-3xl hover:bg-darkerTransparentIndigoBlue hover:text-indigo-700 transition-all duration-200 ease-linear px-8 shadow-sm shadow-gray-600 font-bold text-white active:bg-darkerTransparentIndigoBlue;
+    }
+}
