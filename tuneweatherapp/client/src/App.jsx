@@ -8,21 +8,17 @@ import IFrame from "./Components/IFrame.jsx";
 import Hero from "./Components/Hero.jsx";
 import {createBrowserRouter, Route, Routes} from 'react-router-dom'
 import Home from "./pages/Home.jsx";
+import NavBar from "./Components/NavBar.jsx";
 
 
 const App = () => {
 
-    createBrowserRouter(
 
-        <Routes>
-            <Route path index = './Home'/>
-        </Routes>
-    )
     return (
         <>
+            <NavBar />
 
-
-            <Hero spotifyHidden={''} iframeHidden={'hidden'} playlistSectionHeadersHidden={'hidden'}/>
+            <Hero spotifyHidden={''} iframeHidden={'hidden'} playlistSectionHeadersHidden={'hidden'} mainHeaderHidden={''}/>
         </>
     )
 }

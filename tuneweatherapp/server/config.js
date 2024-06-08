@@ -3,5 +3,6 @@ export const WEATHERAPI_TOKEN = "1459eb711f3843df97844058242805"
 export const client_id = "a4fcad31b33a473990e70cb0594be641"
 export const client_secret = "c9a3d910e5fb41d7bdbf29243dfb74e3"
 export const location_api_key = 'bdc_cf83a333f423403198b4e97735b7becc'
+export const session_secret = '8056'
 
 
