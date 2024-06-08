@@ -12,6 +12,8 @@
 //
 //
 
+import {client_id} from "../config.js";
+
 const expires_in = 10*1000;
 const date_issued = Date.now()
 
@@ -23,3 +25,43 @@ setTimeout(() => {
         console.log("Token has not expired")
     }
 }, 10000)
+
+
+
+
+
+app.get('/refresh-token', async (req, res) => {
+    console.error("THIS IS THE REFRESH TOKEN CHECKPOINT")
+    const currentUser = await UserModel.collection.findOne({cookieId: req.session.id})
+    if (currentUser) {
+        const refreshToken = currentUser.refresh_token;
+        const url = 'https://accounts.spotify.com/api/token'
+        const payload = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: refreshToken,
+                client_id: client_id
+            }),
+        }
+
+        const body = await fetch(url, payload);
+        const response = await body.json();
+        console.log(response)
+        // await UserModel.collection.updateOne(
+        //   { 'cookieId': currentUser.cookieId },
+        //   {
+        //     '$set': {
+        //       'access_token': response.access_token,
+        //       'expires_in': expires_in,
+        //       'date_issued': Date.now(),
+        //     },
+        //   },
+        // );
+
+
+    }
+})

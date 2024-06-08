@@ -2,12 +2,16 @@ import axios from "axios";
 import express from "express";
 import cors from "cors";
 import * as querystring from "node:querystring";
-import { client_id, client_secret, WEATHERAPI_TOKEN, session_secret } from "./config.js";
+import {
+  client_id,
+  client_secret,
+  WEATHERAPI_TOKEN,
+  session_secret,
+} from "./config.js";
 import mongoose from "mongoose";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import queryApi from "./components/openai-query.js";
-
 
 const PORT = process.env.PORT || 5001;
 const app = express();
@@ -18,15 +22,14 @@ let sessionExists = false;
 let tokenIsExpired = true;
 let needsRefresh = false;
 
-
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
 });
 
-
 const UserSchema = new mongoose.Schema({
   cookieId: String,
   access_token: String,
+  refresh_token: String,
   expires_in: Number,
   date_issued: Number,
 });
@@ -34,22 +37,24 @@ const UserModel = mongoose.model("Users", UserSchema);
 
 // Token auth middleware
 const checkTokenExpired = async (req, res, next) => {
-  const currentUser = await UserModel.collection.findOne({cookieId: req.session.id})
-  console.error(await currentUser)
+  const currentUser = await UserModel.collection.findOne({
+    cookieId: req.session.id,
+  });
   if (currentUser) {
-    const dateDiff = Date.now() - currentUser.date_issued
-    console.log("DATE DIFFERENCE", dateDiff)
+    let dateDiff = Date.now() - currentUser.date_issued;
+    console.log("DATE DIFFERENCE", dateDiff);
     if (dateDiff >= currentUser.expires_in) {
       needsRefresh = true;
-      res.redirect('/login')
-    } else {
+      res.redirect("/login");
       next()
+    } else {
+      next();
     }
   } else {
-    res.redirect('/login')
+    res.redirect("/login");
+    next()
   }
-}
-
+};
 
 app.use(
   session({
@@ -65,7 +70,6 @@ app.use(
 app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(checkTokenExpired)
 
 const redirect_uri = "http://localhost:5001/callback";
 
@@ -74,13 +78,13 @@ app.get("/", (req, res) => {
   res.send("Home");
 });
 
+
+
 // GET User auth token
-app.get("/login", (req, res) => {
+app.get("/login", (req, res) =>{
   const scope =
     "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
   const authUrl = "https://accounts.spotify.com/authorize";
-  // const params = new URLSearchParams();
-  // params.append();
   res.redirect(
     `${authUrl}?${querystring.stringify({
       response_type: "code",
@@ -110,7 +114,6 @@ app.get("/callback", async (req, res) => {
     },
   };
 
-
   if (
     (await UserModel.collection.findOne({ cookieId: req.session.id })) &&
     !needsRefresh
@@ -119,33 +122,47 @@ app.get("/callback", async (req, res) => {
       .findOne({ cookieId: req.session.id })
       .then((res) => (SPOTIFY_AUTH_TOKEN = res.access_token))
       .then((_) => {
-        console.log(SPOTIFY_AUTH_TOKEN)
-        needsRefresh = false
+        console.log(SPOTIFY_AUTH_TOKEN);
+        needsRefresh = false;
       });
     sessionExists = true;
-    res.redirect("/tracks");
+    res.redirect("http://localhost:3000/");
   } else {
     try {
       const response = await axios(authOptions);
       const body = response.data;
       const access_token = response.data.access_token;
-      const expires_in = response.data.expires_in*1000;
+      const refresh_token = response.data.refresh_token;
+      const expires_in = response.data.expires_in * 1000;
       console.log("Access token:", access_token);
       console.table(body);
-      const existingUser = await UserModel.collection.findOne({cookieId: req.session.id});
+      const existingUser = await UserModel.collection.findOne({
+        cookieId: req.session.id,
+      });
       if (existingUser) {
-        await UserModel.collection.updateOne({'cookieId': existingUser.cookieId}, {$set: {access_token: access_token, expires_in: expires_in, date_issued: Date.now()}});
+        await UserModel.collection.updateOne(
+          { 'cookieId': existingUser.cookieId },
+          {
+            '$set': {
+              'access_token': access_token,
+              'refresh_token': refresh_token,
+              'expires_in': expires_in,
+              'date_issued': Date.now(),
+            },
+          },
+        );
       } else {
         await UserModel.collection.insertOne({
-          cookieId: req.session.id,
-          access_token: access_token,
-          expires_in: expires_in,
-          date_issued: Date.now(),
+          'cookieId': req.session.id,
+          'access_token': access_token,
+          'refresh_token': refresh_token,
+          'expires_in': expires_in,
+          'date_issued': Date.now(),
         });
       }
       SPOTIFY_AUTH_TOKEN = access_token;
       tokenIsExpired = false;
-      needsRefresh = false
+      needsRefresh = false;
       req.session.isAuth = true;
       res.redirect("http://localhost:3000/");
     } catch (error) {
@@ -156,7 +173,6 @@ app.get("/callback", async (req, res) => {
     }
   }
 });
-
 
 app.get("/location", async (req, res) => {
   if (req) {
@@ -173,13 +189,11 @@ app.get("/tracks", checkTokenExpired, async (req, res) => {
     .findOne({ cookieId: req.session.id })
     .then((res) => (testToken = res.access_token));
   if (SPOTIFY_AUTH_TOKEN == (await testToken)) {
-    runOperations().then((res) => createPlaylist(res)).catch((err) => console.error("ERROR RUNNING OPERATIONS:",err));
-  } else {
-    res.redirect('/login')
+    runOperations()
+      .then((res) => createPlaylist(res))
+      .catch((err) => console.error("ERROR RUNNING OPERATIONS:", err));
   }
-
 });
-
 
 // use spotify API
 const fetchSpotifyApi = async (endpoint, method, body) => {
@@ -196,14 +210,12 @@ const fetchSpotifyApi = async (endpoint, method, body) => {
     if (err) {
       if (err.response.status === 401) {
         needsRefresh = true;
-        await fetch("/login");
       }
     }
     console.error(err.response ? err.response : err);
     console.error("spotify API could not be reached");
   }
 };
-
 
 // Getting user's top tracks
 const getTopTrackIds = async () => {
@@ -219,7 +231,6 @@ const getTopTrackIds = async () => {
     console.log(err);
   }
 };
-
 
 // Function to get track recommendations
 const getRecommendedTracks = async (
@@ -257,7 +268,6 @@ const getRecommendedTracks = async (
   }
 };
 
-
 const getCurrentUserInfo = async () => {
   const res = await fetchSpotifyApi(`v1/me`, "GET");
   return {
@@ -267,7 +277,6 @@ const getCurrentUserInfo = async () => {
     userProfileImage: (await res).images.url,
   };
 };
-
 
 const createPlaylist = async (tracks) => {
   const userName = (await getCurrentUserInfo()).name;
@@ -311,7 +320,6 @@ const createPlaylist = async (tracks) => {
   }
 };
 
-
 //Getting weather conditions at client location
 async function getWeatherConditions(location) {
   try {
@@ -326,7 +334,6 @@ async function getWeatherConditions(location) {
     console.log("The requested m :(");
   }
 }
-
 
 // Gets track features with weather at clients location
 const getTrackFeatures = async (condition, temp) => {
@@ -347,7 +354,6 @@ const getTrackFeatures = async (condition, temp) => {
 
 // TODO: remove log
 console.log(await getWeatherConditions());
-
 
 // Runs the server functions
 const runOperations = async (location) => {
