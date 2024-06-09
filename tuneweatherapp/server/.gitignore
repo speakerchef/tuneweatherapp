@@ -1,4 +1,6 @@
 ./config.js
 ./node_modules
 ./Components/test.js
+./Components/weather-mood-info.js
+./Components/openai-query.js
 .env
