@@ -8,17 +8,13 @@ const Playlist = () => {
   const [headerText, setHeaderText] = useState(false);
   const [subHeaderHidden, setSubHeaderHidden] = useState(true);
   const [iFrameHidden, setIFrameHidden] = useState(true);
-
+  let pid;
   const makePlaylist = async () => {
     try {
       await fetch("http://localhost:5001/tracks");
     } catch (e) {
       console.log(e);
-      return (
-          <div className="grid w-full items-center rounded-2xl bg-tuneWeatherCream">
-            <h2>Something went wrong</h2>
-          </div>
-      );
+
     }
   };
 
@@ -28,7 +24,7 @@ const Playlist = () => {
     setIFrameHidden(false)
     if (getPlaylist > 0) {
       setGetPlaylist((prev) => prev-1)
-      await makePlaylist();
+      pid = await makePlaylist();
     } else {
 
     }
@@ -43,7 +39,7 @@ const Playlist = () => {
   return (
     <>
       <NavBar />
-      <Hero iframeHidden={iFrameHidden}  mainHeaderHidden={true} dashboardHeaderHidden={true} headerText={headerText} subHeaderHidden={subHeaderHidden}  />
+      <Hero iframeHidden={iFrameHidden}  mainHeaderHidden={true} dashboardHeaderHidden={true} headerText={headerText} subHeaderHidden={subHeaderHidden} pid={pid && pid} />
       <section id="hero" className="flex flex-col-reverse mx-32">
         <div
           id="headText"

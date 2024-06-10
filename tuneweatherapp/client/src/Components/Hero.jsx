@@ -2,7 +2,7 @@ import React from 'react';
 import IFrame from "./IFrame.jsx";
 import Buttons from "./Buttons.jsx";
 
-const Hero = ({mainHeaderHidden, iframeHidden, dashboardHeaderHidden, playlistSectionHeadersHidden, headerText, subHeaderHidden}) => {
+const Hero = ({mainHeaderHidden, iframeHidden, dashboardHeaderHidden, playlistSectionHeadersHidden, headerText, subHeaderHidden, pid}) => {
     return (
         <div>
             <div className=" flex flex-col bg-darkerTransparentIndigoBlue mx-auto w-full pb-16">
@@ -23,7 +23,7 @@ const Hero = ({mainHeaderHidden, iframeHidden, dashboardHeaderHidden, playlistSe
 
                         <h2 className={`${dashboardHeaderHidden?'hidden':''} text-4xl text-left text-indigo-700 font-extrabold sm:text-4xl md:text-5xl md:text-center lg:text-center xl:text-center xl:text-7xl`}>
                             Welcome! </h2>
-                        <IFrame hidden={iframeHidden}/>
+                        <IFrame hidden={iframeHidden} playlistId={pid}/>
                     </div>
                 </section>
 

@@ -109,18 +109,18 @@ const checkLoginStatus = async (req, res, next) => {
 };
 
 // Check if user has a cookie
-const checkCookie = async (req, res, next) => {
-  const userCookie = await UserModel.collection.findOne({
-    cookieId: req.cookies.cookie_id,
-  });
-  if (!userCookie) {
-    isLoggedIn = false;
-    res.cookie("cookie_id", req.session.id);
-    next();
-  } else {
-    next();
-  }
-};
+// const checkCookie = async (req, res, next) => {
+//   const userCookie = await UserModel.collection.findOne({
+//     cookieId: req.cookies.cookie_id,
+//   });
+//   if (!userCookie) {
+//     isLoggedIn = false;
+//     res.cookie("cookie_id", req.session.id);
+//     next();
+//   } else {
+//     next();
+//   }
+// };
 
 // Check if user has an existing session
 const userHasCookieSession = async (req, res, next) => {
@@ -169,20 +169,24 @@ const checkTokenExpired = async (req, res, next) => {
       needsRefresh = true;
       isLoggedIn = false;
       console.log("Token expired, redirecting to login.");
-      return res.redirect("/login");
+      res.sendStatus(401).json({
+        Error: 401,
+        message: "Your token has expired, please login again",
+        redirect_url: "http://localhost:5001/login",
+      });
     } else {
       next();
     }
   } else {
-    console.log("No current user found for session ID:", req.session.id);
+    console.log("No current user found for session ID:", req.cookies.cookie_id);
     isLoggedIn = false;
     res.redirect("/login");
   }
 };
 
 const redirect_uri = "http://localhost:5001/callback";
-app.get("/login", checkCookie, (req, res) => {
-  if (isLoggedIn) res.redirect("http://localhost:3000");
+app.get("/login", (req, res) => {
+  if (isLoggedIn) res.sendStatus(201).json("Login successful");
   const scope =
     "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
   const authUrl = "https://accounts.spotify.com/authorize";
@@ -242,6 +246,7 @@ app.get("/callback", async (req, res) => {
       );
       isLoggedIn = true;
     } else {
+      res.cookie("cookie_id", req.session.id);
       await UserModel.collection.insertOne({
         cookieId: req.cookies.cookie_id,
         access_token: access_token,
@@ -251,10 +256,9 @@ app.get("/callback", async (req, res) => {
       });
       isLoggedIn = true;
     }
-
     SPOTIFY_AUTH_TOKEN = access_token;
     needsRefresh = false;
-    res.redirect("http://localhost:3000/dashboard");
+    res.sendStatus(201).json("Login successful");
   } catch (error) {
     console.error(error.response ? error.response.status : error);
     res.status(500).json("Sorry, something went wrong, please try again!");
@@ -266,9 +270,9 @@ app.post("/location", async (req, res) => {
     userLatitude = req.query.latitude;
     userLongitude = req.query.longitude;
     if (!userLatitude || !userLongitude) {
-      res.status(418).send("Error: Coordinates not provided");
+      res.status(418).json("Error: Coordinates not provided");
     } else {
-      res.status(200).send("Request successful.");
+      res.status(200).json("Request successful.");
       console.log("User coords: " + userLatitude, userLongitude);
       const response = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLatitude}&longitude=${userLongitude}`,
@@ -276,7 +280,6 @@ app.post("/location", async (req, res) => {
       userLocation = (await response.json()).locality;
       userLocation = userLocation.toLowerCase();
       console.log(userLocation);
-      res.redirect("http://localhost:3000/dashboard");
     }
   }
 });
@@ -290,13 +293,12 @@ app.get(
   authTokenHasBeenInitialized,
   ///////////////// testing ////////////////////
   async (req, res) => {
-    console.log("session ID at /tracks: ", req.session.id);
+    console.log("session ID at /tracks: ", req.cookies.cookie_id);
     console.log(
       "session stored in DB",
       await UserModel.collection.findOne({ cookieId: req.session.id }),
     );
     ////////////// testing ////////////////////
-    res.send("On tracks page");
     const testToken = (
       await UserModel.collection.findOne({ cookieId: req.cookies.cookie_id })
     ).access_token;
@@ -305,7 +307,9 @@ app.get(
     if (testToken) {
       runOperations()
         .then((response) => {
-          createPlaylist(response);
+          createPlaylist(response).then((result) =>
+            res.send(result.toString()),
+          );
         })
         .then(res.redirect("http://localhost:3000/playlist"))
         .catch((err) => {
@@ -433,6 +437,7 @@ const createPlaylist = async (tracks) => {
       `v1/playlists/${pid}/tracks?uris=${trackUris.join(",")}`,
       "POST",
     );
+    return pid;
     console.log("Items have been added");
   } catch (e) {
     console.log(e.response);

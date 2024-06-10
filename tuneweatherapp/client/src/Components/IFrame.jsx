@@ -1,9 +1,9 @@
 import React from 'react';
 
-const IFrame = ({hidden}) => {
+const IFrame = ({hidden, playlistId}) => {
     return (
         <div>
-            <iframe src={`https://open.spotify.com/embed/playlist/25bs99E6MBiVdElYSILZcQ?utm_source=generator&theme=0`}
+            <iframe src={`https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`}
                     width="100%"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="lazy"
