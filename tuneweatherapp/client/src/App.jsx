@@ -5,41 +5,12 @@ import NavBar from "./Components/NavBar.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
 import Home from "./pages/Home.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Playlist from "./pages/Playlist.jsx";
 import axios from "axios";
 
 const App = () => {
-    const [latitude, setLatitude] = useState('')
-    const [longitude, setLongitude] = useState('')
-    const [location, setLocation] = useState('')
 
-    useEffect(() => {
-        const getUserLocation = async () => {
-            if (!navigator.geolocation) {
-                alert("Geolocation is not supported");
-            } else {
-                navigator.geolocation.getCurrentPosition((position) => {
-                    setLatitude(position.coords.latitude);
-                    setLongitude(position.coords.longitude),
-                        (err) => {
-                            console.log(err);
-                        };
-                });
-            }
-        };
-
-
-        const sendUserLocation = async () => {
-            const res = await fetch(`http://localhost:5001/location?latitude=${latitude}&longitude=${longitude}`, {
-                method: "POST",
-            })
-            const data = await res
-            return data
-        }
-
-        getUserLocation().then(() => sendUserLocation().then(r => {
-            console.log(r)
-        }))
-    },[])
 
 
     return (
@@ -48,6 +19,7 @@ const App = () => {
                 <Routes>
                     <Route path="/" element={<Home/>} />
                     <Route path="/home" element={<Home/>} />
+                    <Route path="/playlist" element={<Playlist/>} />
                     <Route path="*" element={<NotFound/>} />
                 </Routes>
             </BrowserRouter>

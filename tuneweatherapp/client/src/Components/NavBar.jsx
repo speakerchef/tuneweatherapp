@@ -8,7 +8,7 @@ const NavBar = () => {
             <nav className="flex flex-row bg-darkerTransparentIndigoBlue space-y-1 border-b-2 border-gray-500 justify-between items-center">
                 <div id="productName" className="flex flex-row p-3 ml-10 sm:text-2xl mb-0.5 items-center">
                     {/*<a href="#" className="hover:ring-1 hover:ring-indigo-700 hover:rounded-full transition-all duration-300"> <img src={logo} alt="tune weather logo" className="size-14 mx-4 "/></a>*/}
-                    <a href='#' className="text-lg mx-4 hover:ring-1 hover:ring-indigo-700 hover:px-1.5 hover:cursor-pointer hover:rounded-full transition-all duration-300 font-extrabold sm:text-md sm:pt-1 md:text-xl lg:text-2xl"> <strong className="text-indigo-700">Tune</strong> <strong className="text-tuneWeatherCream font-bold">Weather</strong></a>
+                    <a href='/dashboard' className="text-lg mx-4 hover:ring-1 hover:ring-indigo-700 hover:px-1.5 hover:cursor-pointer hover:rounded-full transition-all duration-300 font-extrabold sm:text-md sm:pt-1 md:text-xl lg:text-2xl"> <strong className="text-indigo-700">Tune</strong> <strong className="text-tuneWeatherCream font-bold">Weather</strong></a>
                 </div>
 
                 {/*        username/loggedin status*/}

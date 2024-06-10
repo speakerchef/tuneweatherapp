@@ -91,7 +91,7 @@ const userExists = async (req, res, next) => {
   });
   if (!currentUser) {
     console.error("User does not exist, redirecting to login");
-    isLoggedIn = false
+    isLoggedIn = false;
     res.redirect("/login");
   } else {
     next();
@@ -114,7 +114,7 @@ const checkCookie = async (req, res, next) => {
     cookieId: req.cookies.cookie_id,
   });
   if (!userCookie) {
-    isLoggedIn = false
+    isLoggedIn = false;
     res.cookie("cookie_id", req.session.id);
     next();
   } else {
@@ -130,7 +130,7 @@ const userHasCookieSession = async (req, res, next) => {
   });
   if (!currentUser) {
     console.log("No session found, redirecting to login.");
-    isLoggedIn = false
+    isLoggedIn = false;
     res.redirect("/login");
   } else {
     console.log("Session found:", currentUser);
@@ -145,7 +145,7 @@ const authTokenHasBeenInitialized = async (req, res, next) => {
   });
   if (!user) {
     console.log("No user found for session ID:", req.session.id);
-    isLoggedIn = false
+    isLoggedIn = false;
     return res.redirect("/login");
   }
 
@@ -175,7 +175,7 @@ const checkTokenExpired = async (req, res, next) => {
     }
   } else {
     console.log("No current user found for session ID:", req.session.id);
-    isLoggedIn = false
+    isLoggedIn = false;
     res.redirect("/login");
   }
 };
@@ -270,7 +270,9 @@ app.post("/location", async (req, res) => {
     } else {
       res.status(200).send("Request successful.");
       console.log("User coords: " + userLatitude, userLongitude);
-      const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLatitude}&longitude=${userLongitude}`)
+      const response = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLatitude}&longitude=${userLongitude}`,
+      );
       userLocation = (await response.json()).locality;
       userLocation = userLocation.toLowerCase();
       console.log(userLocation);
@@ -304,7 +306,8 @@ app.get(
       runOperations()
         .then((response) => {
           createPlaylist(response);
-        }).then(res.redirect("http://localhost:3000/playlist"))
+        })
+        .then(res.redirect("http://localhost:3000/playlist"))
         .catch((err) => {
           console.error("ERROR RUNNING OPERATIONS:", err);
           return;
@@ -445,7 +448,7 @@ async function getWeatherConditions() {
     );
     const conditionsToPassToLLM = res.data.weather.description;
     const tempToPassToLLM = res.data.main.temp;
-    return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM-273);
+    return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM - 273);
   } catch (err) {
     console.error(err.response.data);
     console.error("Weather data could not be fetched");
