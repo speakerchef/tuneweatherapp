@@ -6,7 +6,7 @@ const Home = () => {
     return (
         <>
             <NavBar/>
-            <Hero mainHeaderHidden={'hidden'} spotifyHidden={'hidden'}/>
+            <Hero/>
         </>
     );
 };

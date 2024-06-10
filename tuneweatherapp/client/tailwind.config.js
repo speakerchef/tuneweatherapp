@@ -14,10 +14,11 @@ export default {
     extend: {
       colors: {
         transparentIndigoBlue: "#05111c",
-        darkerTransparentIndigoBlue: "#030c13",
+        darkerTransparentIndigoBlue: "#030C13FF",
         veryDarkBlue: "#031633",
         spotifyGreen: "#1DB954",
-        tuneWeatherCream: "#f1efe7"
+        tuneWeatherCream: "#f1efe7",
+        customIndigo: "#2a00ff"
       }
     },
   },
