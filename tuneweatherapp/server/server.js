@@ -23,7 +23,9 @@ const PORT = process.env.PORT || 5001;
 const app = express();
 const mongoURI = "mongodb://localhost:27017/tuneweatherdb";
 let SPOTIFY_AUTH_TOKEN;
-let userCity;
+let userLatitude;
+let userLongitude;
+let userLocation;
 let needsRefresh = false;
 let isLoggedIn = false;
 
@@ -59,7 +61,7 @@ app.use(
     windowMs: 1 * 60 * 1000,
     max: 10,
     handler: async (req, res) => {
-      res.redirect("http://localhost:3000");
+      res.redirect("http://localhost:3000/dashboard");
     },
   }),
 );
@@ -252,7 +254,7 @@ app.get("/callback", async (req, res) => {
 
     SPOTIFY_AUTH_TOKEN = access_token;
     needsRefresh = false;
-    res.redirect("/");
+    res.redirect("http://localhost:3000/dashboard");
   } catch (error) {
     console.error(error.response ? error.response.status : error);
     res.status(500).json("Sorry, something went wrong, please try again!");
@@ -261,11 +263,18 @@ app.get("/callback", async (req, res) => {
 
 app.post("/location", async (req, res) => {
   if (req) {
-    userCity = req.city;
-    if (!userCity) {
-      res.status(418).send("Error: City not provided");
+    userLatitude = req.query.latitude;
+    userLongitude = req.query.longitude;
+    if (!userLatitude || !userLongitude) {
+      res.status(418).send("Error: Coordinates not provided");
     } else {
-      console.log("User city: " + userCity);
+      res.status(200).send("Request successful.");
+      console.log("User coords: " + userLatitude, userLongitude);
+      const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLatitude}&longitude=${userLongitude}`)
+      userLocation = (await response.json()).locality;
+      userLocation = userLocation.toLowerCase();
+      console.log(userLocation);
+      res.redirect("http://localhost:3000/dashboard");
     }
   }
 });
@@ -295,7 +304,7 @@ app.get(
       runOperations()
         .then((response) => {
           createPlaylist(response);
-        })
+        }).then(res.redirect("http://localhost:3000/playlist"))
         .catch((err) => {
           console.error("ERROR RUNNING OPERATIONS:", err);
           return;
@@ -429,14 +438,14 @@ const createPlaylist = async (tracks) => {
 };
 
 //Getting weather conditions at client location
-async function getWeatherConditions(location) {
+async function getWeatherConditions() {
   try {
     const res = await axios.get(
-      `https://api.weatherapi.com/v1/current.json?key=${WEATHERAPI_TOKEN}&q=${location}&aqi=yes`,
+      `https://api.openweathermap.org/data/2.5/weather?lat=${await userLatitude}&lon=${await userLongitude}&appid=${WEATHERAPI_TOKEN}`,
     );
-    const conditionsToPassToLLM = res.data["current"]["condition"]["text"];
-    const tempToPassToLLM = res.data["current"].temp_c;
-    return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM);
+    const conditionsToPassToLLM = res.data.weather.description;
+    const tempToPassToLLM = res.data.main.temp;
+    return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM-273);
   } catch (err) {
     console.error(err.response.data);
     console.error("Weather data could not be fetched");

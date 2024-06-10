@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { location_api_key } from "../../../server/config.js";
 import Button from './Button.jsx'
 
 // Button implementation page
 const Buttons = ({ buttonHidden }) => {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [location, setLocation] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
+  // const [loggedIn, setLoggedIn] = useState(false);
+  // const [location, setLocation] = useState("");
+  // const [latitude, setLatitude] = useState("");
+  // const [longitude, setLongitude] = useState("");
 
 
 
