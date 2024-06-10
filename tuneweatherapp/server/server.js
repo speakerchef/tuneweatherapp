@@ -89,6 +89,7 @@ const userExists = async (req, res, next) => {
   });
   if (!currentUser) {
     console.error("User does not exist, redirecting to login");
+    isLoggedIn = false
     res.redirect("/login");
   } else {
     next();
@@ -111,6 +112,7 @@ const checkCookie = async (req, res, next) => {
     cookieId: req.cookies.cookie_id,
   });
   if (!userCookie) {
+    isLoggedIn = false
     res.cookie("cookie_id", req.session.id);
     next();
   } else {
@@ -126,6 +128,7 @@ const userHasCookieSession = async (req, res, next) => {
   });
   if (!currentUser) {
     console.log("No session found, redirecting to login.");
+    isLoggedIn = false
     res.redirect("/login");
   } else {
     console.log("Session found:", currentUser);
@@ -140,6 +143,7 @@ const authTokenHasBeenInitialized = async (req, res, next) => {
   });
   if (!user) {
     console.log("No user found for session ID:", req.session.id);
+    isLoggedIn = false
     return res.redirect("/login");
   }
 
@@ -147,7 +151,6 @@ const authTokenHasBeenInitialized = async (req, res, next) => {
     SPOTIFY_AUTH_TOKEN = user.access_token;
     console.log("Auth token initialized:", SPOTIFY_AUTH_TOKEN);
   }
-
   next();
 };
 
@@ -170,6 +173,7 @@ const checkTokenExpired = async (req, res, next) => {
     }
   } else {
     console.log("No current user found for session ID:", req.session.id);
+    isLoggedIn = false
     res.redirect("/login");
   }
 };
