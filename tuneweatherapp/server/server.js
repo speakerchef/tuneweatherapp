@@ -206,11 +206,13 @@ app.get("/callback", async (req, res) => {
   }
 });
 
-app.get("/location", async (req, res) => {
+app.post("/location", async (req, res) => {
   if (req) {
     userCity = req.city;
     if (!userCity) {
       res.status(418).send("Error: City not provided");
+    } else {
+      console.log("User city: " + userCity);
     }
   }
 });
