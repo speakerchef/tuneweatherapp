@@ -5,7 +5,6 @@ import NavBar from "./Components/NavBar.jsx";
 import MainLayout from "./layouts/MainLayout.jsx";
 import Home from "./pages/Home.jsx";
 import NotFound from "./pages/NotFound.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
 import Playlist from "./pages/Playlist.jsx";
 import axios from "axios";
 

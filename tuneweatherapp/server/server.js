@@ -209,7 +209,7 @@ const checkTokenExpired = async (req, res, next) => {
 const redirect_uri = "http://localhost:5001/callback";
 app.get("/login", async (req, res) => {
   if (isLoggedIn) {
-    res.send({code: 201, message: "Login successful"});
+    res.redirect('http://localhost:3000/playlist');
   }
 else {
     const scope =
