@@ -28,6 +28,7 @@ let userLongitude;
 let userLocation;
 let needsRefresh = false;
 let isLoggedIn = false;
+let sessionId;
 
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
@@ -53,7 +54,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({origin: "http://localhost:3000"}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -61,7 +62,7 @@ app.use(
     windowMs: 1 * 60 * 1000,
     max: 10,
     handler: async (req, res) => {
-      res.redirect("http://localhost:3000/dashboard");
+      res.redirect("http://localhost:3000/");
     },
   }),
 );
@@ -83,6 +84,23 @@ app.get("/db-test", async (req, res) => {
     await UserModel.collection.findOne({ cookieId: req.cookies.cookie_id }),
   );
 });
+
+const validateUser = async (req, res, next) => {
+  const requestId = req.query.session_id
+  if (!requestId){
+    res.send({code: 401, message: "Unauthorized, please login"});
+  }  else {
+    console.log("Request made from ID:", requestId)
+    const user = await UserModel.collection.findOne({cookieId: requestId})
+    if (!user) {
+      res.sendStatus(401, {code: 401, message: "User not found"});
+    } else {
+      const token = user.access_token;
+      SPOTIFY_AUTH_TOKEN = token;
+      next()
+    }
+  }
+}
 
 // Check if user exists in database
 const userExists = async (req, res, next) => {
@@ -170,7 +188,7 @@ const checkTokenExpired = async (req, res, next) => {
       isLoggedIn = false;
       console.log("Token expired, redirecting to login.");
       res.sendStatus(401).json({
-        Error: 401,
+        Status: 401,
         message: "Your token has expired, please login again",
         redirect_url: "http://localhost:5001/login",
       });
@@ -180,24 +198,33 @@ const checkTokenExpired = async (req, res, next) => {
   } else {
     console.log("No current user found for session ID:", req.cookies.cookie_id);
     isLoggedIn = false;
-    res.redirect("/login");
+    res.send({
+      Status: 403,
+      message: "You are not logged in",
+      redirect_url: "http://localhost:5001/login",
+    });
   }
 };
 
 const redirect_uri = "http://localhost:5001/callback";
-app.get("/login", (req, res) => {
-  if (isLoggedIn) res.sendStatus(201).json("Login successful");
-  const scope =
-    "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
-  const authUrl = "https://accounts.spotify.com/authorize";
-  res.redirect(
-    `${authUrl}?${querystring.stringify({
-      response_type: "code",
-      client_id: client_id,
-      scope: scope,
-      redirect_uri: redirect_uri,
-    })}`,
-  );
+app.get("/login", async (req, res) => {
+  if (isLoggedIn) {
+    res.send({code: 201, message: "Login successful"});
+  }
+else {
+    const scope =
+        "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
+    const authUrl = "https://accounts.spotify.com/authorize";
+    res.redirect(
+        `${authUrl}?${querystring.stringify({
+          response_type: "code",
+          client_id: client_id,
+          scope: scope,
+          redirect_uri: redirect_uri,
+          mode: "no-cors",
+        })}`
+    );
+  }
 });
 
 app.get("/callback", async (req, res) => {
@@ -257,13 +284,26 @@ app.get("/callback", async (req, res) => {
       isLoggedIn = true;
     }
     SPOTIFY_AUTH_TOKEN = access_token;
+    sessionId = req.cookies.cookie_id
     needsRefresh = false;
-    res.sendStatus(201).json("Login successful");
+    res.redirect("http://localhost:3000/playlist");
   } catch (error) {
     console.error(error.response ? error.response.status : error);
-    res.status(500).json("Sorry, something went wrong, please try again!");
+    res.send({code: 500, message: "Internal server error"})
   }
 });
+
+app.get('/playlist', async (req, res) => {
+  res.send
+  ({
+    data: {
+      code: 201,
+      message: "Login successful!",
+      access_token: SPOTIFY_AUTH_TOKEN,
+      session_id: sessionId,
+    }
+  })
+})
 
 app.post("/location", async (req, res) => {
   if (req) {
@@ -286,36 +326,37 @@ app.post("/location", async (req, res) => {
 
 app.get(
   "/tracks",
-  userExists,
-  checkLoginStatus,
-  userHasCookieSession,
-  checkTokenExpired,
-  authTokenHasBeenInitialized,
+  validateUser,
   ///////////////// testing ////////////////////
   async (req, res) => {
-    console.log("session ID at /tracks: ", req.cookies.cookie_id);
+    console.log("session ID at /tracks: ", sessionId);
     console.log(
       "session stored in DB",
-      await UserModel.collection.findOne({ cookieId: req.session.id }),
+      await UserModel.collection.findOne({ cookieId: sessionId }),
     );
     ////////////// testing ////////////////////
     const testToken = (
-      await UserModel.collection.findOne({ cookieId: req.cookies.cookie_id })
+      await UserModel.collection.findOne({ cookieId: sessionId })
     ).access_token;
     console.error(testToken);
     console.log(SPOTIFY_AUTH_TOKEN);
     if (testToken) {
+      let pid;
       runOperations()
         .then((response) => {
-          createPlaylist(response).then((result) =>
-            res.send(result.toString()),
-          );
-        })
-        .then(res.redirect("http://localhost:3000/playlist"))
-        .catch((err) => {
-          console.error("ERROR RUNNING OPERATIONS:", err);
-          return;
-        });
+          createPlaylist(response).then(response => {
+            res.send({
+              data: {
+                status: 200,
+                playlist_id: response
+              }
+            })
+            console.log(response)
+          })}).catch((err) => {
+            console.error("ERROR RUNNING OPERATIONS:", err);
+            res.sendStatus(500)
+            return;
+          });
     }
   },
 );

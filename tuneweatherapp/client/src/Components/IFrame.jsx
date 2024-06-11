@@ -7,7 +7,7 @@ const IFrame = ({hidden, playlistId}) => {
                     width="100%"
             allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
             loading="lazy"
-            className={`${hidden && 'hidden'} flex min-h-[768px] min-w-[368px] flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px]`}/>
+            className={`hidden flex min-h-[768px] min-w-[368px] flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px]`}/>
         </div>
     );
 };

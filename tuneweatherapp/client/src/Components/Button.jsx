@@ -1,11 +1,12 @@
 import React from 'react';
+export let sessionId
 
 
 // Button component
 const Button = ({buttonText = "Link Spotify", hideButton}) => {
     
     const clickHandler = async () => {
-        window.location.href = 'http://localhost:5001/login';
+        window.location.replace('http://localhost:5001/login')
     }
     
     return (
