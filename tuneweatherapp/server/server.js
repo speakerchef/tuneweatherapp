@@ -40,6 +40,8 @@ const UserSchema = new mongoose.Schema({
   refresh_token: String,
   expires_in: Number,
   date_issued: Number,
+  latitude: String,
+  longitude: String,
 });
 const UserModel = mongoose.model("Users", UserSchema);
 
@@ -54,7 +56,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use(cors({origin: "http://localhost:3000"}));
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -86,21 +88,21 @@ app.get("/db-test", async (req, res) => {
 });
 
 const validateUser = async (req, res, next) => {
-  const requestId = req.query.session_id
-  if (!requestId){
-    res.send({code: 401, message: "Unauthorized, please login"});
-  }  else {
-    console.log("Request made from ID:", requestId)
-    const user = await UserModel.collection.findOne({cookieId: requestId})
+  const requestId = req.query.session_id;
+  if (!requestId) {
+    res.send({ code: 401, message: "Unauthorized, please login" });
+  } else {
+    console.log("Request made from ID:", requestId);
+    const user = await UserModel.collection.findOne({ cookieId: requestId });
     if (!user) {
-      res.sendStatus(401, {code: 401, message: "User not found"});
+      res.sendStatus(401, { code: 401, message: "User not found" });
     } else {
       const token = user.access_token;
       SPOTIFY_AUTH_TOKEN = token;
-      next()
+      next();
     }
   }
-}
+};
 
 // Check if user exists in database
 const userExists = async (req, res, next) => {
@@ -159,12 +161,16 @@ const userHasCookieSession = async (req, res, next) => {
 // Check if token has been init
 const authTokenHasBeenInitialized = async (req, res, next) => {
   const user = await UserModel.collection.findOne({
-    cookieId: req.cookies.cookie_id,
+    cookieId: sessionId,
   });
   if (!user) {
     console.log("No user found for session ID:", req.session.id);
     isLoggedIn = false;
-    return res.redirect("/login");
+    res.json({
+      code: 401,
+      message: "User does not exist",
+    });
+    return;
   }
 
   if (!SPOTIFY_AUTH_TOKEN) {
@@ -177,7 +183,7 @@ const authTokenHasBeenInitialized = async (req, res, next) => {
 // Check if token is expired
 const checkTokenExpired = async (req, res, next) => {
   const currentUser = await UserModel.collection.findOne({
-    cookieId: req.cookies.cookie_id,
+    cookieId: sessionId,
   });
 
   if (currentUser) {
@@ -187,7 +193,7 @@ const checkTokenExpired = async (req, res, next) => {
       needsRefresh = true;
       isLoggedIn = false;
       console.log("Token expired, redirecting to login.");
-      res.sendStatus(401).json({
+      res.json({
         Status: 401,
         message: "Your token has expired, please login again",
         redirect_url: "http://localhost:5001/login",
@@ -195,34 +201,25 @@ const checkTokenExpired = async (req, res, next) => {
     } else {
       next();
     }
-  } else {
-    console.log("No current user found for session ID:", req.cookies.cookie_id);
-    isLoggedIn = false;
-    res.send({
-      Status: 403,
-      message: "You are not logged in",
-      redirect_url: "http://localhost:5001/login",
-    });
   }
 };
 
 const redirect_uri = "http://localhost:5001/callback";
 app.get("/login", async (req, res) => {
   if (isLoggedIn) {
-    res.redirect('http://localhost:3000/playlist');
-  }
-else {
+    res.redirect("http://localhost:3000/playlist");
+  } else {
     const scope =
-        "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
+      "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
     const authUrl = "https://accounts.spotify.com/authorize";
     res.redirect(
-        `${authUrl}?${querystring.stringify({
-          response_type: "code",
-          client_id: client_id,
-          scope: scope,
-          redirect_uri: redirect_uri,
-          mode: "no-cors",
-        })}`
+      `${authUrl}?${querystring.stringify({
+        response_type: "code",
+        client_id: client_id,
+        scope: scope,
+        redirect_uri: redirect_uri,
+        mode: "no-cors",
+      })}`,
     );
   }
 });
@@ -247,6 +244,7 @@ app.get("/callback", async (req, res) => {
   };
 
   try {
+    sessionId = req.cookies.cookie_id;
     const response = await axios(authOptions);
     const body = response.data;
     const access_token = body.access_token;
@@ -257,7 +255,7 @@ app.get("/callback", async (req, res) => {
     console.table(body);
 
     const existingUser = await UserModel.collection.findOne({
-      cookieId: req.cookies.cookie_id,
+      cookieId: sessionId,
     });
     if (existingUser) {
       await UserModel.collection.updateOne(
@@ -271,48 +269,57 @@ app.get("/callback", async (req, res) => {
           },
         },
       );
-      isLoggedIn = true;
     } else {
       res.cookie("cookie_id", req.session.id);
       await UserModel.collection.insertOne({
-        cookieId: req.cookies.cookie_id,
+        cookieId: sessionId,
         access_token: access_token,
         refresh_token: refresh_token,
         expires_in: expires_in,
         date_issued: Date.now(),
       });
-      isLoggedIn = true;
     }
     SPOTIFY_AUTH_TOKEN = access_token;
-    sessionId = req.cookies.cookie_id
+    isLoggedIn = true;
     needsRefresh = false;
     res.redirect("http://localhost:3000/playlist");
   } catch (error) {
     console.error(error.response ? error.response.status : error);
-    res.send({code: 500, message: "Internal server error"})
+    res.send({ code: 500, message: "Internal server error" });
   }
 });
 
-app.get('/playlist', async (req, res) => {
-  res.send
-  ({
+app.get("/playlist", async (req, res) => {
+  res.send({
     data: {
       code: 201,
       message: "Login successful!",
       access_token: SPOTIFY_AUTH_TOKEN,
       session_id: sessionId,
-    }
-  })
-})
+    },
+  });
+});
 
 app.post("/location", async (req, res) => {
+  const currentUser = await UserModel.collection.findOne({
+    cookieId: sessionId,
+  });
+  if (currentUser) {
+    if (currentUser.latitude && currentUser.longitude) {
+      console.log("location exists");
+      return;
+    }
+  }
   if (req) {
     userLatitude = req.query.latitude;
     userLongitude = req.query.longitude;
     if (!userLatitude || !userLongitude) {
       res.status(418).json("Error: Coordinates not provided");
     } else {
-      res.status(200).json("Request successful.");
+      res.json({
+        code: 200,
+        message: "Request successful.",
+      });
       console.log("User coords: " + userLatitude, userLongitude);
       const response = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLatitude}&longitude=${userLongitude}`,
@@ -320,6 +327,15 @@ app.post("/location", async (req, res) => {
       userLocation = (await response.json()).locality;
       userLocation = userLocation.toLowerCase();
       console.log(userLocation);
+      await UserModel.collection.updateOne(
+        { cookieId: sessionId },
+        {
+          $set: {
+            latitude: userLatitude,
+            longitude: userLongitude,
+          },
+        },
+      );
     }
   }
 });
@@ -327,6 +343,7 @@ app.post("/location", async (req, res) => {
 app.get(
   "/tracks",
   validateUser,
+  checkTokenExpired,
   ///////////////// testing ////////////////////
   async (req, res) => {
     console.log("session ID at /tracks: ", sessionId);
@@ -335,29 +352,24 @@ app.get(
       await UserModel.collection.findOne({ cookieId: sessionId }),
     );
     ////////////// testing ////////////////////
-    const testToken = (
-      await UserModel.collection.findOne({ cookieId: sessionId })
-    ).access_token;
-    console.error(testToken);
-    console.log(SPOTIFY_AUTH_TOKEN);
-    if (testToken) {
-      let pid;
-      runOperations()
-        .then((response) => {
-          createPlaylist(response).then(response => {
-            res.send({
-              data: {
-                status: 200,
-                playlist_id: response
-              }
-            })
-            console.log(response)
-          })}).catch((err) => {
-            console.error("ERROR RUNNING OPERATIONS:", err);
-            res.sendStatus(500)
-            return;
+    let pid;
+    runOperations()
+      .then((response) => {
+        createPlaylist(response).then((response) => {
+          res.send({
+            data: {
+              status: 200,
+              playlist_id: response,
+            },
           });
-    }
+          console.log(response);
+        });
+      })
+      .catch((err) => {
+        console.error("ERROR RUNNING OPERATIONS:", err);
+        res.sendStatus(500);
+        return;
+      });
   },
 );
 
@@ -374,7 +386,7 @@ const fetchSpotifyApi = async (endpoint, method, body) => {
     return await response.json();
   } catch (err) {
     console.error("spotify API could not be reached");
-    console.error(err.response ? err.response : err);
+    console.error(err);
     return null;
   }
 };
@@ -463,15 +475,21 @@ const createPlaylist = async (tracks) => {
   };
   const request = await fetchSpotifyApi(targetUrl, "POST", payload);
 
-  const trackUris = tracks
-    .map((track) => {
-      return typeof track.uri !== "undefined" ? track.uri : "";
-    })
-    .filter((uri) => uri !== "");
-  console.log(tracks);
-  pid = await request.id;
-  console.log("playlist id", pid);
-  console.log(trackUris);
+  let trackUris;
+  if (tracks) {
+    trackUris = tracks
+      .map((track) => {
+        return typeof track.uri !== "undefined" ? track.uri : "";
+      })
+      .filter((uri) => uri !== "");
+    console.log(tracks);
+    pid = await request.id;
+    console.log("playlist id", pid);
+    console.log(trackUris);
+  } else {
+    console.log("Could not create playlist");
+    return;
+  }
 
   try {
     await fetchSpotifyApi(
@@ -481,7 +499,7 @@ const createPlaylist = async (tracks) => {
     return pid;
     console.log("Items have been added");
   } catch (e) {
-    console.log(e.response);
+    console.log(e);
     return null;
   }
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import {FaMapMarkerAlt} from "react-icons/fa";
+import {FaMapMarkerAlt, FaUser} from "react-icons/fa";
 
 const NavBar = () => {
     return (
@@ -15,7 +15,7 @@ const NavBar = () => {
                 <div className="flex flex-row  rounded-full items-center h-6 pb-1 mr-5">
                     <button id="userLoginStatus"
                             className="text-md text-center text-red-600 transition-all duration-200 hover:cursor-pointer hover:text-2xl hover:text-red-600 tracking-wider px-4 font-extrabold sm:text-sm md:text-lg lg:text-xl xl:text-xl">
-                        <FaMapMarkerAlt></FaMapMarkerAlt>  </button>
+                        <FaUser></FaUser>  </button>
                 </div>
             </nav>
         </>

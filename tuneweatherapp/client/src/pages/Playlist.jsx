@@ -3,6 +3,7 @@ import Hero from "../Components/Hero.jsx";
 import NavBar from "../Components/NavBar.jsx";
 import Button from "../Components/Button.jsx";
 import {sessionId} from "../Components/Button.jsx";
+import Spinner from "../Components/Spinner.jsx";
 
 const Playlist = () => {
   const [getPlaylist, setGetPlaylist] = useState(15);
@@ -11,42 +12,25 @@ const Playlist = () => {
   const [showIframe, setShowIframe] = useState(false);
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
-  const [getLocation, setGetLocation] = useState(false);
   const [iFrame, setIFrame] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [locationLoaded, setLocationLoaded] = useState(false);
   let playlist_id = ''
 
-  const getUserLocation = async () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported");
-    } else {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setLatitude(position.coords.latitude);
-        setLongitude(position.coords.longitude),
-            (err) => {
-              console.log(err);
-            };
-      });
-    }
-  };
 
-  const sendUserLocation = async () => {
-    const res = await fetch(
-        `http://localhost:5001/location?latitude=${await latitude}&longitude=${await longitude}`,
-        {
-          method: "POST",
-        },
-    );
-    const data = await res;
-    return data;
-  };
 
 
 
   const makePlaylist = async () => {
-    const response = await fetch('http://localhost:5001/playlist', {method: "get"})
-    const data = await response.json()
-    const session_id = data.data.session_id
-    if (await session_id) {
+    let session_id;
+    try{
+      const response = await fetch('http://localhost:5001/playlist')
+      const data = await response.json()
+      session_id = data.data.session_id
+    }catch(e){
+      console.log("Making playlist error: ", e)
+    }
+    if (session_id) {
       try {
         const response = await fetch(`http://localhost:5001/tracks?session_id=${await session_id}`);
         const data = await response
@@ -54,24 +38,17 @@ const Playlist = () => {
         // console.log(data);
       } catch (e) {
         console.log(e);
-
+      } finally {
+          setLoading(false)
+        setSubHeaderHidden(false)
       }
     }
   };
 
-  const clickLocationHandler = async () => {
-      setGetLocation(true)
-    if (getLocation){
-      getUserLocation().then(() =>
-          sendUserLocation().then((r) => {
-            console.log(r);
-            setGetLocation(true);
-          }),
-      );
-    }
-  }
+
 
   const clickHandler = async () => {
+    setLoading(true)
     setHeaderText(true)
     setSubHeaderHidden(false)
     if (getPlaylist > 0) {
@@ -113,9 +90,10 @@ const Playlist = () => {
             mainHeaderHidden={true}
             dashboardHeaderHidden={true}
             headerText={headerText}
+            subHeaderHidden={subHeaderHidden}
         />
         <div className="flex flex-col items-center -mt-48 justify-between rounded-2xl">
-          {showIframe && iFrame}
+          {loading ? <Spinner/> : iFrame}
         </div>
 
         <section id="hero" className="flex flex-col-reverse mx-32">
@@ -136,9 +114,7 @@ const Playlist = () => {
           <div className="flex-col mt-6 flex items-center text-center">
             <div className="text-center   ">
               <button
-                  onClick={() =>
-                      clickLocationHandler().then((res) => clickHandler())
-                  }
+                  onClick={clickHandler}
                   className={`text-md bg-indigo-700 py-3.5 rounded-2xl hover:ring-1 hover:ring-indigo-700 hover:bg-darkerTransparentIndigoBlue hover:text-indigo-700 transition-all duration-100 ease-in px-8 active:ring-1 active:ring-red-600 font-bold active:bg-darkerTransparentIndigoBlue md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
               >
                 Get Playlist
