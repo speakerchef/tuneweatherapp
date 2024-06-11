@@ -194,9 +194,11 @@ const checkTokenExpired = async (req, res, next) => {
       isLoggedIn = false;
       console.log("Token expired, redirecting to login.");
       res.json({
-        Status: 401,
-        message: "Your token has expired, please login again",
-        redirect_url: "http://localhost:5001/login",
+        data: {
+          Status: 401,
+          message: "Your token has expired, please login again",
+          redirect_url: "http://localhost:5001/login",
+        }
       });
     } else {
       next();
@@ -301,6 +303,7 @@ app.get("/playlist", async (req, res) => {
 });
 
 app.post("/location", async (req, res) => {
+  console.log("Query at location enpoint", req.query)
   const currentUser = await UserModel.collection.findOne({
     cookieId: sessionId,
   });
@@ -313,6 +316,7 @@ app.post("/location", async (req, res) => {
   if (req) {
     userLatitude = req.query.latitude;
     userLongitude = req.query.longitude;
+    console.log(userLatitude, userLongitude);
     if (!userLatitude || !userLongitude) {
       res.status(418).json("Error: Coordinates not provided");
     } else {

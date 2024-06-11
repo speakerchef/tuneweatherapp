@@ -8,6 +8,7 @@ const Button = ({buttonText = "Link Spotify",}) => {
     const [longitude, setLongitude] = useState("");
     const [locationLoaded, setLocationLoaded] = useState(false);
     const [loggedIn, setLoggedIn] = useState(false);
+    const [toggle, setToggle] = useState(2);
 
 
     useEffect(() => {
@@ -16,8 +17,10 @@ const Button = ({buttonText = "Link Spotify",}) => {
                 alert("Geolocation is not supported");
             } else {
                 navigator.geolocation.getCurrentPosition((position) => {
-                    setLatitude(position.coords.latitude);
-                    setLongitude(position.coords.longitude),
+                    const lat = position.coords.latitude
+                    const lon = position.coords.longitude
+                    setLatitude(lat.toString());
+                    setLongitude(lon.toString()),
                         (err) => {
                             console.log(err);
                         };
@@ -30,25 +33,39 @@ const Button = ({buttonText = "Link Spotify",}) => {
 
 
 
-    const sendUserLocation = async () => {
-        const res = await fetch(
-            `http://localhost:5001/location?latitude=${latitude}&longitude=${longitude}`,
-            {
-                method: "POST",
-            },
-        );
-        const data = await res;
-        return data;
-    };
+        const sendUserLocation = async () => {
+            if (latitude && longitude) {
+                try {
+                    console.log(latitude, longitude)
+                    const res = await fetch(
+                        `http://localhost:5001/location?latitude=${latitude}&longitude=${longitude}`,
+                        {
+                            method: "POST",
+                        });
+                    const data = await res;
+                    console.log(data)
+                } catch (e) {
+                    console.log("Error sending location", e)
+                } finally {
+                    setToggle((prevState) => !prevState);
+                }
+            } else {
+
+            }
+        }
+
 
     const login = async () => {
+        sendUserLocation()
+        setToggle(prevState => prevState + 1);
         if(loggedIn){
-            await sendUserLocation();
+            console.log("User exists")
             return
         } else {
             window.location.replace('http://localhost:5001/login')
+            console.log("Location sent")
             setLoggedIn(true);
-            await sendUserLocation()
+            return
         }
     }
     return (
