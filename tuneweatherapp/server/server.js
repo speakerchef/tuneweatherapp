@@ -104,81 +104,6 @@ const validateUser = async (req, res, next) => {
   }
 };
 
-// Check if user exists in database
-const userExists = async (req, res, next) => {
-  const currentUser = await UserModel.collection.findOne({
-    cookieId: req.cookies.cookie_id,
-  });
-  if (!currentUser) {
-    console.error("User does not exist, redirecting to login");
-    isLoggedIn = false;
-    res.redirect("/login");
-  } else {
-    next();
-  }
-};
-
-// Check if user is logged in
-const checkLoginStatus = async (req, res, next) => {
-  if (!isLoggedIn) {
-    console.log("User is not logged in, redirecting to login page");
-    res.redirect("/login");
-  } else {
-    next();
-  }
-};
-
-// Check if user has a cookie
-// const checkCookie = async (req, res, next) => {
-//   const userCookie = await UserModel.collection.findOne({
-//     cookieId: req.cookies.cookie_id,
-//   });
-//   if (!userCookie) {
-//     isLoggedIn = false;
-//     res.cookie("cookie_id", req.session.id);
-//     next();
-//   } else {
-//     next();
-//   }
-// };
-
-// Check if user has an existing session
-const userHasCookieSession = async (req, res, next) => {
-  console.log("Checking user session:", req.cookies.cookie_id);
-  const currentUser = await UserModel.collection.findOne({
-    cookieId: req.cookies.cookie_id,
-  });
-  if (!currentUser) {
-    console.log("No session found, redirecting to login.");
-    isLoggedIn = false;
-    res.redirect("/login");
-  } else {
-    console.log("Session found:", currentUser);
-    next();
-  }
-};
-
-// Check if token has been init
-const authTokenHasBeenInitialized = async (req, res, next) => {
-  const user = await UserModel.collection.findOne({
-    cookieId: sessionId,
-  });
-  if (!user) {
-    console.log("No user found for session ID:", req.session.id);
-    isLoggedIn = false;
-    res.json({
-      code: 401,
-      message: "User does not exist",
-    });
-    return;
-  }
-
-  if (!SPOTIFY_AUTH_TOKEN) {
-    SPOTIFY_AUTH_TOKEN = user.access_token;
-    console.log("Auth token initialized:", SPOTIFY_AUTH_TOKEN);
-  }
-  next();
-};
 
 // Check if token is expired
 const checkTokenExpired = async (req, res, next) => {
@@ -194,10 +119,12 @@ const checkTokenExpired = async (req, res, next) => {
       isLoggedIn = false;
       console.log("Token expired, redirecting to login.");
       res.json({
-        data: {
-          Status: 401,
-          message: "Your token has expired, please login again",
-          redirect_url: "http://localhost:5001/login",
+        error: {
+          data: {
+            Status: 401,
+            message: "Your token has expired, please login again",
+            redirect_url: "http://localhost:5001/login",
+          }
         }
       });
     } else {

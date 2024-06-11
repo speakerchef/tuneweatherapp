@@ -47,7 +47,6 @@ const Button = ({buttonText = "Link Spotify",}) => {
                 } catch (e) {
                     console.log("Error sending location", e)
                 } finally {
-                    setToggle((prevState) => !prevState);
                 }
             } else {
 
