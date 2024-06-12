@@ -1,5 +1,4 @@
 import React from 'react';
-import IFrame from "../Components/IFrame.jsx";
 import Buttons from "../Components/Buttons.jsx";
 import NavBar from "../Components/NavBar.jsx";
 import robotImage from "../assets/robot-8189.svg"

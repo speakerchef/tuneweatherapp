@@ -88,24 +88,23 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     console.log("ITEM IN LOCAL STORAGE", localStorage.getItem("city"));
   }, [toggle]);
 
+
+
   return (
-    <>
-      {hasError && <ErrorModal />}
-      <div className=" -translate-x-30 m-auto ">
-        {/*Button to link spotify*/}
-        <div className="flex-col flex items-center ">
-          <div className="text-center  ">
-            <button
+      <>
+        {hasError && <ErrorModal />}
+        <div className="flex justify-center mt-8">
+          {/*Button to link spotify*/}
+          <button
               onClick={login}
-              className={`shadow-xl text-white text-right text-lg bg-spotifyGreen py-3.5 rounded-2xl hover:bg-green-600 transition-all duration-100 ease-in px-8 active:ring-1 active:ring-red-600 font-bold active:bg-darkerTransparentIndigoBlue md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
-            >
-              <FaSpotify className="inline -mt-0.5 mr-1" />     Link Spotify
-            </button>
-          </div>
+              className="shadow-xl text-white text-lg mb-14 font-bold bg-spotifyGreen py-3.5 rounded-2xl hover:bg-green-600 transition-all duration-100 ease-in px-6 md:px-8 md:py-4 lg:px-8 lg:py-4 xl:px-8 xl:py-4"
+          >
+            <FaSpotify className="inline mr-2 mb-1" />
+            {buttonText}
+          </button>
         </div>
-      </div>
-    </>
-  )
-}
+      </>
+  );
+};
 
 export default Button;
