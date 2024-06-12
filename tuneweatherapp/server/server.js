@@ -133,7 +133,7 @@ const checkTokenExpired = async (req, res, next) => {
   }
 };
 
-const redirect_uri = "http://localhost:5001/callback";
+const redirect_uri = "https://tuneweatherapp.onrender.com/callback";
 app.get("/login", async (req, res) => {
     // res.redirect("http://localhost:3000/playlist");
     const scope =
