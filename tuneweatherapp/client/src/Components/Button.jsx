@@ -72,15 +72,15 @@ const Button = ({ buttonText = "Link Spotify"}) => {
   }, [locationLoaded]);
 
   const login = async () => {
-    setLocationLoaded(true)
-      if (!loginCondition) {
-        window.location.replace("https://tuneweatherapp.onrender.com/login");
-        console.log("Location sent");
-        setLoginCondition(true);
-        setLoggedIn(true);
-      } else {
-        console.log("User exists")
-      }
+    setLocationLoaded(prev => !prev)
+    if (!loginCondition) {
+      window.location.replace("https://tuneweatherapp.onrender.com/login");
+      console.log("Location sent");
+      setLoginCondition(true);
+      setLoggedIn(true);
+    } else {
+      console.log("User exists")
+    }
   };
 
 

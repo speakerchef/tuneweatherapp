@@ -171,7 +171,9 @@ app.get("/callback", async (req, res) => {
   };
 
   try {
-    sessionId = req.cookies.cookie_id;
+    if (!sessionId) {
+      sessionId = req.cookies.cookie_id;
+    }
     const response = await axios(authOptions);
     const body = response.data;
     const access_token = body.access_token;
@@ -209,7 +211,16 @@ app.get("/callback", async (req, res) => {
     SPOTIFY_AUTH_TOKEN = access_token;
     isLoggedIn = true;
     needsRefresh = false;
-    res.redirect("https://tuneweather.netlify.app/playlist");
+    const currentUser = await UserModel.collection.findOne({cookieId: sessionId})
+    if (currentUser) {
+      const lat = currentUser.latitude;
+      if (lat){
+        res.redirect("https://tuneweather.netlify.app/playlist");
+
+      } else {
+        res.redirect("https://tuneweather.netlify.app/playlist");
+      }
+    }
   } catch (error) {
     console.error(error.response ? error.response.status : error);
     res.send({ code: 500, message: "Internal server error" });
