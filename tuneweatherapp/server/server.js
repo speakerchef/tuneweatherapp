@@ -19,7 +19,7 @@ const session_secret = process.env.session_secret;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002;
 const app = express();
 const mongoURI = "mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather";
 let SPOTIFY_AUTH_TOKEN;
