@@ -64,7 +64,7 @@ app.use(
     windowMs: 1 * 60 * 1000,
     max: 10,
     handler: async (req, res) => {
-      res.redirect("https://kaleidoscopic-mochi-74fb54.netlify.app/");
+      res.redirect("https://tuneweather.onrender.com/");
     },
   }),
 );
@@ -209,7 +209,7 @@ app.get("/callback", async (req, res) => {
     SPOTIFY_AUTH_TOKEN = access_token;
     isLoggedIn = true;
     needsRefresh = false;
-    res.redirect("https://kaleidoscopic-mochi-74fb54.netlify.app/playlist");
+    res.redirect("https://tuneweather.onrender.com/playlist");
   } catch (error) {
     console.error(error.response ? error.response.status : error);
     res.send({ code: 500, message: "Internal server error" });
