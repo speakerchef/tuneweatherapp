@@ -14,13 +14,13 @@ const Hero = ({mainHeaderHidden, iframeHidden, dashboardHeaderHidden, playlistSe
               <div
                 className={`${playlistSectionHeadersHidden ? "hidden" : ""} flex items-center flex-col mx-auto`}
               >
-                <h2 className="-mt-20  text-4xl text-center text-gray-800 font-extrabold sm:text-4xl md:text-5xl md:text-center lg:text-center xl:text-center xl:text-7xl">
+                <h2 className="-mt-20 text-4xl text-center text-gray-800 font-extrabold sm:text-4xl md:text-5xl md:text-center lg:text-center xl:text-center xl:text-7xl">
                   {headerText
                     ? "Here's your new playlist!"
                     : "Welcome! Click the button below to make your first playlist!"}
                 </h2>
                 <p
-                  className={`${subHeaderHidden ? "hidden" : ""} text-center mb-6 mt-4 text-md text-gray-800`}
+                  className={`${subHeaderHidden ? "hidden" : ""} text-center mb-5 mt-4 text-md text-gray-800`}
                 >
                   The following playlist has been added to your spotify account
                 </p>
