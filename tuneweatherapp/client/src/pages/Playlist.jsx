@@ -5,7 +5,7 @@ import Button from "../Components/Button.jsx";
 import {sessionId} from "../Components/Button.jsx";
 import Spinner from "../Components/Spinner.jsx";
 import ErrorModal from "../Components/ErrorModal.jsx";
-import {loginCondition} from "../Components/Button.jsx";
+export let loginCondition = Boolean;
 import {FaComputer} from "react-icons/fa6";
 
 

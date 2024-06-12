@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Playlist from "../pages/Playlist.jsx";
 export let sessionId;
-export let loginCondition;
 import ErrorModal from "./ErrorModal.jsx";
 import {FaSpotify} from "react-icons/fa6";
+import {loginCondition as localLoginCondition} from "../pages/Playlist.jsx";
 
 // Button component
 const Button = ({ buttonText = "Link Spotify"}) => {
@@ -14,6 +14,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
   const [toggle, setToggle] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [apiData, setApiData] = useState('');
+  const [loginCondition, setLoginCondition] = useState(localLoginCondition);
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -75,6 +76,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
       if (!loginCondition) {
         window.location.replace("http://localhost:5001/login");
         console.log("Location sent");
+        setLoginCondition(true);
         setLoggedIn(true);
       } else {
         console.log("User exists")
