@@ -135,9 +135,7 @@ const checkTokenExpired = async (req, res, next) => {
 
 const redirect_uri = "http://localhost:5001/callback";
 app.get("/login", async (req, res) => {
-  if (isLoggedIn) {
-    res.redirect("http://localhost:3000/playlist");
-  } else {
+    // res.redirect("http://localhost:3000/playlist");
     const scope =
       "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
     const authUrl = "https://accounts.spotify.com/authorize";
@@ -150,7 +148,7 @@ app.get("/login", async (req, res) => {
         mode: "no-cors",
       })}`,
     );
-  }
+
 });
 
 app.get("/callback", async (req, res) => {
@@ -236,6 +234,8 @@ app.post("/location", async (req, res) => {
   });
   if (currentUser) {
     if (currentUser.latitude && currentUser.longitude) {
+      userLatitude = currentUser.latitude;
+      userLongitude = currentUser.longitude;
       console.log("location exists");
       return;
     }
@@ -247,10 +247,7 @@ app.post("/location", async (req, res) => {
     if (!userLatitude || !userLongitude) {
       res.status(418).json("Error: Coordinates not provided");
     } else {
-      res.json({
-        code: 200,
-        message: "Request successful.",
-      });
+
       console.log("User coords: " + userLatitude, userLongitude);
       const response = await fetch(
         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLatitude}&longitude=${userLongitude}`,
@@ -267,6 +264,13 @@ app.post("/location", async (req, res) => {
           },
         },
       );
+      res.send({
+        data: {
+          code: 200,
+          message: "Request successful.",
+          city: userLocation,
+        }
+      });
     }
   }
 });
@@ -325,9 +329,9 @@ const fetchSpotifyApi = async (endpoint, method, body) => {
 // Getting user's top tracks
 const getTopTrackIds = async () => {
   try {
-    const topTracks = await fetchSpotifyApi(`v1/me/top/tracks?limit=50`, "GET");
+    const topTracks = await fetchSpotifyApi(`v1/me/top/tracks?limit=30`, "GET");
     let arrOfTopTrackID = [];
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 30; i++) {
       let trackId = await topTracks["items"][i]["id"];
       arrOfTopTrackID.push(await trackId);
     }
@@ -427,8 +431,8 @@ const createPlaylist = async (tracks) => {
       `v1/playlists/${pid}/tracks?uris=${trackUris.join(",")}`,
       "POST",
     );
-    return pid;
     console.log("Items have been added");
+    return pid;
   } catch (e) {
     console.log(e);
     return null;

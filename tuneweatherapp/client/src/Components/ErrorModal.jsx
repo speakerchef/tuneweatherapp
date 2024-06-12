@@ -1,6 +1,6 @@
 import React from 'react';
 
-const ErrorModal = () => {
+const ErrorModal = ({errorText}) => {
     return (
         <div className="fixed z-10 inset-0 overflow-y-auto" id="my-modal">
             <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -26,7 +26,7 @@ const ErrorModal = () => {
                             </h3>
                             <div className="mt-2">
                                 <p className="text-sm text-gray-500">
-                                    There was an error processing your request. Click 'OK' to return to the home page.
+                                    {errorText ? errorText : 'There was an error processing your request. Click \'OK\' to return to the home page.'}
                                 </p>
                             </div>
                         </div>

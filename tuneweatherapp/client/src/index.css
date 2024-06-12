@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 
-body {
-    @apply bg-darkerTransparentIndigoBlue;
+@media  {
+    body{
+        background-image: url("./assets/bg.svg");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
+    }
+
 }
