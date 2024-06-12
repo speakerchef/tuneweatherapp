@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Hero from "../Components/Hero.jsx";
 import NavBar from "../Components/NavBar.jsx";
 import Button from "../Components/Button.jsx";
-import {FaComputer, FaMusic, FaCloud, FaC} from "react-icons/fa6";
+import {FaComputer, FaMusic, FaCloudRain, FaSpotify} from "react-icons/fa6";
 import bgImage from "../assets/bg.svg";
 
 const Home = () => {
@@ -27,7 +27,7 @@ const Home = () => {
                 <div className="tooltip absolute top-0 left-0 bg-gray-800 text-white text-sm rounded p-2 hidden">
                   Tooltip content 1
                 </div>
-                <h3 className="text-xl pb-4 font-semibold text-white"><FaComputer className="text-black text-3xl"/></h3>
+                <h3 className="text-xl pb-4 font-semibold text-white"><FaSpotify className="text-black text-3xl"/></h3>
                 <p className="text-gray-900">Connect your Spotify Account</p>
               </div>
               <div
@@ -35,7 +35,7 @@ const Home = () => {
                 <div className="tooltip absolute top-0 left-0 bg-gray-800 text-white text-sm rounded p-2 hidden">
                   Tooltip content 2
                 </div>
-                <h3 className="text-xl pb-4 font-semibold text-white"><FaCloud className="text-black text-3xl"/></h3>
+                <h3 className="text-xl pb-4 font-semibold text-white"><FaCloudRain className="text-black text-3xl"/></h3>
                 <p className="text-gray-900">We analyze the weather at your location</p>
               </div>
               <div
@@ -49,7 +49,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <footer className="bg-indigo-700 text-white py-8">
+        <footer className="bg-gray-900 text-white py-8">
           <div className="container mx-auto px-6">
             <h2 className="text-2xl font-semibold text-center">Have a question or issue?</h2>
             <p className="text-center mb-6">Send us a message and we'll get back to you as soon as possible.</p>
@@ -74,7 +74,7 @@ const Home = () => {
               </div>
               <div className="text-center">
                 <button
-                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition duration-200"
+                    className="bg-indigo-700 text-white px-4 py-2 font-bold rounded-xl hover:bg-green-600 transition duration-200"
                     type="submit">Send Message
                 </button>
               </div>

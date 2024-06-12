@@ -62,6 +62,7 @@ const Playlist = () => {
 
 
     const clickHandler = async () => {
+        playlist_id = ''
         setLoading(true)
         setHeaderText(true)
         setSubHeaderHidden(false)
@@ -70,10 +71,13 @@ const Playlist = () => {
             const pid = await makePlaylist()
             playlist_id = await pid
             console.log("Playlist data", playlist_id)
-            if (playlist_id !== '') {
+            if (playlist_id !== undefined) {
                 setHasError(false)
                 setShowIframe(true)
                 setIFrame(playlist_id)
+            } else {
+                setErrorText("Your access has expired. Please login again to continue using tuneweather. Click OK to return to the login page.")
+                setHasError(true)
             }
         }
     }
@@ -93,9 +97,7 @@ const Playlist = () => {
         />
         <div className="flex flex-col items-center -mt-48 justify-between rounded-2xl">
           {hasError && <ErrorModal errorText={errorText} />}
-          {loading ? (
-            <Spinner />
-          ) : (
+          {(loading || hasError) ? (<Spinner />) : (
             <div>
               <iframe
                 src={`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`}
@@ -104,7 +106,7 @@ const Playlist = () => {
                 // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                 loading="lazy"
-                className="flex min-h-[680px] min-w-[480px] sm:mt-14 lg:-mt-1 xl:-mt-40 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
+                className="flex min-h-[680px] min-w-[480px] sm:mt-28 md:mt-24 lg:mt-12 xl:-mt-28 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
               />
             </div>
           )}

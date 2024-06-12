@@ -5,7 +5,7 @@ const cssOverride = {
     display: 'block',
     margin: '0 auto',
     borderColor: '#553bff',
-    marginTop: '2rem',
+    marginTop: '4rem',
 }
 
 const Spinner = ({loading}) => {

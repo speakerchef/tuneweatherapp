@@ -3,6 +3,7 @@ import Playlist from "../pages/Playlist.jsx";
 export let sessionId;
 export let loginCondition;
 import ErrorModal from "./ErrorModal.jsx";
+import {FaSpotify} from "react-icons/fa6";
 
 // Button component
 const Button = ({ buttonText = "Link Spotify"}) => {
@@ -90,13 +91,13 @@ const Button = ({ buttonText = "Link Spotify"}) => {
       {hasError && <ErrorModal />}
       <div className=" -translate-x-30 m-auto ">
         {/*Button to link spotify*/}
-        <div className="flex-col flex items-center fle text-center">
-          <div className="text-center -my-14  ">
+        <div className="flex-col flex items-center ">
+          <div className="text-center  ">
             <button
               onClick={login}
-              className={`shadow-xl text-white text-md bg-spotifyGreen py-3.5 rounded-2xl hover:bg-green-600 transition-all duration-100 ease-in px-8 active:ring-1 active:ring-red-600 font-bold active:bg-darkerTransparentIndigoBlue md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
+              className={`shadow-xl text-white text-right text-lg bg-spotifyGreen py-3.5 rounded-2xl hover:bg-green-600 transition-all duration-100 ease-in px-8 active:ring-1 active:ring-red-600 font-bold active:bg-darkerTransparentIndigoBlue md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
             >
-              {buttonText}
+              <FaSpotify className="inline -mt-0.5 mr-1" />     Link Spotify
             </button>
           </div>
         </div>
