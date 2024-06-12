@@ -15,7 +15,7 @@ const Home = () => {
         </div>
         <div className="flex-grow"></div>
         {/* Spacer to push the boxes down */}
-        <div className="relative pt-12 pb-32"> {/* Adjust padding for better spacing */}
+        <div className="relative pt-12 pb-48 my-20 "> {/* Adjust padding for better spacing */}
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="relative bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-6 rounded-lg shadow-lg">
@@ -40,7 +40,7 @@ const Home = () => {
           </div>
         </div>
         <footer className="bg-gray-900 text-white py-8">
-          <div className="container mx-auto px-6">
+          <div className="container mx-auto px-4">
             <h2 className="text-2xl font-semibold text-center">Have a question or issue?</h2>
             <p className="text-center mb-6">Send us a message and we'll get back to you as soon as possible.</p>
             <form className="max-w-lg mx-auto pb-4">

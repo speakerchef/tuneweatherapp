@@ -46,7 +46,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         try {
           console.log(latitude, longitude);
           const res = await fetch(
-              `http://localhost:5001/location?latitude=${latitude}&longitude=${longitude}`,
+              `https://tuneweatherapp.onrender.com/location?latitude=${latitude}&longitude=${longitude}`,
               {
                 method: "POST",
               },
@@ -74,7 +74,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
   const login = async () => {
     setLocationLoaded(true)
       if (!loginCondition) {
-        window.location.replace("http://localhost:5001/login");
+        window.location.replace("https://tuneweatherapp.onrender.com/login");
         console.log("Location sent");
         setLoginCondition(true);
         setLoggedIn(true);
@@ -88,23 +88,24 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     console.log("ITEM IN LOCAL STORAGE", localStorage.getItem("city"));
   }, [toggle]);
 
-
-
   return (
-      <>
-        {hasError && <ErrorModal />}
-        <div className="flex justify-center mt-8">
-          {/*Button to link spotify*/}
-          <button
+    <>
+      {hasError && <ErrorModal />}
+      <div className=" -translate-x-30 m-auto  ">
+        {/*Button to link spotify*/}
+        <div className="flex-col flex items-center ">
+          <div className="text-center  ">
+            <button
               onClick={login}
-              className="shadow-xl text-white text-lg mb-14 font-bold bg-spotifyGreen py-3.5 rounded-2xl hover:bg-green-600 transition-all duration-100 ease-in px-6 md:px-8 md:py-4 lg:px-8 lg:py-4 xl:px-8 xl:py-4"
-          >
-            <FaSpotify className="inline mr-2 mb-1" />
-            {buttonText}
-          </button>
+              className={`shadow-xl text-white -my-20 text-right text-lg bg-spotifyGreen py-3.5 md:-my-14 rounded-2xl hover:bg-green-600 transition-all duration-100 ease-in px-8 active:ring-1 active:ring-red-600 font-bold active:bg-darkerTransparentIndigoBlue sm:-my-14 md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:my-14 xl:py-5`}
+            >
+              <FaSpotify className="inline -mt-0.5 mr-1" />     Link Spotify
+            </button>
+          </div>
         </div>
-      </>
-  );
-};
+      </div>
+    </>
+  )
+}
 
 export default Button;

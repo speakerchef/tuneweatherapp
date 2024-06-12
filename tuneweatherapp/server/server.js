@@ -21,7 +21,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 const PORT = process.env.PORT || 5001;
 const app = express();
-const mongoURI = "mongodb://localhost:27017/tuneweatherdb";
+const mongoURI = "mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather";
 let SPOTIFY_AUTH_TOKEN;
 let userLatitude;
 let userLongitude;
@@ -56,7 +56,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -64,7 +64,7 @@ app.use(
     windowMs: 1 * 60 * 1000,
     max: 10,
     handler: async (req, res) => {
-      res.redirect("http://localhost:3000/");
+      res.redirect("https://kaleidoscopic-mochi-74fb54.netlify.app/");
     },
   }),
 );
@@ -209,7 +209,7 @@ app.get("/callback", async (req, res) => {
     SPOTIFY_AUTH_TOKEN = access_token;
     isLoggedIn = true;
     needsRefresh = false;
-    res.redirect("http://localhost:3000/playlist");
+    res.redirect("https://kaleidoscopic-mochi-74fb54.netlify.app/playlist");
   } catch (error) {
     console.error(error.response ? error.response.status : error);
     res.send({ code: 500, message: "Internal server error" });

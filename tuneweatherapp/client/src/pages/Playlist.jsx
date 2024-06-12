@@ -25,7 +25,7 @@ const Playlist = () => {
     const makePlaylist = async () => {
         let session_id;
         try {
-            const response = await fetch('http://localhost:5001/playlist')
+            const response = await fetch('https://tuneweatherapp.onrender.com/playlist')
             const data = await response.json()
             session_id = data.data.session_id
         } catch (e) {
@@ -34,7 +34,7 @@ const Playlist = () => {
         }
         if (session_id) {
             try {
-                const response = await fetch(`http://localhost:5001/tracks?session_id=${await session_id}`);
+                const response = await fetch(`https://tuneweatherapp.onrender.com/tracks?session_id=${await session_id}`);
                 const data = await response.json()
                 console.log("DATA", data.data.playlist_id)
                 if (!data || data.error){
@@ -95,7 +95,7 @@ const Playlist = () => {
           headerText={headerText}
           subHeaderHidden={subHeaderHidden}
         />
-        <div className="flex flex-col items-center -mt-48 justify-between rounded-2xl">
+        <div className="flex flex-col items-center -mt-44 justify-between rounded-2xl">
           {hasError && <ErrorModal errorText={errorText} />}
           {(loading || hasError) ? (<Spinner />) : (
             <div>
@@ -118,9 +118,6 @@ const Playlist = () => {
             className="flex flex-col items-center justify-between rounded-2xl"
           >
             <div className="relative bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-4 mt-4 -mb-2 rounded-lg shadow-lg">
-              <div className="tooltip absolute top-0 left-0 bg-gray-800 text-white text-sm rounded p-2 hidden">
-                Tooltip content 1
-              </div>
               <p className="text-black">You can make another playlist. Please keep in mind, theres a
                   limit of 15 playlists per minute! You have {getPlaylist}{" "}
                   requests left</p>
