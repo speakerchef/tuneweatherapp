@@ -61,15 +61,8 @@ const Button = ({ buttonText = "Link Spotify"}) => {
       }
     };
 
-    // if (loginCondition) {
-    //   console.log("User exists");
-    //   window.location.replace('/playlist')
-    // } else if (!loginCondition){
-    //
-    // }
-
     sendUserLocation().then(() => console.log("API DATA", apiData));
-  }, [locationLoaded]);
+  }, [latitude, longitude]);
 
   const login = async () => {
     setLocationLoaded(prev => !prev)

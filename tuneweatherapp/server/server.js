@@ -17,18 +17,20 @@ const client_secret = process.env.client_secret;
 const WEATHERAPI_TOKEN = process.env.WEATHERAPI_TOKEN;
 const session_secret = process.env.session_secret;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const server_url = process.env.server_url;
+const client_url = process.env.client_url;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 const PORT = process.env.PORT || 5002;
 const app = express();
 const mongoURI = "mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather";
-let SPOTIFY_AUTH_TOKEN;
+// let SPOTIFY_AUTH_TOKEN;
 let userLatitude;
 let userLongitude;
 let userLocation;
-let needsRefresh = false;
-let isLoggedIn = false;
-let sessionId;
+// let needsRefresh = false;
+// let isLoggedIn = false;
+// let sessionId;
 
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
@@ -42,6 +44,8 @@ const UserSchema = new mongoose.Schema({
   date_issued: Number,
   latitude: String,
   longitude: String,
+  isLoggedIn: Boolean,
+  needsRefresh: Boolean,
 });
 const UserModel = mongoose.model("Users", UserSchema);
 
@@ -49,7 +53,7 @@ app.use(
   session({
     secret: session_secret,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: mongoURI,
     }),
@@ -64,14 +68,14 @@ app.use(
     windowMs: 1 * 60 * 1000,
     max: 10,
     handler: async (req, res) => {
-      res.redirect("https://tuneweather.netlify.app/");
+      res.redirect(`${client_url}`);
     },
   }),
 );
 
 app.use((req, res, next) => {
-  if (req.cookies) {
-    console.log("Session data before save:", req.cookies.cookie_id);
+  if (req.session) {
+    console.log("Session data before save:", req.session.id);
   }
   next();
 });
@@ -90,16 +94,18 @@ app.get("/db-test", async (req, res) => {
 const validateUser = async (req, res, next) => {
   const requestId = req.query.session_id;
   if (!requestId) {
-    res.send({ code: 401, message: "Unauthorized, please login" });
+    res.send({ code: 403, message: "No session id provided" });
   } else {
     console.log("Request made from ID:", requestId);
     const user = await UserModel.collection.findOne({ cookieId: requestId });
     if (!user) {
-      res.sendStatus(401, { code: 401, message: "User not found" });
+      res.sendStatus(401).json({ code: 401, message: "User not found for the given session" });
     } else {
-      const token = user.access_token;
-      SPOTIFY_AUTH_TOKEN = token;
-      next();
+      if (!user.isLoggedIn || user.needsRefresh){
+        res.redirect(`${server_url}/login`)
+      } else {
+        next();
+      }
     }
   }
 };
@@ -108,15 +114,14 @@ const validateUser = async (req, res, next) => {
 // Check if token is expired
 const checkTokenExpired = async (req, res, next) => {
   const currentUser = await UserModel.collection.findOne({
-    cookieId: sessionId,
+    cookieId: req.session.id,
   });
-
   if (currentUser) {
     let dateDiff = Date.now() - currentUser.date_issued;
     console.log("Date difference:", dateDiff);
     if (dateDiff >= currentUser.expires_in) {
-      needsRefresh = true;
-      isLoggedIn = false;
+      currentUser.needsRefresh = true;
+      currentUser.isLoggedIn = false;
       console.log("Token expired, redirecting to login.");
       res.json({
         error: {
@@ -133,9 +138,15 @@ const checkTokenExpired = async (req, res, next) => {
   }
 };
 
-const redirect_uri = "https://tuneweatherapp.onrender.com/callback";
-app.get("/login", async (req, res) => {
-    // res.redirect("http://localhost:3000/playlist");
+const redirect_uri = `${server_url}/callback`;
+app.post("/login", async (req, res) => {
+  const user = await UserModel.collection.findOne({ cookieId: req.session.id });
+  if (user){
+    if (user.isLoggedIn && !user.needsRefresh){
+      res.redirect(`${client_url}/playlist`);
+      return
+    }
+  }
     const scope =
       "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
     const authUrl = "https://accounts.spotify.com/authorize";
