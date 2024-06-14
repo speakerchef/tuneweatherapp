@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import Playlist from "../pages/Playlist.jsx";
-export let sessionId;
+export let sessionId = undefined;
 import ErrorModal from "./ErrorModal.jsx";
 import {FaSpotify} from "react-icons/fa6";
 import {loginCondition as localLoginCondition} from "../pages/Playlist.jsx";
+import Playlist from "../pages/Playlist.jsx"
 
 // Button component
 const Button = ({ buttonText = "Link Spotify"}) => {
@@ -15,6 +15,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
   const [hasError, setHasError] = useState(false);
   const [apiData, setApiData] = useState('');
   const [loginCondition, setLoginCondition] = useState(localLoginCondition);
+  const [playlist, setPlaylist] = useState('');
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -33,7 +34,13 @@ const Button = ({ buttonText = "Link Spotify"}) => {
       }
     };
 
-    getUserLocation().then(() => console.log("location retrieved"));
+    getUserLocation().then(() => {
+      if(latitude && longitude) {
+        console.log("User coordinates retrieved")
+      } else {
+        console.log("User coordinates not retrieved");
+      }
+    });
   }, [locationLoaded]);
 
   setTimeout(() => {
@@ -67,10 +74,27 @@ const Button = ({ buttonText = "Link Spotify"}) => {
   const login = async () => {
     setLocationLoaded(prev => !prev)
     if (!loginCondition) {
-      window.location.replace("https://tuneweatherapp.onrender.com/login");
-      console.log("Location sent");
-      setLoginCondition(true);
-      setLoggedIn(true);
+      try {
+      // window.location.replace("http://localhost:5001/login");
+        const session = await fetch('http://localhost:5001/playlist')
+        const data = await session.json()
+        if (data.error){
+          console.log("Error occured while logging in", data.error);
+        } else {
+          sessionId = data.data.session_id;
+          console.log("session id", sessionId);
+          setPlaylist(<Playlist sessionId={sessionId}/>)
+          window.location.replace(`http://localhost:5001/login?sessionId=${sessionId}`);
+        }
+
+        // setLoginCondition(true);
+        // setLoggedIn(true);
+
+      } catch (e) {
+        console.log("Error logging in", e);
+      }
+      // console.log("Location sent");
+
     } else {
       console.log("User exists")
     }

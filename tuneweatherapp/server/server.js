@@ -8,7 +8,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
-import cookieParser from "cookie-parser";
+import req from "express/lib/request.js";
 
 const env = dotenv.config();
 
@@ -23,14 +23,11 @@ const client_url = process.env.client_url;
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 const PORT = process.env.PORT || 5002;
 const app = express();
-const mongoURI = "mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather";
-// let SPOTIFY_AUTH_TOKEN;
+const mongoURI =
+  "mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather";
 let userLatitude;
 let userLongitude;
 let userLocation;
-// let needsRefresh = false;
-// let isLoggedIn = false;
-// let sessionId;
 
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
@@ -53,113 +50,131 @@ app.use(
   session({
     secret: session_secret,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: mongoURI,
     }),
+    cookie: {
+      maxAge: 60 * 60 * 1000,
+    },
   }),
 );
-app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   rateLimit({
-    windowMs: 1 * 60 * 1000,
+    windowMs: 60 * 1000,
     max: 10,
-    handler: async (req, res) => {
-      res.redirect(`${client_url}`);
+    handler: (req, res) => {
+      res.status(429).json({
+        error: {
+          status: 429,
+          message: "Rate limit exceeded",
+        },
+      });
     },
   }),
 );
 
 app.use((req, res, next) => {
-  if (req.session) {
-    console.log("Session data before save:", req.session.id);
-  }
+  console.log("Session data before save:", req.session.id);
   next();
 });
 
 app.set("trust proxy", 1);
 
 //TESTING POINT
-app.get("/db-test", async (req, res) => {
-  console.log("cookie ID at /db-test: ", req.cookies.cookie_id);
-  console.log(
-    "session stored in DB",
-    await UserModel.collection.findOne({ cookieId: req.cookies.cookie_id }),
-  );
-});
 
 const validateUser = async (req, res, next) => {
-  const requestId = req.query.session_id;
+  const requestId = req.query.sessionId;
+  console.log("REQUEST COOKIE ID: ", requestId);
   if (!requestId) {
-    res.send({ code: 403, message: "No session id provided" });
+    res.status(403).json({
+      error: {
+        message: "No session id provided",
+      },
+    });
   } else {
+
     console.log("Request made from ID:", requestId);
     const user = await UserModel.collection.findOne({ cookieId: requestId });
     if (!user) {
-      res.sendStatus(401).json({ code: 401, message: "User not found for the given session" });
+      res.status(401).json({
+        error: {
+          message: "User not found for the given session",
+        },
+      });
     } else {
-      if (!user.isLoggedIn || user.needsRefresh){
-        res.redirect(`${server_url}/login`)
+      next()
+    //   if (!user.isLoggedIn || user.needsRefresh) {
+    //     res.status(401).json({
+    //       error: {
+    //         message: "Your access has expired, please login",
+    //       },
+    //     });
+    //     res.redirect(`${server_url}/login`);
+    //   } else {
+    //     next();
+    //   }
+    }
+  }
+};
+
+// Check if token is expired
+const checkTokenExpired = async (req, res, next) => {
+  if (req.session.isAuth) {
+    const currentUser = await UserModel.collection.findOne({
+      cookieId: req.session.id,
+    });
+    if (currentUser) {
+      let dateDiff = Date.now() - currentUser.date_issued;
+      console.log("Date difference:", dateDiff);
+      if (dateDiff >= currentUser.expires_in) {
+        currentUser.needsRefresh = true;
+        currentUser.isLoggedIn = false;
+        req.session.isAuth = false;
+        console.log("Token expired, redirecting to login.");
+        res.json({
+          error: {
+            data: {
+              Status: 401,
+              message: "Your token has expired, please login again",
+              redirect_url: "http://localhost:5001/login",
+            },
+          },
+        });
       } else {
         next();
       }
     }
-  }
-};
-
-
-// Check if token is expired
-const checkTokenExpired = async (req, res, next) => {
-  const currentUser = await UserModel.collection.findOne({
-    cookieId: req.session.id,
-  });
-  if (currentUser) {
-    let dateDiff = Date.now() - currentUser.date_issued;
-    console.log("Date difference:", dateDiff);
-    if (dateDiff >= currentUser.expires_in) {
-      currentUser.needsRefresh = true;
-      currentUser.isLoggedIn = false;
-      console.log("Token expired, redirecting to login.");
-      res.json({
-        error: {
-          data: {
-            Status: 401,
-            message: "Your token has expired, please login again",
-            redirect_url: "http://localhost:5001/login",
-          }
-        }
-      });
-    } else {
-      next();
-    }
+  } else {
+    res.status(401).json({ message: "Unauthorized, please login" });
+    res.redirect(`${server_url}/login`);
   }
 };
 
 const redirect_uri = `${server_url}/callback`;
-app.post("/login", async (req, res) => {
-  const user = await UserModel.collection.findOne({ cookieId: req.session.id });
-  if (user){
-    if (user.isLoggedIn && !user.needsRefresh){
-      res.redirect(`${client_url}/playlist`);
-      return
-    }
+app.get("/login", async (req, res) => {
+  const currUser = await UserModel.collection.findOne({ cookieId: req.query.sessionId });
+  if (currUser.isLoggedIn && !currUser.needsRefresh) {
+    console.log("user is authorized (cookie)")
+    res.redirect(`${client_url}/playlist`);
   }
-    const scope =
-      "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
-    const authUrl = "https://accounts.spotify.com/authorize";
-    res.redirect(
-      `${authUrl}?${querystring.stringify({
-        response_type: "code",
-        client_id: client_id,
-        scope: scope,
-        redirect_uri: redirect_uri,
-        mode: "no-cors",
-      })}`,
-    );
-
+  req.session.isAuth = true;
+  console.log("User is not authorized")
+  const scope =
+    "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
+  const authUrl = "https://accounts.spotify.com/authorize";
+  res.redirect(
+    `${authUrl}?${querystring.stringify({
+      response_type: "code",
+      client_id: client_id,
+      scope: scope,
+      redirect_uri: redirect_uri,
+      mode: "no-cors",
+    })}`,
+  );
 });
 
 app.get("/callback", async (req, res) => {
@@ -182,20 +197,16 @@ app.get("/callback", async (req, res) => {
   };
 
   try {
-    if (!sessionId) {
-      sessionId = req.cookies.cookie_id;
-    }
     const response = await axios(authOptions);
     const body = response.data;
     const access_token = body.access_token;
     const refresh_token = body.refresh_token;
     const expires_in = body.expires_in * 1000;
-
     console.log("Access token:", access_token);
     console.table(body);
-
+    req.session.isAuth = true;
     const existingUser = await UserModel.collection.findOne({
-      cookieId: sessionId,
+      cookieId: req.session.id,
     });
     if (existingUser) {
       await UserModel.collection.updateOne(
@@ -206,83 +217,71 @@ app.get("/callback", async (req, res) => {
             refresh_token: refresh_token,
             expires_in: expires_in,
             date_issued: Date.now(),
+            isLoggedIn: true,
+            needsRefresh: false,
           },
         },
       );
     } else {
-      res.cookie("cookie_id", req.session.id);
       await UserModel.collection.insertOne({
-        cookieId: sessionId,
+        cookieId: req.session.id,
         access_token: access_token,
         refresh_token: refresh_token,
         expires_in: expires_in,
         date_issued: Date.now(),
+        isLoggedIn: true,
+        needsRefresh: false,
       });
-    }
-    SPOTIFY_AUTH_TOKEN = access_token;
-    isLoggedIn = true;
-    needsRefresh = false;
-    const currentUser = await UserModel.collection.findOne({cookieId: sessionId})
-    if (currentUser) {
-      const lat = currentUser.latitude;
-      if (lat){
-        res.redirect("https://tuneweather.netlify.app/playlist");
-
-      } else {
-        res.redirect("https://tuneweather.netlify.app/playlist");
-      }
     }
   } catch (error) {
     console.error(error.response ? error.response.status : error);
-    res.send({ code: 500, message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
+  res.redirect(`${client_url}/playlist`);
 });
 
 app.get("/playlist", async (req, res) => {
-  res.send({
-    data: {
-      code: 201,
-      message: "Login successful!",
-      access_token: SPOTIFY_AUTH_TOKEN,
-      session_id: sessionId,
-    },
-  });
+  await UserModel.collection.insertOne({cookieId: req.session.id}).then(() => {
+    req.session.isAuth = false;
+    console.log("session id at playlist", req.session.id)
+    res.send({
+      data: {
+        code: 201,
+        session_id: req.session.id,
+      },
+    });
+  })
+
 });
 
 app.post("/location", async (req, res) => {
-  console.log("Query at location enpoint", req.query)
+  console.log("Query at location enpoint", req.query);
   const currentUser = await UserModel.collection.findOne({
-    cookieId: sessionId,
+    cookieId: req.session.id,
   });
   if (currentUser) {
     if (currentUser.latitude && currentUser.longitude) {
-      userLatitude = currentUser.latitude;
-      userLongitude = currentUser.longitude;
       console.log("location exists");
-      return;
     }
-  }
-  if (req) {
-    userLatitude = req.query.latitude;
-    userLongitude = req.query.longitude;
-    console.log(userLatitude, userLongitude);
-    if (!userLatitude || !userLongitude) {
+  } else {
+    const lat = req.query.latitude;
+    const lon = req.query.longitude;
+    console.log(lat, lon);
+    if (!lat || !lon) {
       res.status(418).json("Error: Coordinates not provided");
     } else {
-
-      console.log("User coords: " + userLatitude, userLongitude);
+      console.log("User coords: " + lat, lon);
       const response = await fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${userLatitude}&longitude=${userLongitude}`,
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}`,
       );
-      userLocation = (await response.json()).locality;
-      userLocation = userLocation.toLowerCase();
+      const userLocation = (await response.json()).locality;
       console.log(userLocation);
       await UserModel.collection.updateOne(
-        { cookieId: sessionId },
+        { cookieId: req.session.id },
         {
           $set: {
-            latitude: userLatitude,
-            longitude: userLongitude,
+            latitude: lat,
+            longitude: lon,
           },
         },
       );
@@ -291,7 +290,7 @@ app.post("/location", async (req, res) => {
           code: 200,
           message: "Request successful.",
           city: userLocation,
-        }
+        },
       });
     }
   }
@@ -303,10 +302,10 @@ app.get(
   checkTokenExpired,
   ///////////////// testing ////////////////////
   async (req, res) => {
-    console.log("session ID at /tracks: ", sessionId);
+    console.log("session ID at /tracks: ", req.session.id);
     console.log(
       "session stored in DB",
-      await UserModel.collection.findOne({ cookieId: sessionId }),
+      await UserModel.collection.findOne({ cookieId: req.session.id }),
     );
     ////////////// testing ////////////////////
     let pid;
@@ -325,17 +324,23 @@ app.get(
       .catch((err) => {
         console.error("ERROR RUNNING OPERATIONS:", err);
         res.sendStatus(500);
-        return;
       });
   },
 );
 
 // use spotify API
 const fetchSpotifyApi = async (endpoint, method, body) => {
+  const currUser = await UserModel.collection.findOne({
+    cookieId: req.session.id,
+  });
+  if (!currUser) {
+    console.log("User not found");
+    return;
+  }
   try {
     const response = await fetch(`https://api.spotify.com/${endpoint}`, {
       headers: {
-        Authorization: `Bearer ${await SPOTIFY_AUTH_TOKEN}`,
+        Authorization: `Bearer ${await currUser.access_token}`,
       },
       method,
       body: JSON.stringify(body),
@@ -464,8 +469,11 @@ const createPlaylist = async (tracks) => {
 //Getting weather conditions at client location
 async function getWeatherConditions() {
   try {
+    const currUser = await UserModel.collection.findOne({
+      cookieId: req.session.id,
+    });
     const res = await axios.get(
-      `https://api.openweathermap.org/data/2.5/weather?lat=${await userLatitude}&lon=${await userLongitude}&appid=${WEATHERAPI_TOKEN}`,
+      `https://api.openweathermap.org/data/2.5/weather?lat=${currUser.latitude}&lon=${currUser.longitude}&appid=${WEATHERAPI_TOKEN}`,
     );
     const conditionsToPassToLLM = res.data.weather.description;
     const tempToPassToLLM = res.data.main.temp;
@@ -516,8 +524,8 @@ const getTrackFeatures = async (condition, temp) => {
 };
 
 // Runs the server functions
-const runOperations = async (location) => {
-  let trackFeatures = await getWeatherConditions("singapore");
+const runOperations = async () => {
+  let trackFeatures = await getWeatherConditions();
   if (!trackFeatures) {
     throw new Error("No track features found.");
     return;
