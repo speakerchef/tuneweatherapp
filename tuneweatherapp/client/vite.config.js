@@ -1,16 +1,22 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import cp from "vite-plugin-cp";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    cp({
+      targets: [{ src: "public/_redirects", dest: "dist" }],
+    }),
+  ],
   server: {
-    port:3000,
+    port: 3000,
     proxy: {
       "/api": {
-        target: 'http://localhost:5001',
+        target: "http://localhost:5001",
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/,'')
-      }
-    }
-  }
-})
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
+});
