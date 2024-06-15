@@ -76,16 +76,26 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     if (!loginCondition) {
       try {
         const response = await fetch('http://localhost:5001/login', {
-          method: "get",
+          method: "post",
           credentials: "include"
         })
         const data = await response.json()
+        console.log(data)
+        if (data){
+          if (data.data.status === 200){
+            console.log("Return status", data.data.status)
+            window.location.replace('/playlist')
+            return
+          }
+        }else {
+          console.log(data)
+          const redirectUrl = data.redirectLink
+          console.log("redirect URL",redirectUrl)
+          setTimeout(()=> {
+            window.location.replace(redirectUrl)
+          }, 1500)
+        }
 
-        const redirectUrl = data.redirectLink
-        console.log("redirect URL",redirectUrl)
-        setTimeout(()=> {
-          window.location.replace(redirectUrl)
-        }, 4000)
 
         // setLoginCondition(true);
         // setLoggedIn(true);

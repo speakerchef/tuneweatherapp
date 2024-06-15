@@ -161,16 +161,23 @@ const checkTokenExpired = async (req, res, next) => {
 };
 
 const redirect_uri = `${server_url}/callback`;
-app.get("/login", async (req, res) => {
+app.post("/login", async (req, res) => {
   console.log("saved user session", req.sessionID);
   const currUser = await UserModel.collection.findOne({
-    cookieId: req.session.sessionID,
+    cookieId: req.sessionID,
   });
   if (currUser) {
     if (currUser.isLoggedIn && !currUser.needsRefresh) {
       console.log("user is authorized (cookie)");
-      res.redirect(`${client_url}/playlist`);
+      res.status(200).json({
+        data: {
+          status: 200,
+          message: "User is logged in"
+        }
+      });
+      return
     }
+    return
   }
 
   console.log("User is not authorized");
