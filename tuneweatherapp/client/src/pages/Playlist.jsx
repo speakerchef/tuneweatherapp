@@ -18,8 +18,6 @@ const Playlist = () => {
   const [hasError, setHasError] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [errorText, setErrorText] = useState("");
-  const [sessionId, setSessionId] = useState(localSessionId);
-  let playlist_id = "";
 
   useEffect(() => {
     setHeaderText(false);
@@ -29,10 +27,9 @@ const Playlist = () => {
   const makePlaylist = async () => {};
 
   const clickHandler = async () => {
-    console.log("session ID", sessionId)
     setHeaderText(false)
     setSubHeaderHidden(false)
-    playlist_id = "";
+    let playlist_id = "";
     setLoading(true);
     setShowLoading(true);
 
