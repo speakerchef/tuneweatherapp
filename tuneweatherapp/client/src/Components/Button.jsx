@@ -1,6 +1,5 @@
 "use strict";
 import React, { useEffect, useState } from "react";
-export let sessionId;
 import ErrorModal from "./ErrorModal.jsx";
 import {FaSpotify} from "react-icons/fa6";
 import {loginCondition as localLoginCondition} from "../pages/Playlist.jsx";
@@ -94,8 +93,6 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         }
           console.log(data)
           const redirectUrl = data.redirectLink
-        sessionId = data.sessionId
-        console.log("session id: ", sessionId);
           console.log("redirect URL",redirectUrl)
           // setTimeout(()=> {
           //   window.location.replace(redirectUrl)

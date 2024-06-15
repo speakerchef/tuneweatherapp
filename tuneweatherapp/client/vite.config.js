@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     react(),
     cp({
-      targets: [{ src: "public/netlify.yaml", dest: "dist" }],
+      targets: [{ src: "public/netlify.toml", dest: "dist" }],
     }),
   ],
   server: {

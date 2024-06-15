@@ -6,7 +6,6 @@ import Spinner from "../Components/Spinner.jsx";
 import ErrorModal from "../Components/ErrorModal.jsx";
 export let loginCondition = Boolean;
 import { FaComputer } from "react-icons/fa6";
-import {sessionId as localSessionId} from "../Components/Button.jsx";
 
 const Playlist = () => {
   const [getPlaylist, setGetPlaylist] = useState(15);
@@ -40,7 +39,7 @@ const Playlist = () => {
       if (getPlaylist > 0) {
         setGetPlaylist((prev) => prev - 1);
         try {
-          const response = await fetch(`http://localhost:5001/tracks?sessionId=${sessionId}` ,{
+          const response = await fetch(`http://localhost:5001/tracks` ,{
             method: 'GET',
             credentials: "include"
           });
