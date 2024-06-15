@@ -1,3 +1,5 @@
+'use strict';
+
 import axios from "axios";
 import dotenv from "dotenv";
 import express from "express";
@@ -21,7 +23,7 @@ const server_url = process.env.server_url;
 const client_url = process.env.client_url;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 5001;
 const app = express();
 const mongoURI =
   "mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather";
@@ -57,6 +59,8 @@ app.use(
     cookie: {
       maxAge: 60 * 60 * 1000,
       secure: false,
+      httpOnly: true,
+      sameSite: 'none',
     },
   }),
 );
@@ -64,6 +68,7 @@ app.use(
   cors({
     origin: `https://tuneweather.netlify.app`,
     credentials: true,
+    mode: "no-cors",
   }),
 );
 app.use(express.json());

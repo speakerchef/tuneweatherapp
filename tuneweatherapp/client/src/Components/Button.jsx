@@ -1,3 +1,4 @@
+"use strict";
 import React, { useEffect, useState } from "react";
 export let sessionId = undefined;
 import ErrorModal from "./ErrorModal.jsx";
@@ -53,9 +54,10 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         try {
           console.log(latitude, longitude);
           const res = await fetch(
-              `https://tuneweatherapp.onrender.com/location?latitude=${latitude}&longitude=${longitude}`,
+              `http://localhost:5001/location?latitude=${latitude}&longitude=${longitude}`,
               {
                 method: "POST",
+                credentials: 'include'
               },
           );
           const data = await res.json();
@@ -75,8 +77,8 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     setLocationLoaded(prev => !prev)
     if (!loginCondition) {
       try {
-        const response = await fetch('https://tuneweatherapp.onrender.com/login', {
-          method: "post",
+        const response = await fetch('http://localhost:5001/login', {
+          method: "POST",
           credentials: "include"
         })
         const data = await response.json()
@@ -84,20 +86,20 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         if (data.error){
           setHasError(true)
         }
-        if (data.data.status){
+        if (data && data.data && data.data.status){
           if (data.data.status === 200){
             console.log("Return status", data.data.status)
             window.location.replace('/playlist')
             return
           }
-        }else {
+          return
+        }
           console.log(data)
           const redirectUrl = data.redirectLink
           console.log("redirect URL",redirectUrl)
           setTimeout(()=> {
             window.location.replace(redirectUrl)
           }, 1500)
-        }
 
 
         // setLoginCondition(true);

@@ -38,7 +38,7 @@ const Playlist = () => {
         setGetPlaylist((prev) => prev - 1);
         try {
           const response = await fetch(`https://tuneweatherapp.onrender.com/tracks` ,{
-            method: 'get',
+            method: 'GET',
             credentials: "include"
           });
           const data = await response.json();
