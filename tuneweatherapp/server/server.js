@@ -67,7 +67,7 @@ app.use(
 );
 app.use(
     cors({
-      origin: `https://tuneweather.netlify.app`,
+      origin: `https://tuneweather.com`,
       credentials: true,
       allowHeaders: ["Content-Type", "Authorization"],
       // excludeHeaders: ['Set-Cookie'],
