@@ -6,6 +6,7 @@ import Spinner from "../Components/Spinner.jsx";
 import ErrorModal from "../Components/ErrorModal.jsx";
 export let loginCondition = Boolean;
 import { FaComputer } from "react-icons/fa6";
+import {sessionId as localSessionId} from "../Components/Button.jsx";
 
 const Playlist = () => {
   const [getPlaylist, setGetPlaylist] = useState(15);
@@ -18,6 +19,7 @@ const Playlist = () => {
   const [hasError, setHasError] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [sessionId, setSessionId] = useState(localSessionId);
   let playlist_id = "";
 
   useEffect(() => {
@@ -28,6 +30,7 @@ const Playlist = () => {
   const makePlaylist = async () => {};
 
   const clickHandler = async () => {
+    console.log("session ID", sessionId)
     setHeaderText(false)
     setSubHeaderHidden(false)
     playlist_id = "";
@@ -37,7 +40,7 @@ const Playlist = () => {
       if (getPlaylist > 0) {
         setGetPlaylist((prev) => prev - 1);
         try {
-          const response = await fetch(`http://localhost:5001/tracks` ,{
+          const response = await fetch(`http://localhost:5001/tracks?sessionId=${sessionId}` ,{
             method: 'GET',
             credentials: "include"
           });
@@ -56,7 +59,7 @@ const Playlist = () => {
             console.log("Something went wrong")
             console.log(data.error);
             loginCondition = false;
-            setHasError(true);
+            // setHasError(true);
             return;
           } else {
             playlist_id = data.data.playlist_id;

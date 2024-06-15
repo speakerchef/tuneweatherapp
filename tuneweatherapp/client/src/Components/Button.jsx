@@ -1,6 +1,6 @@
 "use strict";
 import React, { useEffect, useState } from "react";
-export let sessionId = undefined;
+export let sessionId;
 import ErrorModal from "./ErrorModal.jsx";
 import {FaSpotify} from "react-icons/fa6";
 import {loginCondition as localLoginCondition} from "../pages/Playlist.jsx";
@@ -16,8 +16,6 @@ const Button = ({ buttonText = "Link Spotify"}) => {
   const [hasError, setHasError] = useState(false);
   const [apiData, setApiData] = useState('');
   const [loginCondition, setLoginCondition] = useState(localLoginCondition);
-  const [playlist, setPlaylist] = useState('');
-
   useEffect(() => {
     const getUserLocation = async () => {
       if (!navigator.geolocation) {
@@ -96,14 +94,16 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         }
           console.log(data)
           const redirectUrl = data.redirectLink
+        sessionId = data.sessionId
+        console.log("session id: ", sessionId);
           console.log("redirect URL",redirectUrl)
           // setTimeout(()=> {
           //   window.location.replace(redirectUrl)
           // }, 1500)
 
 
-        // setLoginCondition(true);
-        // setLoggedIn(true);
+        setLoginCondition(true);
+        setLoggedIn(true);
 
       } catch (e) {
         console.log("Error logging in", e);
@@ -115,10 +115,6 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     }
   };
 
-
-  useEffect(() => {
-    console.log("ITEM IN LOCAL STORAGE", localStorage.getItem("city"));
-  }, [toggle]);
 
   return (
     <>
