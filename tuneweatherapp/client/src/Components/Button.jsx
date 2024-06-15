@@ -75,17 +75,17 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     setLocationLoaded(prev => !prev)
     if (!loginCondition) {
       try {
-      // window.location.replace("http://localhost:5001/login");
-        const session = await fetch('http://localhost:5001/playlist')
-        const data = await session.json()
-        if (data.error){
-          console.log("Error occured while logging in", data.error);
-        } else {
-          sessionId = data.data.session_id;
-          console.log("session id", sessionId);
-          setPlaylist(<Playlist sessionId={sessionId}/>)
-          window.location.replace(`http://localhost:5001/login?sessionId=${sessionId}`);
-        }
+        const response = await fetch('http://localhost:5001/login', {
+          method: "get",
+          credentials: "include"
+        })
+        const data = await response.json()
+
+        const redirectUrl = data.redirectLink
+        console.log("redirect URL",redirectUrl)
+        setTimeout(()=> {
+          window.location.replace(redirectUrl)
+        }, 4000)
 
         // setLoginCondition(true);
         // setLoggedIn(true);

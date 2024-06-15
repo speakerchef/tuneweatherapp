@@ -22,20 +22,17 @@ const Playlist = () => {
   const makePlaylist = async () => {};
 
   const clickHandler = async () => {
-    const res = await fetch('http://localhost:5001/playlist')
-    const data = await res.json()
-    console.log("session id at playlist", await data)
     playlist_id = "";
     setLoading(true);
     setHeaderText(true);
     setSubHeaderHidden(false);
-    if (data === 'poeni'){
       if (getPlaylist > 0) {
         setGetPlaylist((prev) => prev - 1);
         try {
-          const response = await fetch(
-              `http://localhost:5001/tracks?sessionId=${sessionId}`,
-          );
+          const response = await fetch(`http://localhost:5001/tracks` ,{
+            method: 'get',
+            credentials: "include"
+          });
           const data = await response.json();
           console.log("data from tracks endpoint", data);
           if (!data || data.error) {
@@ -67,7 +64,6 @@ const Playlist = () => {
           setHasError(true);
         }
       }
-    }
   };
 
   setInterval(() => {

@@ -56,10 +56,14 @@ app.use(
     }),
     cookie: {
       maxAge: 60 * 60 * 1000,
+      secure: false
     },
   }),
 );
-app.use(cors());
+app.use(cors({
+  origin: `${client_url}`,
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -87,7 +91,7 @@ app.set("trust proxy", 1);
 //TESTING POINT
 
 const validateUser = async (req, res, next) => {
-  const requestId = req.query.sessionId;
+  const requestId = req.sessionID
   console.log("REQUEST COOKIE ID: ", requestId);
   if (!requestId) {
     res.status(403).json({
@@ -96,7 +100,6 @@ const validateUser = async (req, res, next) => {
       },
     });
   } else {
-
     console.log("Request made from ID:", requestId);
     const user = await UserModel.collection.findOne({ cookieId: requestId });
     if (!user) {
@@ -107,16 +110,16 @@ const validateUser = async (req, res, next) => {
       });
     } else {
       next()
-    //   if (!user.isLoggedIn || user.needsRefresh) {
-    //     res.status(401).json({
-    //       error: {
-    //         message: "Your access has expired, please login",
-    //       },
-    //     });
-    //     res.redirect(`${server_url}/login`);
-    //   } else {
-    //     next();
-    //   }
+      if (!user.isLoggedIn || user.needsRefresh) {
+        res.status(401).json({
+          error: {
+            message: "Your access has expired, please login",
+          },
+        });
+        res.redirect(`${server_url}/login`);
+      } else {
+        next();
+      }
     }
   }
 };
@@ -156,25 +159,26 @@ const checkTokenExpired = async (req, res, next) => {
 
 const redirect_uri = `${server_url}/callback`;
 app.get("/login", async (req, res) => {
-  const currUser = await UserModel.collection.findOne({ cookieId: req.query.sessionId });
-  if (currUser.isLoggedIn && !currUser.needsRefresh) {
-    console.log("user is authorized (cookie)")
-    res.redirect(`${client_url}/playlist`);
+  console.log('saved user session', req.sessionID)
+  const currUser = await UserModel.collection.findOne({ cookieId: req.session.sessionID });
+  if (currUser){
+    if (currUser.isLoggedIn && !currUser.needsRefresh) {
+      console.log("user is authorized (cookie)")
+      res.redirect(`${client_url}/playlist`);
+    }
   }
-  req.session.isAuth = true;
+
   console.log("User is not authorized")
   const scope =
     "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
   const authUrl = "https://accounts.spotify.com/authorize";
-  res.redirect(
-    `${authUrl}?${querystring.stringify({
-      response_type: "code",
-      client_id: client_id,
-      scope: scope,
-      redirect_uri: redirect_uri,
-      mode: "no-cors",
-    })}`,
-  );
+  const redirectLink = `${authUrl}?${querystring.stringify({
+    response_type: "code",
+    client_id: client_id,
+    scope: scope,
+    redirect_uri: redirect_uri,
+  })}`
+  res.status(200).json( { redirectLink: redirectLink } )
 });
 
 app.get("/callback", async (req, res) => {
@@ -224,7 +228,7 @@ app.get("/callback", async (req, res) => {
       );
     } else {
       await UserModel.collection.insertOne({
-        cookieId: req.session.id,
+        cookieId: req.sessionID,
         access_token: access_token,
         refresh_token: refresh_token,
         expires_in: expires_in,
@@ -323,7 +327,6 @@ app.get(
       })
       .catch((err) => {
         console.error("ERROR RUNNING OPERATIONS:", err);
-        res.sendStatus(500);
       });
   },
 );
@@ -470,7 +473,7 @@ const createPlaylist = async (tracks) => {
 async function getWeatherConditions() {
   try {
     const currUser = await UserModel.collection.findOne({
-      cookieId: req.session.id,
+      cookieId: req.sessionID,
     });
     const res = await axios.get(
       `https://api.openweathermap.org/data/2.5/weather?lat=${currUser.latitude}&lon=${currUser.longitude}&appid=${WEATHERAPI_TOKEN}`,
@@ -479,7 +482,7 @@ async function getWeatherConditions() {
     const tempToPassToLLM = res.data.main.temp;
     return await getTrackFeatures(conditionsToPassToLLM, tempToPassToLLM - 273);
   } catch (err) {
-    console.error(err.response.data);
+    console.error(err);
     console.error("Weather data could not be fetched");
     return null;
   }
