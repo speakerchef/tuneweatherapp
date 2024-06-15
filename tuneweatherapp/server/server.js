@@ -62,7 +62,7 @@ app.use(
 );
 app.use(
   cors({
-    origin: `${client_url}`,
+    origin: `https://tuneweather.netlify.app/`,
     credentials: true,
   }),
 );
