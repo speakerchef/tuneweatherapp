@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 import axios from "axios";
 import dotenv from "dotenv";
@@ -30,13 +30,13 @@ const mongoURI =
 let userLocation;
 let lat;
 let lon;
+let currentUserSession;
 
 mongoose.connect(mongoURI, {}).then((res) => {
   console.log("MongoDB connected");
 });
 
 const UserSchema = new mongoose.Schema({
-  cookieId: String,
   access_token: String,
   refresh_token: String,
   expires_in: Number,
@@ -60,7 +60,8 @@ app.use(
       maxAge: 60 * 60 * 1000,
       secure: false,
       httpOnly: true,
-      sameSite: 'none',
+      sameSite: "lax",
+      // domain: 'tuneweather.netlify.app',
     },
   }),
 );
@@ -68,11 +69,17 @@ app.use(
   cors({
     origin: `https://tuneweather.netlify.app`,
     credentials: true,
-    mode: "no-cors",
+    allowHeaders: ["Content-Type", "Authorization"],
+    // excludeHeaders: ['Set-Cookie'],
   }),
 );
+app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Private-Network", "true");
+  next();
+});
 app.use(
   rateLimit({
     windowMs: 60 * 1000,
@@ -89,11 +96,11 @@ app.use(
 );
 
 app.use((req, res, next) => {
-  console.log("Session data before save:", req.session.id);
+  console.log("Session data :", req.sessionID);
   next();
 });
 
-app.set("trust proxy", 1);
+// app.set("trust proxy", 1);
 
 //TESTING POINT
 
@@ -108,11 +115,12 @@ const validateUser = async (req, res, next) => {
     });
   } else {
     console.log("Request made from ID:", requestId);
-    const user = await UserModel.collection.findOne({ cookieId: requestId });
+    const user = await UserModel.collection.findOne({ _id: requestId });
     if (!user) {
       console.log("User does not exist");
       res.status(401).json({
         error: {
+          session: req.sessionID || "hello",
           message: "User not found for the given session",
         },
       });
@@ -134,33 +142,42 @@ const validateUser = async (req, res, next) => {
 
 // Check if token is expired
 const checkTokenExpired = async (req, res, next) => {
-  if (req.session.isAuth) {
-    const currentUser = await UserModel.collection.findOne({
-      cookieId: req.session.id,
-    });
-    if (currentUser) {
-      let dateDiff = Date.now() - currentUser.date_issued;
-      console.log("Date difference:", dateDiff);
-      if (dateDiff >= currentUser.expires_in) {
-        currentUser.needsRefresh = true;
-        currentUser.isLoggedIn = false;
-        req.session.isAuth = false;
-        console.error("Token expired, redirecting to login.");
-        res.json({
-          error: {
-              Status: 401,
-              message: "Your token has expired, please login again",
-              redirect_url: "http://localhost:5001/login",
+  console.log("User at token expiry check: ", req.sessionID);
+  const currentUser = await UserModel.collection.findOne({
+    _id: req.session.id,
+  });
+  if (currentUser) {
+    let dateDiff = Date.now() - currentUser.date_issued;
+    console.log("Date difference:", dateDiff);
+    if (dateDiff >= currentUser.date_issued) {
+      await UserModel.collection.updateOne(
+        { _id: req.sessionID },
+        {
+          $set: {
+            needsRefresh: true,
+            isLoggedIn: false,
           },
-        });
-      } else {
-        console.log("User token has not expired");
-        next();
-      }
+        },
+      );
+      console.error("Token expired, redirecting to login.");
+      res.json({
+        error: {
+          status: 401,
+          message: "Your token has expired, please login again",
+          redirect_url: "http://localhost:5001/login",
+        },
+      });
+    } else {
+      next()
     }
   } else {
     console.error("Issue at token expiry");
-    res.status(401).json({ message: "Unauthorized, please login" });
+    res.status(401).json({
+      error: {
+        status: 401,
+        message: "Unauthorized, please login",
+      },
+    });
     // res.redirect(`${server_url}/login`);
   }
 };
@@ -169,23 +186,27 @@ const redirect_uri = `${server_url}/callback`;
 app.post("/login", async (req, res) => {
   console.log("saved user session", req.sessionID);
   const currUser = await UserModel.collection.findOne({
-    cookieId: req.sessionID,
+    _id: req.sessionID,
   });
-  if (currUser) {
-    if (currUser.isLoggedIn && !currUser.needsRefresh) {
+    currentUserSession = req.sessionID;
+  if (!currUser) {
+    await UserModel.collection.insertOne({ _id: currentUserSession });
+  } else {
+    console.log("CURRENT USER REFRESH STATUS", currUser.needsRefresh);
+    if (!currUser.needsRefresh && currUser.isLoggedIn) {
       console.log("user is authorized (cookie)");
       res.status(200).json({
         data: {
           status: 200,
-          message: "User is logged in"
-        }
+          message: "User is logged in",
+        },
       });
       return
     }
-    return
   }
 
   console.log("User is not authorized");
+
   const scope =
     "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
   const authUrl = "https://accounts.spotify.com/authorize";
@@ -199,6 +220,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/callback", async (req, res) => {
+  console.log(`session id at oath flow ${currentUserSession}`);
   const authCode = req.query.code;
   const tokenUrl = "https://accounts.spotify.com/api/token";
   const authOptions = {
@@ -225,36 +247,28 @@ app.get("/callback", async (req, res) => {
     const expires_in = body.expires_in * 1000;
     console.log("Access token:", access_token);
     console.table(body);
+    req.session.save((err) => {
+      if (err) {
+        console.log("error saving session");
+      } else {
+        console.log("session saved");
+      }
+    });
     req.session.isAuth = true;
     const existingUser = await UserModel.collection.findOne({
-      cookieId: req.session.id,
+      _id: currentUserSession,
     });
-    if (existingUser) {
-      await UserModel.collection.updateOne(
-        { cookieId: existingUser.cookieId },
-        {
-          $set: {
-            access_token: access_token,
-            refresh_token: refresh_token,
-            expires_in: expires_in,
-            date_issued: Date.now(),
-            isLoggedIn: true,
-            needsRefresh: false,
-          },
-        },
-      );
-    } else {
-      await UserModel.collection.insertOne({
-        cookieId: req.sessionID,
-        access_token: access_token,
+    await UserModel.collection.updateOne({
+      _id: currentUserSession},{$set: {access_token: access_token,
         refresh_token: refresh_token,
         expires_in: expires_in,
         date_issued: Date.now(),
         isLoggedIn: true,
         needsRefresh: false,
-      });
-    }
+      }});
+    currentUserSession = undefined;
   } catch (error) {
+    currentUserSession = undefined;
     console.error(error.response ? error.response.status : error);
     res.status(500).json({ message: "Internal server error" });
   }
@@ -262,58 +276,58 @@ app.get("/callback", async (req, res) => {
 });
 
 app.get("/playlist", async (req, res) => {
-  await UserModel.collection
-    .insertOne({ cookieId: req.session.id })
-    .then(() => {
-      req.session.isAuth = false;
-      console.log("session id at playlist", req.session.id);
-      res.send({
-        data: {
-          code: 201,
-          session_id: req.session.id,
-        },
-      });
+  await UserModel.collection.insertOne({ _id: req.session.id }).then(() => {
+    req.session.isAuth = false;
+    console.log("session id at playlist", req.session.id);
+    res.send({
+      data: {
+        code: 201,
+        session_id: req.session.id,
+      },
     });
+  });
 });
 
 app.post("/location", async (req, res) => {
   console.log("Query at location enpoint", req.query);
   const currentUser = await UserModel.collection.findOne({
-    cookieId: req.session.id,
+    _id: req.sessionID,
   });
   if (currentUser) {
     if (currentUser.latitude && currentUser.longitude) {
       console.log("location exists");
-    }
-  } else {
-    lat = req.query.latitude;
-    lon = req.query.longitude;
-    console.log(lat, lon);
-    if (!lat || !lon) {
-      res.status(418).json("Error: Coordinates not provided");
     } else {
-      console.log("User coords: " + lat, lon);
-      const response = await fetch(
-        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}`,
-      );
-      const userLocation = (await response.json()).locality;
-      console.log(userLocation);
-      await UserModel.collection.updateOne(
-        { cookieId: req.session.id },
-        {
-          $set: {
-            latitude: lat,
-            longitude: lon,
+      lat = req.query.latitude;
+      lon = req.query.longitude;
+      console.log(lat, lon);
+      if (!lat || !lon) {
+        res.status(418).json("Error: Coordinates not provided");
+      } else {
+        console.log("User coords: " + lat, lon);
+        const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}`,
+        );
+        const userLocation = (await response.json()).locality;
+        console.log(userLocation);
+        await UserModel.collection.updateOne(
+            { _id: req.session.id },
+            {
+              $set: {
+                latitude: lat,
+                longitude: lon,
+              },
+            },
+        );
+        lat = undefined
+        lon = undefined
+        res.send({
+          data: {
+            code: 200,
+            message: "Request successful.",
+            city: userLocation,
           },
-        },
-      );
-      res.send({
-        data: {
-          code: 200,
-          message: "Request successful.",
-          city: userLocation,
-        },
-      });
+        });
+      }
     }
   }
 });
@@ -327,32 +341,32 @@ app.get(
     console.log("session ID at /tracks: ", req.session.id);
     console.log(
       "session stored in DB",
-      await UserModel.collection.findOne({ cookieId: req.session.id }),
+      await UserModel.collection.findOne({ _id: req.session.id }),
     );
     ////////////// testing ////////////////////
     try {
-      const response = await runOperations()
-      const playlistId = await createPlaylist(response)
-      console.log(await playlistId)
+      const response = await runOperations();
+      const playlistId = await createPlaylist(response);
+      console.log(await playlistId);
       res.status(201).json({
         data: {
           message: "success",
-          playlist_id: playlistId
-        }
-      })
+          playlist_id: playlistId,
+        },
+      });
     } catch (e) {
       res.status(500).json({
-        error:{
-          message: "Internal server error"
-        }
+        error: {
+          message: "Internal server error",
+        },
       });
-      console.error("Error fetching tracks")
-      console.error(e)
+      console.error("Error fetching tracks");
+      console.error(e);
     }
 
-    async function fetchSpotifyApi (endpoint, method, body) {
+    async function fetchSpotifyApi(endpoint, method, body) {
       const currUser = await UserModel.collection.findOne({
-        cookieId: req.session.id,
+        _id: req.session.id,
       });
       if (!currUser) {
         console.log("User not found");
@@ -372,10 +386,10 @@ app.get(
         console.error(err);
         return null;
       }
-    };
+    }
 
     // Getting user's top tracks
-    async function getTopTrackIds () {
+    async function getTopTrackIds() {
       try {
         const topTracks = await fetchSpotifyApi(
           `v1/me/top/tracks?limit=30`,
@@ -391,7 +405,7 @@ app.get(
         console.log(err);
         return null;
       }
-    };
+    }
 
     // Function to get track recommendations
     async function getRecommendedTracks(
@@ -495,8 +509,9 @@ app.get(
     //Getting weather conditions at client location
     async function getWeatherConditions() {
       try {
+        const currUser = await UserModel.collection.findOne({_id: req.sessionID})
         const result = await axios.get(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${WEATHERAPI_TOKEN}`,
+          `https://api.openweathermap.org/data/2.5/weather?lat=${await currUser.latitude}&lon=${await currUser.longitude}&appid=${WEATHERAPI_TOKEN}`,
         );
         const conditionsToPassToLLM = result.data.weather.description;
         const tempToPassToLLM = result.data.main.temp;

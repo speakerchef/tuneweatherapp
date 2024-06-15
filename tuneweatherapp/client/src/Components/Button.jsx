@@ -97,9 +97,9 @@ const Button = ({ buttonText = "Link Spotify"}) => {
           console.log(data)
           const redirectUrl = data.redirectLink
           console.log("redirect URL",redirectUrl)
-          setTimeout(()=> {
-            window.location.replace(redirectUrl)
-          }, 1500)
+          // setTimeout(()=> {
+          //   window.location.replace(redirectUrl)
+          // }, 1500)
 
 
         // setLoginCondition(true);

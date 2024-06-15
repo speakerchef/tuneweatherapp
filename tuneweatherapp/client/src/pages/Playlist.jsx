@@ -37,7 +37,7 @@ const Playlist = () => {
       if (getPlaylist > 0) {
         setGetPlaylist((prev) => prev - 1);
         try {
-          const response = await fetch(`https://tuneweatherapp.onrender.com/tracks` ,{
+          const response = await fetch(`http://localhost:5001/tracks` ,{
             method: 'GET',
             credentials: "include"
           });
@@ -69,7 +69,7 @@ const Playlist = () => {
             return
           }
         } catch (e) {
-          setErrorText("Sprry, we were unable to create your playlist. Please try again")
+          setErrorText("Sorry, we were unable to create your playlist. Please try again")
           setHasError(true);
           console.log(e);
         } finally {
