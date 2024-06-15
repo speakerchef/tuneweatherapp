@@ -58,10 +58,10 @@ app.use(
       }),
       cookie: {
         maxAge: 60 * 60 * 1000,
-        secure: false,
+        secure: true,
         httpOnly: true,
-        sameSite: "lax",
-        // domain: 'tuneweather.netlify.app',
+        sameSite: "none",
+        domain: 'tuneweather.com',
       },
     }),
 );
@@ -69,17 +69,17 @@ app.use(
     cors({
       origin: `https://tuneweather.com`,
       credentials: true,
-      allowHeaders: ["Content-Type", "Authorization"],
+      // allowHeaders: ["Content-Type", "Authorization"],
       // excludeHeaders: ['Set-Cookie'],
     }),
 );
 app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Private-Network", "true");
-  next();
-});
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Private-Network", "true");
+//   next();
+// });
 app.use(
     rateLimit({
       windowMs: 60 * 1000,
@@ -247,14 +247,7 @@ app.get("/callback", async (req, res) => {
     const expires_in = body.expires_in * 1000;
     console.log("Access token:", access_token);
     console.table(body);
-    req.session.save((err) => {
-      if (err) {
-        console.log("error saving session");
-      } else {
-        console.log("session saved");
-      }
-    });
-    req.session.isAuth = true;
+    req.session.user = 'bigmandem123';
     const existingUser = await UserModel.collection.findOne({
       _id: currentUserSession,
     });
