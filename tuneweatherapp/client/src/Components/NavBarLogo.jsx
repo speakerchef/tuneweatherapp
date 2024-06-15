@@ -11,7 +11,7 @@ const NavBarLogo = () => {
   return (
     <div
       id="productName"
-      className="flex relative flex-row p-3 ml-8 sm:text-2xl mb-0.5 items-center"
+      className="flex relative flex-row p-3 ml-2 mt-1 sm:mt-0 sm:text-2xl mb-1 items-center"
     >
       {/*<a href="#" className="hover:ring-1 hover:ring-indigo-700 hover:rounded-full transition-all duration-300"> <img src={logo} alt="tune weather logo" className="size-14 mx-4 "/></a>*/}
       <a

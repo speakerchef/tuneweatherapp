@@ -18,7 +18,8 @@ export default {
         veryDarkBlue: "#031633",
         spotifyGreen: "#1DB954",
         tuneWeatherCream: "#f1efe7",
-        customIndigo: "#2a00ff"
+        customIndigo: "#2a00ff",
+        neonLimeGreen: "#8eff00"
       }
     },
   },
