@@ -84,7 +84,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         if (data.error){
           setHasError(true)
         }
-        if (data){
+        if (data.data.status){
           if (data.data.status === 200){
             console.log("Return status", data.data.status)
             window.location.replace('/playlist')
