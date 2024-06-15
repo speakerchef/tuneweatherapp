@@ -49,6 +49,10 @@ const Playlist = () => {
               setHasError(true)
               return
             }
+            if (data.error.status === 429){
+              setErrorText("You have made too many requests! Please try again after 1 minute. Click OK to continue");
+              setHasError(true)
+            }
             console.log("Something went wrong")
             console.log(data.error);
             loginCondition = false;
