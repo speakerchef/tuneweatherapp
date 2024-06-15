@@ -53,7 +53,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         try {
           console.log(latitude, longitude);
           const res = await fetch(
-              `http://localhost:5001/location?latitude=${latitude}&longitude=${longitude}`,
+              `https://tuneweatherapp.onrender.com/location?latitude=${latitude}&longitude=${longitude}`,
               {
                 method: "POST",
               },
@@ -75,7 +75,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     setLocationLoaded(prev => !prev)
     if (!loginCondition) {
       try {
-        const response = await fetch('http://localhost:5001/login', {
+        const response = await fetch('https://tuneweatherapp.onrender.com/login', {
           method: "post",
           credentials: "include"
         })

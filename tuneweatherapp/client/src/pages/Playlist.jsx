@@ -37,7 +37,7 @@ const Playlist = () => {
       if (getPlaylist > 0) {
         setGetPlaylist((prev) => prev - 1);
         try {
-          const response = await fetch(`http://localhost:5001/tracks` ,{
+          const response = await fetch(`https://tuneweatherapp.onrender.com/tracks` ,{
             method: 'get',
             credentials: "include"
           });
