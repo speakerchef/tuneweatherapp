@@ -21,7 +21,7 @@ const NavBarLogo = () => {
         className={`text-lg mx-4  hover:cursor-pointer hover:opacity-50 transition-all font-extrabold sm:text-md sm:pt-1 md:text-xl lg:text-2xl`}
       >
         <strong className="text-indigo-700">Tune</strong>{" "}
-        <strong className="text-tuneWeatherCream font-bold">Weather</strong>
+        <strong className="text-white font-bold">Weather</strong>
       </a>
       <div
         className={`${homeHidden ? "hidden" : ""}  absolute font-bold top-full left-1/2 transform -translate-x-1/2 w-max px-2 py-1 -mt-2 bg-tuneWeatherCream text-gray-900 text-sm rounded-md transition-opacity duration-300`}

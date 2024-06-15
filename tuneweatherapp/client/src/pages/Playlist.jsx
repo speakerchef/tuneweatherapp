@@ -14,18 +14,26 @@ const Playlist = () => {
   const [showIframe, setShowIframe] = useState(false);
   const [iFrame, setIFrame] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showLoading, setShowLoading] = useState(false)
   const [hasError, setHasError] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [errorText, setErrorText] = useState("");
   let playlist_id = "";
 
+  useEffect(() => {
+    setHeaderText(false);
+    setSubHeaderHidden(false);
+  }, [!hasError])
+
   const makePlaylist = async () => {};
 
   const clickHandler = async () => {
+    setHeaderText(false)
+    setSubHeaderHidden(false)
     playlist_id = "";
     setLoading(true);
-    setHeaderText(true);
-    setSubHeaderHidden(false);
+    setShowLoading(true);
+
       if (getPlaylist > 0) {
         setGetPlaylist((prev) => prev - 1);
         try {
@@ -35,33 +43,32 @@ const Playlist = () => {
           });
           const data = await response.json();
           console.log("data from tracks endpoint", data);
-          if (!data || data.error) {
+          if (data.error) {
+            if (data.error.status === 401){
+              setErrorText("Your access has expired, please login again. Click OK to continue")
+              setHasError(true)
+              return
+            }
+            console.log("Something went wrong")
             console.log(data.error);
-            setErrorText(data.error);
             loginCondition = false;
             setHasError(true);
             return;
           } else {
             playlist_id = data.data.playlist_id;
+            console.log("playlist ID at else block",playlist_id)
+            setIFrame(playlist_id)
             setSubHeaderHidden(false)
-            return data.data.playlist_id;
+            setLoading(false)
+            setSubHeaderHidden(false)
+            setHeaderText(true)
+            return
           }
         } catch (e) {
+          setErrorText("Sprry, we were unable to create your playlist. Please try again")
           setHasError(true);
           console.log(e);
         } finally {
-          setLoading(false);
-        }
-        console.log("Playlist data", playlist_id);
-        if (playlist_id !== "") {
-          setHasError(false);
-          setShowIframe(true);
-          setIFrame(playlist_id);
-        } else {
-          setErrorText(
-              "Your access has expired. Please login again to continue using tuneweather. Click OK to return to the login page.",
-          );
-          setHasError(true);
         }
       }
   };
@@ -81,9 +88,9 @@ const Playlist = () => {
       />
       <div className="flex flex-col items-center -mt-44 justify-between rounded-2xl">
         {hasError && <ErrorModal errorText={errorText} />}
-        {loading || hasError ? (
+        { loading && showLoading ? (
           <Spinner />
-        ) : (
+        ) : !loading && (
           <div>
             <iframe
               src={`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`}
@@ -98,12 +105,12 @@ const Playlist = () => {
         )}
       </div>
 
-      <section id="hero" className="flex flex-col-reverse mx-32">
+      <section id="hero" className="flex flex-col-reverse mx-16 mt-4 mb-8">
         <div
           id="headText"
           className="flex flex-col items-center justify-between rounded-2xl"
         >
-          <div className="relative bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-4 mt-4 -mb-2 rounded-lg shadow-lg">
+          <div className="relative bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-4 mt-4  rounded-lg shadow-lg">
             <p className="text-black">
               You can make another playlist. Please keep in mind, theres a limit
               of 15 playlists per minute! You have {getPlaylist} requests left

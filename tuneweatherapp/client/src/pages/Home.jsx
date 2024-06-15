@@ -16,9 +16,9 @@ const Home = () => {
           dashboardHeaderHidden={true}
         />
         <div className="relative w-full px-4 my-16">
-          <div className="relative h-auto -mt-20 sm:-mt-16 bg-white bg-opacity-[10%] backdrop-filter backdrop-blur-lg p-8 md:p-12 rounded-2xl shadow-lg mx-auto max-w-screen-xl">
+          <div className="relative h-auto -mt-20 sm:-mt-16 bg-gray-300 bg-opacity-[15%] backdrop-filter backdrop-blur-lg p-8 md:p-12 rounded-2xl shadow-lg mx-auto max-w-screen-xl">
             <div className="flex flex-col md:flex-row justify-center items-center md:space-x-6">
-              <div className="bg-indigo-700 opacity-90 backdrop-filter backdrop-blur-lg shadow-lg text-center py-4 -mb-8 px-8 rounded-xl w-full">
+              <div className="bg-gradient-to-r from-indigo-700 to-vibrantMagenta backdrop-filter backdrop-blur-lg shadow-lg text-center py-4 -mb-8 px-8 rounded-xl w-full">
                 <h3 className="text-3xl lg:text-4xl font-extrabold text-black">
                   How it Works
                 </h3>

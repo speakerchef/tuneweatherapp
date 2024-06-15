@@ -9,7 +9,9 @@ export default {
       sm: '480px',
       md: '768px',
       lg: '1024px',
-      xl: '1440px'
+      slg: '1280px',
+      xl: '1440px',
+      xxl: "1920px"
     },
     extend: {
       colors: {
@@ -19,7 +21,9 @@ export default {
         spotifyGreen: "#1DB954",
         tuneWeatherCream: "#f1efe7",
         customIndigo: "#2a00ff",
-        neonLimeGreen: "#8eff00"
+        neonLimeGreen: "#8eff00",
+        vibrantMagenta: "#e600ff",
+        darkMagenta: "#a100ff"
       }
     },
   },

@@ -53,7 +53,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         try {
           console.log(latitude, longitude);
           const res = await fetch(
-              `https://tuneweatherapp.onrender.com/location?latitude=${latitude}&longitude=${longitude}`,
+              `http://localhost:5001/location?latitude=${latitude}&longitude=${longitude}`,
               {
                 method: "POST",
               },
