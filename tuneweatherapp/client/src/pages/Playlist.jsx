@@ -75,8 +75,11 @@ const Playlist = () => {
 
         sendUserLocation().then(() => {
             console.log("API DATA", apiData)
-            setLocationLoaded(true)
         });
+        if (latitude && longitude) {
+            setLocationLoaded(true)
+        }
+
     }, [latitude, longitude]);
 
     useEffect(() => {
