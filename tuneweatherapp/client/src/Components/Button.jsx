@@ -94,17 +94,8 @@ const Button = ({ buttonText = "Link Spotify"}) => {
           console.log(data)
           const redirectUrl = data.redirectLink
           console.log("redirect URL",redirectUrl)
-          // window.location.href = redirectUrl
+          window.location.href = redirectUrl
 
-          const authWindow = window.open(redirectUrl, 'authWindow', 'width=600,height=600')
-        const checkPopupClosed = setInterval(() => {
-          if (authWindow.closed) {
-            clearInterval(checkPopupClosed);
-            window.location.href = '/playlist'
-            // Handle the case when the popup window is closed
-            console.log('Authorization window closed');
-          }
-        }, 1000);
 
 
         setLoginCondition(true);
