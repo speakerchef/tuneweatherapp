@@ -86,7 +86,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         if (data && data.data && data.data.status){
           if (data.data.status === 200){
             console.log("Return status", data.data.status)
-            window.location.replace('/playlist')
+            window.location.replace('https://tuneweather.com/playlist')
             return
           }
           return
