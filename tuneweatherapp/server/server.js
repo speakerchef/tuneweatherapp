@@ -98,7 +98,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.set("trust proxy", 1);
+app.set("trust proxy", 1);
 
 //TESTING POINT
 
@@ -186,17 +186,8 @@ app.post("/login", async (req, res) => {
   const currUser = await UserModel.collection.findOne({
     _id: req.sessionID,
   });
-  currentUserSession = req.sessionID;
   if (!currUser) {
-    // res.cookie("_id", req.sessionID, {
-    //   cookie: {
-    //     maxAge: 60 * 60 * 1000,
-    //     secure: true,
-    //     httpOnly: true,
-    //     sameSite: "none",
-    //   },
-    // })
-    await UserModel.collection.insertOne({ _id: currentUserSession });
+    await UserModel.collection.insertOne({ _id: req.sessionID });
   } else {
     console.log("CURRENT USER REFRESH STATUS", currUser.needsRefresh);
     if (!currUser.needsRefresh && currUser.isLoggedIn) {
@@ -255,7 +246,7 @@ app.get("/callback", async (req, res) => {
     console.table(body);
     req.session.user = 'bigmandem123';
     const existingUser = await UserModel.collection.findOne({
-      _id: currentUserSession,
+      _id: req.sessionID,
     });
     await UserModel.collection.updateOne({
       _id: currentUserSession},{$set: {access_token: access_token,
@@ -265,9 +256,7 @@ app.get("/callback", async (req, res) => {
         isLoggedIn: true,
         needsRefresh: false,
       }});
-    currentUserSession = undefined;
   } catch (error) {
-    currentUserSession = undefined;
     console.error(error.response ? error.response.status : error);
     res.status(500).json({ message: "Internal server error" });
   }
