@@ -10,14 +10,16 @@ const logoutHover = () => {
 }
 
 const handleLogout =  () => {
-    fetch('https://api.tuneweather.com/logout', {
-        method: 'delete',
-        credentials: 'include'
+    if (isLoggedIn){
+        fetch('https://api.tuneweather.com/logout', {
+            method: 'delete',
+            credentials: 'include'
 
-    }).then(() => {
-        setCurrLoginStatus(false)
-    })
-
+        }).then(() => {
+            setCurrLoginStatus(false)
+        })
+        isLoggedIn = false;
+    }
 }
 
 

@@ -4,7 +4,7 @@ import NavBar from "../Components/NavBar.jsx";
 import Button from "../Components/Button.jsx";
 import Spinner from "../Components/Spinner.jsx";
 import ErrorModal from "../Components/ErrorModal.jsx";
-export let loginCondition = true;
+export let loginCondition;
 import { FaComputer } from "react-icons/fa6";
 
 const Playlist = () => {
@@ -105,6 +105,7 @@ const Playlist = () => {
           if (data.error) {
             if (data.error.status === 401){
               setErrorText("Your access has expired, please login again. Click OK to continue")
+              loginCondition = false
               setHasError(true)
               return
             }

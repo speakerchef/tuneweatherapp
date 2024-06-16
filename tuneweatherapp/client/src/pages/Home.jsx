@@ -52,73 +52,73 @@ const Home = () => {
         </div>
         <Button />
       </div>
-      <div className="flex-grow"></div>
+      {/*<div className="flex-grow"></div>*/}
       {/* Spacer to push the boxes down */}
 
-      <footer className="bg-gray-900 text-white mt-28 py-8">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-semibold text-center">
-            Have a question or issue?
-          </h2>
-          <p className="text-center mb-6">
-            Send us a message and we'll get back to you as soon as possible.
-          </p>
-          <form className="max-w-lg mx-auto pb-4">
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2" htmlFor="name">
-                Name
-              </label>
-              <input
-                className="w-full px-3 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                type="text"
-                id="name"
-                name="name"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2" htmlFor="email">
-                Email
-              </label>
-              <input
-                className="w-full px-3 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                type="email"
-                id="email"
-                name="email"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                className="block text-sm font-medium mb-2"
-                htmlFor="message"
-              >
-                Message
-              </label>
-              <textarea
-                className="w-full px-3 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                id="message"
-                name="message"
-                rows="4"
-                required
-              ></textarea>
-            </div>
-            <div className="text-center">
-              <button
-                className="bg-indigo-700 text-white px-4 py-2 font-bold rounded-xl hover:bg-green-600 transition duration-200"
-                type="submit"
-              >
-                Send Message
-              </button>
-            </div>
-          </form>
-        </div>
-        <div className="text-center relative w-full pt-8 -mb-8 bg-black">
-          <p className="text-[12px] font-thin -mt-5 text-white">
-            Copyright &copy; 2024 TuneWeather: All rights reserved
-          </p>
-        </div>
-      </footer>
+      {/*<footer className="bg-gray-900 text-white mt-28 py-8">*/}
+      {/*  <div className="container mx-auto px-4">*/}
+      {/*    <h2 className="text-2xl font-semibold text-center">*/}
+      {/*      Have a question or issue?*/}
+      {/*    </h2>*/}
+      {/*    <p className="text-center mb-6">*/}
+      {/*      Send us a message and we'll get back to you as soon as possible.*/}
+      {/*    </p>*/}
+      {/*    <form className="max-w-lg mx-auto pb-4">*/}
+      {/*      <div className="mb-4">*/}
+      {/*        <label className="block text-sm font-medium mb-2" htmlFor="name">*/}
+      {/*          Name*/}
+      {/*        </label>*/}
+      {/*        <input*/}
+      {/*          className="w-full px-3 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"*/}
+      {/*          type="text"*/}
+      {/*          id="name"*/}
+      {/*          name="name"*/}
+      {/*          required*/}
+      {/*        />*/}
+      {/*      </div>*/}
+      {/*      <div className="mb-4">*/}
+      {/*        <label className="block text-sm font-medium mb-2" htmlFor="email">*/}
+      {/*          Email*/}
+      {/*        </label>*/}
+      {/*        <input*/}
+      {/*          className="w-full px-3 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"*/}
+      {/*          type="email"*/}
+      {/*          id="email"*/}
+      {/*          name="email"*/}
+      {/*          required*/}
+      {/*        />*/}
+      {/*      </div>*/}
+      {/*      <div className="mb-4">*/}
+      {/*        <label*/}
+      {/*          className="block text-sm font-medium mb-2"*/}
+      {/*          htmlFor="message"*/}
+      {/*        >*/}
+      {/*          Message*/}
+      {/*        </label>*/}
+      {/*        <textarea*/}
+      {/*          className="w-full px-3 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"*/}
+      {/*          id="message"*/}
+      {/*          name="message"*/}
+      {/*          rows="4"*/}
+      {/*          required*/}
+      {/*        ></textarea>*/}
+      {/*      </div>*/}
+      {/*      <div className="text-center">*/}
+      {/*        <button*/}
+      {/*          className="bg-indigo-700 text-white px-4 py-2 font-bold rounded-xl hover:bg-green-600 transition duration-200"*/}
+      {/*          type="submit"*/}
+      {/*        >*/}
+      {/*          Send Message*/}
+      {/*        </button>*/}
+      {/*      </div>*/}
+      {/*    </form>*/}
+      {/*  </div>*/}
+      {/*  <div className="text-center relative w-full pt-8 -mb-8 bg-black">*/}
+      {/*    <p className="text-[12px] font-thin -mt-5 text-white">*/}
+      {/*      Copyright &copy; 2024 TuneWeather: All rights reserved*/}
+      {/*    </p>*/}
+      {/*  </div>*/}
+      {/*</footer>*/}
     </>
   );
 };
