@@ -3,7 +3,7 @@ import { FaMapMarkerAlt, FaUser, FaSignOutAlt } from "react-icons/fa";
 import LogoutIcon from "./LogoutIcon.jsx";
 import NavBarLogo from "./NavBarLogo.jsx";
 
-const NavBar = () => {
+const NavBar = ({isLoggedIn}) => {
   return (
     <>
       {/*navigation bar*/}
@@ -16,7 +16,7 @@ const NavBar = () => {
             id="userLoginStatus"
             className="text-md text-center  px-4 font-extrabold sm:text-sm md:text-lg lg:text-xl xl:text-xl"
           >
-            <LogoutIcon />
+            <LogoutIcon isLoggedIn={isLoggedIn} />
           </button>
         </div>
       </nav>

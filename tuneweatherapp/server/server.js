@@ -180,6 +180,17 @@ const checkTokenExpired = async (req, res, next) => {
   }
 };
 
+app.delete('/logout', async (req, res) => {
+  const currUser = await UserModel.collection.findOne({ _id: req.sessionID });
+  if (!currUser) {
+    res.redirect('https://tuneweather.com');
+  } else {
+    await UserModel.collection.deleteOne({ _id: currUser._id });
+    req.session.destroy();
+    res.redirect('https://tuneweather.com');
+  }
+})
+
 const redirect_uri = `${server_url}/callback`;
 app.post("/login", async (req, res) => {
   console.log("saved user session", req.sessionID);

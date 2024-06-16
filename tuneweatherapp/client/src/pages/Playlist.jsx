@@ -143,7 +143,7 @@ const Playlist = () => {
 
   return (
     <>
-      <NavBar />
+      <NavBar isLoggedIn={loginCondition}/>
       <Hero
         mainHeaderHidden={true}
         dashboardHeaderHidden={true}
