@@ -183,7 +183,7 @@ const Playlist = () => {
                     <div className="relative bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-4 mt-4  rounded-lg shadow-lg">
                         <p className="text-black">
                             You can make more playlists. There is a limit
-                            of 5 playlists per minute! You have {getPlaylist} {getPlaylist !== 1 ? 'playlists': 'playlist'}
+                            of 5 playlists per minute! You have {getPlaylist} {getPlaylist !== 1 ? 'playlists': 'playlist'} left.
                         </p>
                     </div>
                 </div>
