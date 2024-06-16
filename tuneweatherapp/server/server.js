@@ -215,7 +215,7 @@ app.post("/login", async (req, res) => {
   console.log("User is not authorized");
 
   const scope =
-    "user-read-private playlist-read-private playlist-modify-private playlist-modify-public user-top-read";
+    "user-read-private playlist-read-private playlist-modify-private user-top-read";
   const authUrl = "https://accounts.spotify.com/authorize";
   const params = new URLSearchParams({
     response_type: "code",
