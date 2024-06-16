@@ -74,7 +74,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     // setLocationLoaded(prev => !prev)
     if (!loginCondition) {
       try {
-        const response = await fetch('https://tuneweatherapp.onrender.com/login', {
+        const response = await fetch('https://api.tuneweather.com/login', {
           method: "POST",
           credentials: "include",
         })

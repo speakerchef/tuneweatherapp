@@ -57,7 +57,7 @@ const Playlist = () => {
         try {
           console.log(latitude, longitude);
           const res = await fetch(
-              `https://tuneweatherapp.onrender.com/location?latitude=${latitude}&longitude=${longitude}`,
+              `https://api.tuneweather.com/location?latitude=${latitude}&longitude=${longitude}`,
               {
                 method: "POST",
                 credentials: 'include'
@@ -96,7 +96,7 @@ const Playlist = () => {
       if (getPlaylist > 0) {
         setGetPlaylist((prev) => prev - 1);
         try {
-          const response = await fetch(`https://tuneweatherapp.onrender.com/tracks` ,{
+          const response = await fetch(`https://api.tuneweather.com/tracks` ,{
             method: 'GET',
             credentials: "include"
           });
