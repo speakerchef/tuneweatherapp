@@ -53,7 +53,7 @@ const Home = () => {
         <Button />
       </div>
       <div className="flex-grow"></div>
-       Spacer to push the boxes down
+       {/*Spacer to push the boxes down*/}
 
       <footer className="bg-gray-900 text-white mt-28 py-8">
         <div className="container mx-auto px-4">
