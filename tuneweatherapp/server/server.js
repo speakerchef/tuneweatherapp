@@ -64,23 +64,19 @@ app.use(
   }),
 );
 app.use(
-  cors({
-    origin: [
-      `https://tuneweather.com`,
-      "https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app",
-    ],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-    exposedHeaders: ["Set-Cookie"],
-  }),
+    cors({
+      origin: [
+        `https://tuneweather.com`,
+        "https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app",
+      ],
+      credentials: true,
+      allowedHeaders: ["Content-Type", "Authorization"],
+      exposedHeaders: ["Set-Cookie"],
+    }),
 );
 app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use((req, res, next) => {
-//   res.header("Access-Control-Allow-Private-Network", "true");
-//   next();
-// });
 app.use(
   rateLimit({
     windowMs: 60 * 1000,
@@ -217,6 +213,7 @@ app.post("/login", async (req, res) => {
     redirect_uri: redirect_uri,
   });
   const redirectLink = `${authUrl}?${params}`;
+  console.log(redirectLink);
   res.status(200).json({ redirectLink: redirectLink });
 });
 
@@ -224,15 +221,15 @@ app.get("/callback", async (req, res) => {
   console.log(`session id at oath flow ${JSON.stringify(req.cookies)}`);
   const authCode = req.query.code;
   const tokenUrl = "https://accounts.spotify.com/api/token";
+  const basicToken = new Buffer.from(client_id + ":" + client_secret)
+        .toString("base64")
+        .replace("=", "")
   const authOptions = {
     method: "post",
     url: tokenUrl,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: `Basic ${Buffer.from(client_id + ":" + client_secret)
-        .toString("base64")
-        .replace("=", "")}`,
-      'ngrok-skip-browser-warning': true
+      Authorization: `Basic ${basicToken}`,
     },
     data: {
       code: authCode,
