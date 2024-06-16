@@ -8,7 +8,7 @@ export let loginCondition;
 import { FaComputer } from "react-icons/fa6";
 
 const Playlist = () => {
-    const [getPlaylist, setGetPlaylist] = useState(15);
+    const [getPlaylist, setGetPlaylist] = useState(5);
     const [headerText, setHeaderText] = useState(false);
     const [subHeaderHidden, setSubHeaderHidden] = useState(true);
     const [showIframe, setShowIframe] = useState(false);
@@ -144,7 +144,7 @@ const Playlist = () => {
     };
 
     setInterval(() => {
-        setGetPlaylist(15);
+        setGetPlaylist(5);
     }, 60000);
 
     return (
@@ -182,8 +182,8 @@ const Playlist = () => {
                 >
                     <div className="relative bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-4 mt-4  rounded-lg shadow-lg">
                         <p className="text-black">
-                            You can make another playlist. Please keep in mind, theres a limit
-                            of 15 playlists per minute! You have {getPlaylist} requests left
+                            You can make more playlists. There is a limit
+                            of 5 playlists per minute! You have {getPlaylist} {getPlaylist !== 1 ? 'playlists': 'playlist'}
                         </p>
                     </div>
                 </div>

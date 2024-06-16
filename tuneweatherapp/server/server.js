@@ -67,7 +67,7 @@ app.use(cookieParser()),
   app.use(
     rateLimit({
       windowMs: 6e4,
-      max: 100,
+      max: 50,
       handler: (e, o) => {
         o.redirect('https://tuneweather.com/too-many-requests');
 
