@@ -18,6 +18,63 @@ const Playlist = () => {
   const [hasError, setHasError] = useState(false);
   const [toggle, setToggle] = useState(false);
   const [errorText, setErrorText] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [locationLoaded, setLocationLoaded] = useState(false);
+  const [apiData, setApiData] = useState('');
+
+
+  useEffect(() => {
+    const getUserLocation = async () => {
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported");
+      } else {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          setLatitude(lat.toString());
+          setLongitude(lon.toString()),
+              (err) => {
+                console.log(err);
+              };
+        });
+      }
+    };
+
+    getUserLocation().then(() => {
+      if(latitude && longitude) {
+        console.log("User coordinates retrieved")
+      } else {
+        console.log("User coordinates not retrieved");
+      }
+    });
+  }, [locationLoaded]);
+
+
+  useEffect(() => {
+    const sendUserLocation = async () => {
+      if (latitude && longitude) {
+        try {
+          console.log(latitude, longitude);
+          const res = await fetch(
+              `https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app/location?latitude=${latitude}&longitude=${longitude}`,
+              {
+                method: "POST",
+                credentials: 'include'
+              },
+          );
+          const data = await res.json();
+          setApiData(await data.data.city)
+        } catch (e) {
+          console.log("Error sending location", e);
+        } finally {
+        }
+      } else {
+      }
+    };
+
+    sendUserLocation().then(() => console.log("API DATA", apiData));
+  }, [latitude, longitude]);
 
   useEffect(() => {
     setHeaderText(false);
