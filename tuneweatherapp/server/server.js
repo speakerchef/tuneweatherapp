@@ -441,7 +441,11 @@ app.post("/login", async (e, o) => {
             method: s,
             body: JSON.stringify(t),
           });
-          return await e.json();
+          if (await e) {
+              return await e.json();
+          }else {
+              return null
+          }
         } catch (e) {
           return (
             console.error("spotify API could not be reached"),
