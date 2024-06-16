@@ -4,7 +4,7 @@ import NavBar from "../Components/NavBar.jsx";
 import Button from "../Components/Button.jsx";
 import Spinner from "../Components/Spinner.jsx";
 import ErrorModal from "../Components/ErrorModal.jsx";
-export let loginCondition = Boolean;
+export let loginCondition = true;
 import { FaComputer } from "react-icons/fa6";
 
 const Playlist = () => {
