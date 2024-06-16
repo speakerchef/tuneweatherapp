@@ -116,13 +116,13 @@ const Button = ({ buttonText = "Link Spotify"}) => {
   return (
     <>
       {hasError && <ErrorModal />}
-      <div className=" -translate-x-30 m-auto  ">
+      <div className=" -translate-x-30 m-auto mt-8 ">
         {/*Button to link spotify*/}
         <div className="flex-col flex items-center ">
           <div className="text-center  ">
             <button
               onClick={login}
-              className={`shadow-xl text-white mt-8 -my-20 text-right sm:mt-8 md:mt-8 lg:mt-8 xl:mt-14 text-xl bg-spotifyGreen py-3.5 md:-my-14 rounded-xl hover:bg-green-600 transition-all duration-100 ease-in px-8 active:ring-1 active:ring-red-600 font-bold active:bg-darkerTransparentIndigoBlue sm:-my-14 md:text-lg lg:text-xl xl:text-2xl lg:px-8 lg:py-4 xl:px-8 xl:my-4 xl:py-6`}
+              className={`shadow-lg text-black -my-20 text-right  text-xl bg-spotifyGreen py-3.5 md:-my-14 rounded-xl hover:bg-green-600 transition-all duration-100 ease-in px-8 active:ring-1 active:ring-red-600 font-bold active:bg-darkerTransparentIndigoBlue sm:-my-14 md:text-lg lg:text-xl xl:text-2xl lg:px-8 lg:py-4 xl:px-8 xl:-mb-4 xl:py-6`}
             >
               <FaSpotify className="inline -mt-0.5 mr-1" />     Link Spotify
             </button>

@@ -1,11 +1,16 @@
-import React from "react";
+import React, {useState} from "react";
 import Hero from "../Components/Hero.jsx";
 import NavBar from "../Components/NavBar.jsx";
 import Button from "../Components/Button.jsx";
 import { FaSpotify, FaCloudRain, FaMusic } from "react-icons/fa6";
 import bgImage from "../assets/bg.svg";
+import PrivacyPolicy from "../Components/PrivacyPolicy.jsx";
 
 const Home = () => {
+  const [privacyHidden, setPrivacyHidden] = useState(true);
+  function clickHandler() {
+    setPrivacyHidden(!privacyHidden);
+  }
   return (
     <>
       <div className="relative grid w-full items-center">
@@ -18,8 +23,8 @@ const Home = () => {
         <div className="relative w-full px-4 my-16">
           <div className="relative h-auto -mt-20 sm:-mt-16 bg-gray-300 bg-opacity-[15%] backdrop-filter backdrop-blur-lg p-8 md:p-12 rounded-2xl shadow-lg mx-auto max-w-screen-xl">
             <div className="flex flex-col md:flex-row justify-center items-center md:space-x-6">
-              <div className="bg-gradient-to-r from-indigo-700 to-vibrantMagenta backdrop-filter backdrop-blur-lg shadow-lg text-center py-4 -mb-8 px-8 rounded-xl w-full">
-                <h3 className="text-3xl lg:text-4xl font-extrabold text-black">
+              <div className="bg-gradient-to-r from-indigo-700 to-vibrantMagenta backdrop-filter backdrop-blur-lg shadow-lg text-center py-3 -mb-8 px-8 rounded-xl w-full">
+                <h3 className="text-3xl lg:text-4xl font-extrabold mt-0.5 text-black">
                   How it Works
                 </h3>
               </div>
@@ -51,11 +56,25 @@ const Home = () => {
           </div>
         </div>
         <Button />
+
+        {/*  disclaimer*/}
+        <PrivacyPolicy isHidden={privacyHidden} clickHandler={clickHandler} />
+          <div className="text-center mt-6 mb-20">
+            <p className="text-gray-900 text-sm">
+              By clicking, you accept our{" "}
+              <button
+                className="text-indigo-700 hover:text-indigo-500 hover:underline"
+                onClick={() => setPrivacyHidden((prev) => !prev)}
+              >
+                privacy policy
+              </button>
+            </p>
+          </div>
       </div>
       <div className="flex-grow"></div>
-       {/*Spacer to push the boxes down*/}
+      {/*Spacer to push the boxes down*/}
 
-      <footer className="bg-gray-900 text-white mt-28 py-8">
+      <footer className="bg-gray-900 text-white py-8">
         <div className="container mx-auto px-4">
           <h2 className="text-2xl font-semibold text-center">
             Have a question or issue?

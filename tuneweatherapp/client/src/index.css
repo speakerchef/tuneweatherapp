@@ -13,3 +13,24 @@
     }
 
 }
+
+.ppDivs h3, h4, h5{
+    @apply font-bold uppercase text-sm mb-4 text-gray-800 text-center
+}
+.ppDivs h3 {
+    @apply font-extrabold text-[1.0rem] text-center mt-12 underline
+}
+
+.ppDivs {
+    @apply  my-12 bg-white rounded-lg px-3 font-serif;
+}
+.ppDivs p {
+    @apply mb-4 text-gray-800 tracking-wide leading-tight text-center;
+}
+.sublist {
+    @apply space-y-2 mt-2 ml-8 mr-5 list-disc;
+}
+
+.date {
+    @apply text-sm
+}

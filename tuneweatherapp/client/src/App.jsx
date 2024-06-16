@@ -7,6 +7,7 @@ import Home from "./pages/Home.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Playlist from "./pages/Playlist.jsx";
 import axios from "axios";
+import PrivacyPolicy from "../src/Components/PrivacyPolicy.jsx";
 
 const App = () => {
 
