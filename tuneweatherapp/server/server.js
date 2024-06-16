@@ -69,9 +69,8 @@ app.use(cookieParser()),
       windowMs: 6e4,
       max: 10,
       handler: (e, o) => {
-        o.status(429).json({
-          error: { status: 429, message: "Rate limit exceeded" },
-        });
+        o.redirect('https://tuneweather.com/too-many-requests');
+
       },
     }),
   ),
