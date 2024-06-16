@@ -115,7 +115,8 @@ const Playlist = () => {
             console.log("Something went wrong")
             console.log(data.error);
             loginCondition = false;
-            // setHasError(true);
+            setErrorText("There was an issue connecting your account. Please try again. Click OK to continue")
+            setHasError(true);
             return;
           } else {
             playlist_id = data.data.playlist_id;
