@@ -108,6 +108,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
 
     } else {
       console.log("User exists")
+      window.location.href = '/playlist'
     }
   };
 
