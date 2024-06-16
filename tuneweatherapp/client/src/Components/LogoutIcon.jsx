@@ -16,15 +16,14 @@ const handleLogout =  () => {
 
     }).then(() => {
         setCurrLoginStatus(false)
-        window.location.replace("https://tuneweather.com/");
     })
 
 }
 
 
     return (
-        <div className={`relative group inline-block ${currLoginStatus ? 'hidden' : ''}`}>
-            <FaSignOutAlt className="text-white text-md mt-1 cursor-pointer transition-all hover:text-gray-600" onMouseOver={logoutHover} onMouseLeave={() => setLogoutHidden(true)} />
+        <div className={`relative group inline-block`}>
+            <FaSignOutAlt className="text-white text-md mt-1 cursor-pointer transition-all hover:text-gray-600" onMouseOver={logoutHover} onMouseLeave={() => setLogoutHidden(true)} onClick={handleLogout} />
             <div className={`${logoutHidden ? 'hidden': ''} absolute top-full left-1/2 transform mt-2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-tuneWeatherCream text-gray-900 text-sm rounded-md transition-all duration-300`}>
                 Logout
             </div>
