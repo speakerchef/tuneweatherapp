@@ -76,7 +76,10 @@ const Button = ({ buttonText = "Link Spotify"}) => {
       try {
         const response = await fetch('https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app/login', {
           method: "POST",
-          credentials: "include"
+          credentials: "include",
+          headers: {
+            'ngrok-skip-browser-warning': '1'
+          }
         })
         const data = await response.json()
         console.log(data)
