@@ -164,7 +164,7 @@ const Playlist = () => {
               // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
               loading="lazy"
-              className="flex min-h-[680px] min-w-[368px] -mb-12 sm:min-w-[480px] mt-20 sm:mt-20 md:mt-10 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
+              className="flex min-h-[680px] min-w-[368px] -mb-12 sm:min-w-[480px] mt-16 sm:mt-10 md:mt-10 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
             />
           </div>
         )}
