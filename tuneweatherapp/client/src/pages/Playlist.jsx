@@ -65,7 +65,6 @@ const Playlist = () => {
           );
           const data = await res.json();
           setApiData(await data.data.city)
-          setLocationLoaded(true);
         } catch (e) {
           console.log("Error sending location", e);
         } finally {
@@ -74,7 +73,10 @@ const Playlist = () => {
       }
     };
 
-    sendUserLocation().then(() => console.log("API DATA", apiData));
+    sendUserLocation().then(() => {
+      console.log("API DATA", apiData)
+      setLocationLoaded(true)
+    });
   }, [latitude, longitude]);
 
   useEffect(() => {
