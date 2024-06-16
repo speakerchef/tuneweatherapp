@@ -295,7 +295,7 @@ app.post("/login", async (e, o) => {
                               content: `${e}`,
                             },
                           ],
-                          model: "gpt-4o",
+                          model: "gpt-3.5-turbo",
                         })
                       ).choices[0].message.content;
                     } catch (e) {
