@@ -67,12 +67,13 @@ app.use(
     cors({
       origin: [
         `https://tuneweather.com`,
-        "https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app",
+        `https://www.tuneweather.com`,
+        `https://api.tuneweather.com`,
       ],
       credentials: true,
       allowedHeaders: ["Content-Type", "Authorization"],
       exposedHeaders: ["Set-Cookie"],
-    }),
+    })
 );
 app.options("*", cors());
 app.use(express.json());

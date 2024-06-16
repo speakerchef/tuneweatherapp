@@ -57,7 +57,7 @@ const Playlist = () => {
         try {
           console.log(latitude, longitude);
           const res = await fetch(
-              `https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app/location?latitude=${latitude}&longitude=${longitude}`,
+              `https://tuneweatherapp.onrender.com/location?latitude=${latitude}&longitude=${longitude}`,
               {
                 method: "POST",
                 credentials: 'include'
@@ -96,7 +96,7 @@ const Playlist = () => {
       if (getPlaylist > 0) {
         setGetPlaylist((prev) => prev - 1);
         try {
-          const response = await fetch(`https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app/tracks` ,{
+          const response = await fetch(`https://tuneweatherapp.onrender.com/tracks` ,{
             method: 'GET',
             credentials: "include"
           });
