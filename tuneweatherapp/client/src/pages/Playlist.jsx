@@ -87,7 +87,6 @@ const Playlist = () => {
 
 
     const clickHandler = async () => {
-        setToggle(prev => !prev)
         setHeaderText(false)
         setSubHeaderHidden(false)
         let playlist_id = "";
