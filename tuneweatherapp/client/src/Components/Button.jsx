@@ -94,8 +94,9 @@ const Button = ({ buttonText = "Link Spotify"}) => {
           console.log(data)
           const redirectUrl = data.redirectLink
           console.log("redirect URL",redirectUrl)
-          window.location.href = redirectUrl
+          // window.location.href = redirectUrl
 
+          window.open(redirectUrl, 'authWindow', 'width=600,height=600')
 
 
         setLoginCondition(true);
