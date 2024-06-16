@@ -77,14 +77,14 @@ const Playlist = () => {
       console.log("API DATA", apiData)
       setLocationLoaded(true)
     });
-  }, [latitude, longitude, toggle]);
+  }, [latitude, longitude]);
 
   useEffect(() => {
     setHeaderText(false);
     setSubHeaderHidden(false);
   }, [!hasError])
 
-  const makePlaylist = async () => {};
+
 
   const clickHandler = async () => {
     setToggle(prev => !prev)
