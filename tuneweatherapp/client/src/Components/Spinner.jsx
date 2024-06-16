@@ -6,6 +6,7 @@ const cssOverride = {
     margin: '0 auto',
     borderColor: '#553bff',
     marginTop: '4rem',
+    marginBottom: '-3rem',
 }
 
 const Spinner = ({loading}) => {

@@ -162,13 +162,13 @@ const Playlist = () => {
               // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
               loading="lazy"
-              className="flex min-h-[680px] min-w-[368px] -mb-8 sm:min-w-[480px] mt-20 sm:mt-20 md:mt-20 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
+              className="flex min-h-[680px] min-w-[368px] -mb-12 sm:min-w-[480px] mt-20 sm:mt-20 md:mt-20 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
             />
           </div>
         )}
       </div>
 
-      <section id="hero" className="flex flex-col-reverse mx-16 mt-14 md:mt-8 mb-8">
+      <section id="hero" className="flex flex-col-reverse mx-16 mt-14 md:mt-12 mb-8">
         <div
           id="headText"
           className="flex flex-col items-center justify-between rounded-2xl"
