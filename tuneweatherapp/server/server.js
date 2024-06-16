@@ -182,13 +182,12 @@ const checkTokenExpired = async (req, res, next) => {
 
 app.delete('/logout', async (req, res) => {
   const currUser = await UserModel.collection.findOne({ _id: req.sessionID });
-  if (!currUser) {
-    res.status(405).json({message: "User does not exist"});
-  } else {
-    await UserModel.collection.deleteOne({ _id: req.sessionID });
+  if (currUser) {
+    await UserModel.collection.deleteOne({_id: req.sessionID});
+  }
     req.session.destroy();
     res.status(200).json({message: "User deleted"});
-  }
+
 })
 
 const redirect_uri = `${server_url}/callback`;
@@ -450,8 +449,8 @@ app.get(
         return {
           name: await result.display_name,
           email: await result.email,
-          userId: await result.id,
-          userProfileImage: (await result).images.url,
+          // userId: await result.id,
+          // userProfileImage: (await result).images.url,
         };
       } catch (e) {
         console.error(e);
