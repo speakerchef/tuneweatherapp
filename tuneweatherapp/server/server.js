@@ -10,7 +10,7 @@ import session from "express-session";
 import MongoStore from "connect-mongo";
 import OpenAI from "openai";
 import rateLimit from "express-rate-limit";
-import req from "express/lib/request.js";
+import cookieParser from "cookie-parser";
 
 const env = dotenv.config();
 
@@ -47,30 +47,29 @@ const UserSchema = new mongoose.Schema({
   needsRefresh: Boolean,
 });
 const UserModel = mongoose.model("Users", UserSchema);
-
+app.use(cookieParser(session_secret, {
+  sameSite: "none",
+}))
 app.use(
     session({
       secret: session_secret,
       resave: false,
-      saveUninitialized: false,
+      saveUninitialized: true,
       store: MongoStore.create({
         mongoUrl: mongoURI,
       }),
-      cookie: {
-        maxAge: 60 * 60 * 1000,
-        secure: true,
-        httpOnly: true,
-        sameSite: "none",
-        domain: 'tuneweather.com',
-      },
+      cookie:{
+        sameSite:"none",
+      }
+
     }),
 );
 app.use(
     cors({
       origin: `https://tuneweather.com`,
       credentials: true,
+      exposedHeaders: ['Set-Cookie'],
       // allowHeaders: ["Content-Type", "Authorization"],
-      // excludeHeaders: ['Set-Cookie'],
     }),
 );
 app.options("*", cors());
@@ -190,6 +189,14 @@ app.post("/login", async (req, res) => {
   });
   currentUserSession = req.sessionID;
   if (!currUser) {
+    // res.cookie("_id", req.sessionID, {
+    //   cookie: {
+    //     maxAge: 60 * 60 * 1000,
+    //     secure: true,
+    //     httpOnly: true,
+    //     sameSite: "none",
+    //   },
+    // })
     await UserModel.collection.insertOne({ _id: currentUserSession });
   } else {
     console.log("CURRENT USER REFRESH STATUS", currUser.needsRefresh);
@@ -220,7 +227,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.get("/callback", async (req, res) => {
-  console.log(`session id at oath flow ${currentUserSession}`);
+  console.log(`session id at oath flow ${JSON.stringify(req.cookies)}`);
   const authCode = req.query.code;
   const tokenUrl = "https://accounts.spotify.com/api/token";
   const authOptions = {

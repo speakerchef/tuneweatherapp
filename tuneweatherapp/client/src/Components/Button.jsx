@@ -94,7 +94,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
           console.log(data)
           const redirectUrl = data.redirectLink
           console.log("redirect URL",redirectUrl)
-        window.location.href = redirectUrl
+        // window.location.href = redirectUrl
           // setTimeout(()=> {
           //   window.location.replace(redirectUrl)
           // }, 1500)
