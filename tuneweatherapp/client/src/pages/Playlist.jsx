@@ -87,7 +87,9 @@ const Playlist = () => {
         setSubHeaderHidden(false);
     }, [!hasError])
 
-
+    useEffect(() => {
+        setLocationLoaded(false)
+    }, []);
 
     const clickHandler = async () => {
         setHeaderText(false)
