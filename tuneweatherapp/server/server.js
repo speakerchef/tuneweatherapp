@@ -183,11 +183,11 @@ const checkTokenExpired = async (req, res, next) => {
 app.delete('/logout', async (req, res) => {
   const currUser = await UserModel.collection.findOne({ _id: req.sessionID });
   if (!currUser) {
-    res.redirect('https://tuneweather.com');
+    res.status(405).json({message: "User does not exist"});
   } else {
-    await UserModel.collection.deleteOne({ _id: currUser._id });
+    await UserModel.collection.deleteOne({ _id: req.sessionID });
     req.session.destroy();
-    res.redirect('https://tuneweather.com');
+    res.status(200).json({message: "User deleted"});
   }
 })
 
@@ -258,7 +258,6 @@ app.get("/callback", async (req, res) => {
     const expires_in = body.expires_in * 1000;
     console.log("Access token:", access_token);
     console.table(body);
-    req.session.user = "bigmandem123";
     const existingUser = await UserModel.collection.findOne({
       _id: req.sessionID,
     });
