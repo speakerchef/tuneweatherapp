@@ -47,9 +47,7 @@ const UserSchema = new mongoose.Schema({
   needsRefresh: Boolean,
 });
 const UserModel = mongoose.model("Users", UserSchema);
-app.use(cookieParser(session_secret, {
-  sameSite: "none",
-}))
+app.use(cookieParser())
 app.use(
     session({
       secret: session_secret,
@@ -60,6 +58,7 @@ app.use(
       }),
       cookie:{
         sameSite:"none",
+        secure: true
       }
 
     }),

@@ -51,7 +51,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
         try {
           console.log(latitude, longitude);
           const res = await fetch(
-              `http://localhost:5001/location?latitude=${latitude}&longitude=${longitude}`,
+              `https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app/location?latitude=${latitude}&longitude=${longitude}`,
               {
                 method: "POST",
                 credentials: 'include'
@@ -74,7 +74,7 @@ const Button = ({ buttonText = "Link Spotify"}) => {
     setLocationLoaded(prev => !prev)
     if (!loginCondition) {
       try {
-        const response = await fetch('http://localhost:5001/login', {
+        const response = await fetch('https://082c-2001-56a-fa78-8200-c05c-1383-bcf8-a344.ngrok-free.app/login', {
           method: "POST",
           credentials: "include"
         })
