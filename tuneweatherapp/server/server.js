@@ -329,9 +329,9 @@ app.post("/login", async (e, o) => {
           try {
             let e = await (async function () {
                 try {
-                  const e = await s("v1/me/top/tracks?limit=30", "GET");
+                  const e = await s("v1/me/top/tracks?limit=50", "GET");
                   let o = [];
-                  for (let s = 0; s < 30; s++) {
+                  for (let s = 0; s < 50; s++) {
                     let t = await e.items[s].id;
                     o.push(await t);
                   }
@@ -441,7 +441,7 @@ app.post("/login", async (e, o) => {
             method: s,
             body: JSON.stringify(t),
           });
-          if (await e) {
+          if (e) {
               return await e.json();
           }else {
               return null
