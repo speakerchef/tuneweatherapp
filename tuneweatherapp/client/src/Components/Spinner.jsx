@@ -1,25 +1,18 @@
 import React from 'react';
 import { ScaleLoader} from "react-spinners";
-import styled from '@emotion/styled';
 
-const GradientScaleLoader = styled(ScaleLoader)`
-  display: block;
-  margin: 0 auto;
-  margin-top: 4rem;
-  margin-bottom: -3rem;
-
-  span {
-    background: linear-gradient(to right, rgb(67 56 202), #e600ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-`;
+const cssOverride = {
+    display: 'block',
+    margin: '0 auto',
+    marginTop: '4rem',
+    marginBottom: '-3rem',
+}
 
 const Spinner = ({loading}) => {
     return (
         <div>
             <ScaleLoader
+            color={'#a100ff'}
             loading={loading}
             cssOverride={cssOverride}
             size={150}
@@ -29,3 +22,4 @@ const Spinner = ({loading}) => {
 };
 
 export default Spinner;
+
