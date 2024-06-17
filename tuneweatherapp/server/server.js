@@ -391,14 +391,16 @@ app.get(
         async function getTopTrackIds() {
             try {
                 const topTracks = await fetchSpotifyApi(
-                    `v1/me/top/tracks`,
+                    `v1/me/top/tracks?limit=50`,
                     "GET",
                 );
                 console.log(topTracks);
                 let arrOfTopTrackID = [];
-                for (let i = 0; i < 30; i++) {
-                    let trackId = await topTracks["items"][i]["id"];
-                    arrOfTopTrackID.push(await trackId);
+                if (topTracks){
+                    for (let i = 0; i < 50; i++) {
+                        let trackId = await topTracks["items"][i]["id"];
+                        arrOfTopTrackID.push(await trackId);
+                    }
                 }
                 return arrOfTopTrackID;
             } catch (err) {
@@ -568,6 +570,8 @@ app.get(
 
         // Runs the server functions
         async function runOperations() {
+            let newReleases = await fetchSpotifyApi('/v1/browse/new-releases', "GET")
+            console.log(`New releases ${newReleases}`)
             let trackFeatures = await getWeatherConditions();
             if (!trackFeatures) {
                 throw new Error("No track features found.");
@@ -592,6 +596,13 @@ app.get(
                         const vl = await trackFeatures["audio-features"].valence;
                         return await getRecommendedTracks(randomTracks, db, eg, vl);
                     }
+
+                    // console.log(randomTracks);
+                    // const db = await trackFeatures["audio-features"].danceability;
+                    // const eg = await trackFeatures["audio-features"].energy;
+                    // const vl = await trackFeatures["audio-features"].valence;
+                    // return await getRecommendedTracks(randomTracks, db, eg, vl);
+
                 } catch (e) {
                     console.log(e);
                     return null;
