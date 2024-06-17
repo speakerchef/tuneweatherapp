@@ -571,7 +571,9 @@ app.get(
         // Runs the server functions
         async function runOperations() {
             let newReleases = await fetchSpotifyApi('v1/browse/new-releases', "GET")
-            console.log(`New releases ${JSON.stringify((await newReleases).albums.items[0].id)}`)
+            newReleases = (await newReleases).albums.items
+            newReleases = newReleases.map(x => x.id)
+            console.log(`New releases ${newReleases}`)
             let trackFeatures = await getWeatherConditions();
             if (!trackFeatures) {
                 throw new Error("No track features found.");
