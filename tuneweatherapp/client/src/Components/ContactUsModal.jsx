@@ -26,20 +26,23 @@ const ContactUsModal = ({closeModal, modalHandler}) => {
 
         if (res.success) {
             toast.success("Message Sent!", {
-                position: "top-right"
+                position: "top-right",
             })
             modalHandler()
             console.log("Message Sent", res);
+            return
         } else {
             toast.error("Message could not be sent, please try again!" ,{
                 position: 'top-right'
             })
-        }
+            }
     };
 
     return (
         <>
-            <ToastContainer/>
+            <ToastContainer
+            theme='dark'
+            />
             <div className={`flex justify-center items-center ${closeModal ? 'hidden' : ''}`}>
                 <div id="contactFormModal" className="fixed z-10 inset-0 overflow-y-auto ">
                     <div className="flex items-center justify-center min-h-screen">

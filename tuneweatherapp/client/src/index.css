@@ -34,3 +34,8 @@
 .date {
     @apply text-sm
 }
+
+.error-toast {
+    background-color: black;
+    font-family: sans-serif;
+}

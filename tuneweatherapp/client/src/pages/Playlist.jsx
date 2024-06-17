@@ -7,6 +7,8 @@ import ErrorModal from "../Components/ErrorModal.jsx";
 export let loginCondition;
 import { FaComputer } from "react-icons/fa6";
 import Footer from "../Components/Footer.jsx";
+import {toast, ToastContainer} from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Playlist = () => {
     const [getPlaylist, setGetPlaylist] = useState(5);
@@ -76,6 +78,11 @@ const Playlist = () => {
 
         sendUserLocation().then(() => {
             console.log("API DATA", apiData)
+        }).catch(e => {
+            console.error(e)
+            toast.error("We could not get your location. Please reload the page and try again!", {
+                position: 'top-right'
+            });
         });
         if (latitude && longitude) {
             setLocationLoaded(true)
@@ -109,6 +116,7 @@ const Playlist = () => {
                 const data = await response.json();
                 console.log("Main response", data);
                 if (data.error) {
+
                     if (data.error.status === 401){
                         setErrorText("Your access has expired, please login again. Click OK to continue")
                         loginCondition = false
@@ -122,6 +130,10 @@ const Playlist = () => {
                     console.error("Something went wrong")
                     console.log(data.error);
                     loginCondition = false;
+                    toast.error("Something went wrong :(", {
+                        position: "top-right",
+                        className: "error-toast"
+                    });
                     setErrorText("There was an issue connecting your account. Please try again. Click OK to continue")
                     setHasError(true);
                     return;
@@ -133,9 +145,17 @@ const Playlist = () => {
                     setLoading(false)
                     setSubHeaderHidden(false)
                     setHeaderText(true)
+                    toast.success("Playlist Created!", {
+                        position: "top-right",
+                        className: "success-toast"
+                    })
                     return
                 }
             } catch (e) {
+                toast.error("Something went wrong :(", {
+                    position: "top-right",
+                    className: "error-toast"
+                });
                 setErrorText("Sorry, we were unable to create your playlist. Please try again later.")
                 setHasError(true);
                 console.log(e);
