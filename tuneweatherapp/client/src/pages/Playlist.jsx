@@ -198,7 +198,7 @@ const Playlist = () => {
           {/*Button to link spotify*/}
           {!locationLoaded ? (
             <div className="text-center">
-              <h3 className="animate-pulse text-black">
+              <h3 className="animate-pulse bg-gradient-to-r from-indigo-700 to-darkMagenta bg-clip-text text-transparent">
                 Getting your location...
               </h3>
             </div>
@@ -207,7 +207,7 @@ const Playlist = () => {
               <div className="text-center   ">
                 <button
                   onClick={clickHandler}
-                  className={`text-md bg-indigo-700 py-3.5 rounded-2xl hover:bg-indigo-400 transition-all duration-100 ease-in px-8 active:bg-darkerTransparentIndigoBlue active:ring-indigo-700 font-bold md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
+                  className={`text-md bg-indigo-700 py-3.5 rounded-2xl hover:bg-indigo-600 transition-all duration-100 ease-in px-8 active:bg-darkerTransparentIndigoBlue active:ring-indigo-700 font-bold md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
                 >
                   Get Playlist
                 </button>
