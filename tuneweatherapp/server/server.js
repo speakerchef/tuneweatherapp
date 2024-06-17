@@ -391,7 +391,7 @@ app.get(
         async function getTopTrackIds() {
             try {
                 const topTracks = await fetchSpotifyApi(
-                    `v1/me/top/tracks?limit=30`,
+                    `v1/me/top/tracks`,
                     "GET",
                 );
                 console.log(topTracks);
