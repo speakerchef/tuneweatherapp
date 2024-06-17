@@ -196,7 +196,7 @@ const Playlist = () => {
             </div>
           </div>
         </section>
-        <div className=" -translate-x-30 m-auto pb-20">
+        <div className=" -translate-x-30 ">
           {/*Button to link spotify*/}
           {!locationLoaded ? (
             <div className="text-center">
@@ -205,7 +205,7 @@ const Playlist = () => {
               </h3>
             </div>
           ) : (
-            <div className="flex-col mt-6 flex items-center text-center">
+            <div className="flex-col mt-6 flex  text-center">
               <div className="text-center   ">
                 <button
                   onClick={clickHandler}
@@ -217,8 +217,8 @@ const Playlist = () => {
             </div>
           )}
         </div>
-          <Footer />
           </div>
+          <Footer />
       </>
     );
 };

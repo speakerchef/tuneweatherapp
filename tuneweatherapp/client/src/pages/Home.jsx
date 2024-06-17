@@ -50,7 +50,7 @@ const Home = () => {
 
           {/*Spacer to push the boxes down*/}
         </div>
-        <Footer/>
+        <Footer privacyHidden={privacyHidden} setPrivacyHidden={setPrivacyHidden}/>
       </>
     );
 };
