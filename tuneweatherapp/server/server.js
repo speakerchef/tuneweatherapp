@@ -572,13 +572,13 @@ app.get(
     }
 
     async function getBackupReleases() {
-      let newReleases = await fetchSpotifyApi("v1/browse/new-releases?limit=30", "GET");
+      let newReleases = await fetchSpotifyApi("v1/browse/new-releases?limit=10", "GET");
       newReleases = (await newReleases).albums.items;
       newReleases = newReleases.map((x) => x.id);
       const params = new URLSearchParams({
         ids: newReleases,
       });
-      let newTracks = await fetchSpotifyApi(`v1/albums?${params}&market=US`, "GET");
+      let newTracks = await fetchSpotifyApi(`v1/albums?${params}`, "GET");
       newTracks = (await newTracks).albums;
       newTracks = newTracks.map((x) => x.tracks.items[0].id);
       console.log(`New releases ${newTracks}`);
