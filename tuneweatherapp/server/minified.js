@@ -73,7 +73,7 @@ app.use(
         credentials: true,
         allowedHeaders: ["Content-Type", "Authorization"],
         exposedHeaders: ["Set-Cookie"],
-    })
+    }),
 );
 app.options("*", cors());
 app.use(express.json());
@@ -147,7 +147,7 @@ const checkTokenExpired = async (req, res, next) => {
     if (currentUser) {
         let dateDiff = Date.now() - currentUser.date_issued;
         console.log("Date difference:", dateDiff);
-        if (dateDiff >= currentUser.date_issued) {
+        if (dateDiff >= currentUser.expires_in) {
             await UserModel.collection.updateOne(
                 { _id: req.sessionID },
                 {
@@ -180,15 +180,14 @@ const checkTokenExpired = async (req, res, next) => {
     }
 };
 
-app.delete('/logout', async (req, res) => {
+app.delete("/logout", async (req, res) => {
     const currUser = await UserModel.collection.findOne({ _id: req.sessionID });
     if (currUser) {
-        await UserModel.collection.deleteOne({_id: req.sessionID});
+        await UserModel.collection.deleteOne({ _id: req.sessionID });
     }
     req.session.destroy();
-    res.status(200).json({message: "User deleted"});
-
-})
+    res.status(200).json({ message: "User deleted" });
+});
 
 const redirect_uri = `${server_url}/callback`;
 app.post("/login", async (req, res) => {
@@ -234,7 +233,7 @@ app.get("/callback", async (req, res) => {
     const tokenUrl = "https://accounts.spotify.com/api/token";
     const basicToken = new Buffer.from(client_id + ":" + client_secret)
         .toString("base64")
-        .replace("=", "")
+        .replace("=", "");
     const authOptions = {
         method: "post",
         url: tokenUrl,
@@ -321,10 +320,14 @@ app.post("/location", async (req, res) => {
                     { _id: req.sessionID },
                     { $set: { latitude: lat, longitude: lon } },
                 );
-                console.log("Existing user's location updated")
+                console.log("Existing user's location updated");
             }
         } else {
-            await UserModel.collection.insertOne({_id: req.sessionID, latitude: lat, longitude: lon});
+            await UserModel.collection.insertOne({
+                _id: req.sessionID,
+                latitude: lat,
+                longitude: lon,
+            });
             console.log(`New user created with id: ${req.sessionID}`);
             req.session.location = true;
         }
@@ -391,13 +394,16 @@ app.get(
         async function getTopTrackIds() {
             try {
                 const topTracks = await fetchSpotifyApi(
-                    `v1/me/top/tracks?limit=30`,
+                    `v1/me/top/tracks?limit=50`,
                     "GET",
                 );
+                console.log(topTracks);
                 let arrOfTopTrackID = [];
-                for (let i = 0; i < 30; i++) {
-                    let trackId = await topTracks["items"][i]["id"];
-                    arrOfTopTrackID.push(await trackId);
+                if (topTracks) {
+                    for (let i = 0; i < 50; i++) {
+                        let trackId = await topTracks["items"][i]["id"];
+                        arrOfTopTrackID.push(await trackId);
+                    }
                 }
                 return arrOfTopTrackID;
             } catch (err) {
@@ -565,36 +571,57 @@ app.get(
             }
         }
 
+        async function getBackupReleases() {
+            let newReleases = await fetchSpotifyApi("v1/browse/new-releases?limit=10", "GET");
+            newReleases = (await newReleases).albums.items;
+            newReleases = newReleases.map((x) => x.id);
+            const params = new URLSearchParams({
+                ids: newReleases,
+            });
+            let newTracks = await fetchSpotifyApi(`v1/albums?${params}`, "GET");
+            newTracks = (await newTracks).albums;
+            newTracks = newTracks.map((x) => x.tracks.items[0].id);
+            console.log(`New releases ${newTracks}`);
+            return newTracks;
+        }
+
         // Runs the server functions
         async function runOperations() {
             let trackFeatures = await getWeatherConditions();
             if (!trackFeatures) {
-                throw new Error("No track features found.");
-                return;
-            } else {
-                console.log(trackFeatures);
-                try {
-                    let arrOfTrackIds = await getTopTrackIds();
-                    let randomTracks = [];
-                    if (!arrOfTrackIds) {
-                        console.error("Tracks could not be fetched, please try again!");
-                    } else {
-                        for (let i = 0; i < 5; i++) {
-                            randomTracks.push(
-                                arrOfTrackIds[Math.floor(Math.random() * arrOfTrackIds.length)],
-                            );
-                        }
-                        // TODO: remove log
-                        console.log(randomTracks);
-                        const db = await trackFeatures["audio-features"].danceability;
-                        const eg = await trackFeatures["audio-features"].energy;
-                        const vl = await trackFeatures["audio-features"].valence;
-                        return await getRecommendedTracks(randomTracks, db, eg, vl);
-                    }
-                } catch (e) {
-                    console.log(e);
-                    return null;
+                console.error("No track features could be generated.");
+                trackFeatures = {
+                    "track-features": {
+                        danceability: 0.6,
+                        energy: 0.7,
+                        valence: 0.5,
+                    },
+                };
+            }
+            console.log(trackFeatures);
+            try {
+                let arrOfTrackIds = await getTopTrackIds();
+                let randomTracks = [];
+                if (!arrOfTrackIds) {
+                    console.error("Top tracks could not be fetched, moving to backup method");
+                    arrOfTrackIds = await getBackupReleases();
+                    console.log(`Backup tracks: ${arrOfTrackIds}`)
                 }
+                for (let i = 0; i < 5; i++) {
+                    randomTracks.push(
+                        arrOfTrackIds[Math.floor(Math.random() * arrOfTrackIds.length)],
+                    );
+                }
+                // TODO: remove log
+                console.log(randomTracks);
+                const db = trackFeatures["audio-features"].danceability;
+                const eg = trackFeatures["audio-features"].energy;
+                const vl = trackFeatures["audio-features"].valence;
+                return await getRecommendedTracks(randomTracks, db, eg, vl);
+
+            } catch (e) {
+                console.log(e);
+                return null;
             }
         }
     },
