@@ -25,6 +25,7 @@ const Playlist = () => {
     const [longitude, setLongitude] = useState("");
     const [locationLoaded, setLocationLoaded] = useState(false);
     const [apiData, setApiData] = useState('');
+    const [errorLocation, setErrorLocation] = useState(false);
 
 
     useEffect(() => {
@@ -97,6 +98,13 @@ const Playlist = () => {
 
     useEffect(() => {
         setLocationLoaded(false)
+        if (!locationLoaded) {
+            setTimeout(() => {
+                toast.error("We could not get your location, please allow location access or reload the page!", {
+                    position: 'top-right'
+                }, 12000)
+            })
+        }
     }, []);
 
     const clickHandler = async () => {
