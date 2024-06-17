@@ -45,7 +45,7 @@ const Playlist = () => {
             if(latitude && longitude) {
                 console.log("User coordinates retrieved")
             } else {
-                console.log("User coordinates not retrieved");
+                console.error("User coordinates not retrieved");
             }
         });
     }, [locationLoaded]);
@@ -66,7 +66,7 @@ const Playlist = () => {
                     const data = await res.json();
                     setApiData(await data.data.city)
                 } catch (e) {
-                    console.log("Error sending location", e);
+                    console.error("Error sending location", e);
                 } finally {
                 }
             } else {
@@ -106,7 +106,7 @@ const Playlist = () => {
                     credentials: "include"
                 });
                 const data = await response.json();
-                console.log("data from tracks endpoint", data);
+                console.log("Main response", data);
                 if (data.error) {
                     if (data.error.status === 401){
                         setErrorText("Your access has expired, please login again. Click OK to continue")
@@ -118,7 +118,7 @@ const Playlist = () => {
                         setErrorText("You have made too many requests! Please try again after 1 minute. Click OK to continue");
                         setHasError(true)
                     }
-                    console.log("Something went wrong")
+                    console.error("Something went wrong")
                     console.log(data.error);
                     loginCondition = false;
                     setErrorText("There was an issue connecting your account. Please try again. Click OK to continue")
@@ -126,7 +126,7 @@ const Playlist = () => {
                     return;
                 } else {
                     playlist_id = data.data.playlist_id;
-                    console.log("playlist ID at else block",playlist_id)
+                    console.log("playlist ID",playlist_id)
                     setIFrame(playlist_id)
                     setSubHeaderHidden(false)
                     setLoading(false)
@@ -135,7 +135,7 @@ const Playlist = () => {
                     return
                 }
             } catch (e) {
-                setErrorText("Sorry, we were unable to create your playlist. Please try again")
+                setErrorText("Sorry, we were unable to create your playlist. Please try again later.")
                 setHasError(true);
                 console.log(e);
             } finally {
@@ -190,11 +190,11 @@ const Playlist = () => {
             </section>
             <div className=" -translate-x-30 m-auto pb-20">
                 {/*Button to link spotify*/}
-                {locationLoaded && (<div className="flex-col mt-6 flex items-center text-center">
+                {!locationLoaded ? <h3 className="animate-ping text-black">Getting your location...</h3> : (<div className="flex-col mt-6 flex items-center text-center">
                     <div className="text-center   ">
                         <button
                             onClick={clickHandler}
-                            className={`text-md bg-indigo-700 py-3.5 rounded-2xl hover:ring-1 hover:ring-indigo-700 hover:bg-darkerTransparentIndigoBlue hover:text-indigo-700 transition-all duration-100 ease-in px-8 active:ring-1 active:ring-red-600 font-bold active:bg-darkerTransparentIndigoBlue md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
+                            className={`text-md bg-indigo-700 py-3.5 rounded-2xl hover:bg-indigo-400 transition-all duration-100 ease-in px-8 active:bg-darkerTransparentIndigoBlue active:ring-indigo-700 font-bold md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
                         >
                             Get Playlist
                         </button>
