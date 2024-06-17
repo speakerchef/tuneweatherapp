@@ -21,16 +21,13 @@ const session_secret = process.env.session_secret;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const server_url = process.env.server_url;
 const client_url = process.env.client_url;
+const mongoURI = process.env.mongodbURI;
 
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 const PORT = process.env.PORT || 5001;
 const app = express();
-const mongoURI =
-    "mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather";
-let userLocation;
 let lat;
 let lon;
-let currentUserSession;
 
 mongoose.connect(mongoURI, {}).then((res) => {
     console.log("MongoDB connected");
