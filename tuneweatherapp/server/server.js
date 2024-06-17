@@ -378,7 +378,6 @@ app.post("/login", async (e, t) => {
         (i = e
           .map((e) => (void 0 !== e.uri ? e.uri : ""))
           .filter((e) => "" !== e)),
-          console.log(e),
           (s = await a.id),
           console.log("playlist id", s),
           console.log(i);
@@ -429,7 +428,7 @@ app.post("/login", async (e, t) => {
 
     async function g(e, t) {
       if (!e && !t)
-        throw Error(
+        console.error(
           "Cannot retrieve track features: Weather information is missing",
         );
       try {
@@ -454,11 +453,7 @@ app.post("/login", async (e, t) => {
       e = (e = (await e).albums.items).map((e) => e.id);
       let t = new URLSearchParams({ ids: e }),
         s = await r(`v1/albums?${t}`, "GET");
-      return (
-        (s = (s = (await s).albums).map((e) => e.tracks.items[0].id)),
-        console.log(`New releases ${s}`),
-        s
-      );
+      return (s = (await s).albums).map((e) => e.tracks.items[0].id);
     }
 
     async function h() {
@@ -480,8 +475,7 @@ app.post("/login", async (e, t) => {
           (console.error(
             "Top tracks could not be fetched, moving to backup method",
           ),
-          (t = await m()),
-          console.log(`Backup tracks: ${t}`));
+          (t = await m()));
         for (let o = 0; o < 5; o++)
           s.push(t[Math.floor(Math.random() * t.length)]);
         console.log(s);

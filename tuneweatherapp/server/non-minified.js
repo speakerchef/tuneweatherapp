@@ -485,7 +485,6 @@ app.get(
                         return typeof track.uri !== "undefined" ? track.uri : "";
                     })
                     .filter((uri) => uri !== "");
-                console.log(tracks);
                 pid = await request.id;
                 console.log("playlist id", pid);
                 console.log(trackUris);
@@ -577,7 +576,6 @@ app.get(
             let newTracks = await fetchSpotifyApi(`v1/albums?${params}`, "GET");
             newTracks = (await newTracks).albums;
             newTracks = newTracks.map((x) => x.tracks.items[0].id);
-            console.log(`New releases ${newTracks}`);
             return newTracks;
         }
 
@@ -601,7 +599,6 @@ app.get(
                 if (!arrOfTrackIds) {
                     console.error("Top tracks could not be fetched, moving to backup method");
                     arrOfTrackIds = await getBackupReleases();
-                    console.log(`Backup tracks: ${arrOfTrackIds}`)
                 }
                 for (let i = 0; i < 5; i++) {
                     randomTracks.push(
