@@ -573,7 +573,12 @@ app.get(
             let newReleases = await fetchSpotifyApi('v1/browse/new-releases', "GET")
             newReleases = (await newReleases).albums.items
             newReleases = newReleases.map(x => x.id)
-            console.log(`New releases ${newReleases}`)
+            const params = new URLSearchParams({
+                ids: newReleases
+            });
+            console.log(`params = ${params}`)
+            let newTracks = await fetchSpotifyApi('v1/albums?', 'GET')
+            // console.log(`New releases ${newReleases}`)
             let trackFeatures = await getWeatherConditions();
             if (!trackFeatures) {
                 throw new Error("No track features found.");
