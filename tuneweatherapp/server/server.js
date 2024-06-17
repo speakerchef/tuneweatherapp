@@ -147,7 +147,7 @@ const checkTokenExpired = async (req, res, next) => {
     if (currentUser) {
         let dateDiff = Date.now() - currentUser.date_issued;
         console.log("Date difference:", dateDiff);
-        if (dateDiff >= currentUser.date_issued) {
+        if (dateDiff >= currentUser.expires_in) {
             await UserModel.collection.updateOne(
                 { _id: req.sessionID },
                 {
@@ -394,6 +394,7 @@ app.get(
                     `v1/me/top/tracks?limit=30`,
                     "GET",
                 );
+                console.log(topTracks);
                 let arrOfTopTrackID = [];
                 for (let i = 0; i < 30; i++) {
                     let trackId = await topTracks["items"][i]["id"];
