@@ -102,8 +102,8 @@ const Playlist = () => {
             setTimeout(() => {
                 toast.error("We could not get your location, please allow location access or reload the page!", {
                     position: 'top-right'
-                }, 12000)
-            })
+                })
+            }, 10000)
         }
     }, []);
 
