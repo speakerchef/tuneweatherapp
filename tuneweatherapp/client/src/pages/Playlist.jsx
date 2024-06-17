@@ -198,7 +198,7 @@ const Playlist = () => {
           {/*Button to link spotify*/}
           {!locationLoaded ? (
             <div className="text-center">
-              <h3 className="animate-pulse bg-gradient-to-r from-indigo-700 to-darkMagenta bg-clip-text text-transparent">
+              <h3 className="animate-pulse bg-gradient-to-r from-indigo-700 to-vibrantMagenta bg-clip-text text-transparent">
                 Getting your location...
               </h3>
             </div>
