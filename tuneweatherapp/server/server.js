@@ -1,1 +1,634 @@
-"use strict";import e from"axios";import t from"dotenv";import s from"express";import o from"cors";import*as a from"node:querystring";import r from"mongoose";import i from"express-session";import n from"connect-mongo";import l from"openai";import c from"express-rate-limit";import d from"cookie-parser";let env=t.config(),client_id=process.env.client_id,client_secret=process.env.client_secret,WEATHERAPI_TOKEN=process.env.WEATHERAPI_TOKEN,session_secret=process.env.session_secret,OPENAI_API_KEY=process.env.OPENAI_API_KEY,server_url=process.env.server_url,client_url=process.env.client_url,openai=new l({apiKey:OPENAI_API_KEY}),PORT=process.env.PORT||5001,app=s(),mongoURI="mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather",userLocation,lat,lon,currentUserSession;r.connect(mongoURI,{}).then(e=>{console.log("MongoDB connected")});let UserSchema=new r.Schema({access_token:String,refresh_token:String,expires_in:Number,date_issued:Number,latitude:String,longitude:String,isLoggedIn:Boolean,needsRefresh:Boolean}),UserModel=r.model("Users",UserSchema);app.use(d()),app.use(i({secret:session_secret,resave:!1,saveUninitialized:!0,store:n.create({mongoUrl:mongoURI}),cookie:{sameSite:"none",secure:!0,httpOnly:!0}})),app.use(o({origin:["https://tuneweather.com","https://www.tuneweather.com","https://api.tuneweather.com",],credentials:!0,allowedHeaders:["Content-Type","Authorization"],exposedHeaders:["Set-Cookie"]})),app.options("*",o()),app.use(s.json()),app.use(s.urlencoded({extended:!0})),app.use(c({windowMs:6e4,max:10,handler(e,t){t.status(429).json({error:{status:429,message:"Rate limit exceeded"}})}})),app.use((e,t,s)=>{console.log("Session data :",e.sessionID),s()}),app.set("trust proxy",1);let validateUser=async(e,t,s)=>{let o=e.sessionID;if(console.log("REQUEST COOKIE ID: ",o),o){console.log("Request made from ID:",o);let a=await UserModel.collection.findOne({_id:o});a?!a.isLoggedIn||a.needsRefresh?(console.error("user access has expired"),t.status(403).json({error:{message:"Your access has expired, please login"}})):(console.log("User has passed validation check"),s()):(console.log("User does not exist"),t.status(403).json({error:{session:e.sessionID||"hello",message:"User not found for the given session"}}))}else t.status(403).json({error:{message:"No session id provided"}})},checkTokenExpired=async(e,t,s)=>{console.log("User at token expiry check: ",e.sessionID);let o=await UserModel.collection.findOne({_id:e.session.id});if(o){let a=Date.now()-o.date_issued;console.log("Date difference:",a),a>=o.expires_in?(await UserModel.collection.updateOne({_id:e.sessionID},{$set:{needsRefresh:!0,isLoggedIn:!1}}),console.error("Token expired, redirecting to login."),t.json({error:{status:401,message:"Your token has expired, please login again",redirect_url:"http://localhost:5001/login"}})):s()}else console.error("Issue at token expiry"),t.status(401).json({error:{status:401,message:"Unauthorized, please login"}})};app.delete("/logout",async(e,t)=>{let s=await UserModel.collection.findOne({_id:e.sessionID});s&&await UserModel.collection.deleteOne({_id:e.sessionID}),e.session.destroy(),t.status(200).json({message:"User deleted"})});let redirect_uri=`${server_url}/callback`;app.post("/login",async(e,t)=>{console.log("saved user session",e.sessionID);let s=await UserModel.collection.findOne({_id:e.sessionID});if(s){if(console.log("CURRENT USER REFRESH STATUS",s.needsRefresh),!s.needsRefresh&&s.isLoggedIn){console.log("user is authorized (cookie)"),t.status(200).json({data:{status:200,message:"User is logged in"}});return}}else await UserModel.collection.insertOne({_id:e.sessionID});console.log("User is not authorized");let o=new URLSearchParams({response_type:"code",client_id:client_id,scope:"user-read-private playlist-read-private playlist-modify-private user-top-read",redirect_uri:redirect_uri}),a=`https://accounts.spotify.com/authorize?${o}`;console.log(a),t.status(200).json({redirectLink:a})}),app.get("/callback",async(t,s)=>{console.log(`session id at oath flow ${JSON.stringify(t.cookies)}`);let o=t.query.code,a=new Buffer.from(client_id+":"+client_secret).toString("base64").replace("=",""),r={method:"post",url:"https://accounts.spotify.com/api/token",headers:{"Content-Type":"application/x-www-form-urlencoded",Authorization:`Basic ${a}`},data:{code:o,redirect_uri:redirect_uri,grant_type:"authorization_code"}};try{let i=await e(r),n=i.data,l=n.access_token,c=n.refresh_token,d=1e3*n.expires_in;console.log("Access token:",l),console.table(n),await UserModel.collection.findOne({_id:t.sessionID}),await UserModel.collection.updateOne({_id:t.sessionID},{$set:{access_token:l,refresh_token:c,expires_in:d,date_issued:Date.now(),isLoggedIn:!0,needsRefresh:!1}})}catch(u){console.error(u.response?u.response.status:u),s.status(500).json({message:"Internal server error"})}s.redirect(`${client_url}/playlist`)}),app.get("/playlist",async(e,t)=>{await UserModel.collection.insertOne({_id:e.session.id}).then(()=>{e.session.isAuth=!1,console.log("session id at playlist",e.session.id),t.send({data:{code:201,session_id:e.session.id}})})}),app.post("/location",async(e,t)=>{console.log("Query at location enpoint",e.query);let s=await UserModel.collection.findOne({_id:e.sessionID});if(lat=e.query.latitude,lon=e.query.longitude,console.log(lat,lon),lat&&lon){console.log("User coords: "+lat,lon);let o=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}`),a=(await o.json()).locality;console.log(a),s?s.latitude&&s.longitude?console.log("location exists"):(await UserModel.collection.updateOne({_id:e.sessionID},{$set:{latitude:lat,longitude:lon}}),console.log("Existing user's location updated")):(await UserModel.collection.insertOne({_id:e.sessionID,latitude:lat,longitude:lon}),console.log(`New user created with id: ${e.sessionID}`),e.session.location=!0)}else t.status(418).json("Error: Coordinates not provided")}),app.get("/tracks",validateUser,checkTokenExpired,async(t,s)=>{console.log("session ID at /tracks: ",t.session.id),console.log("session stored in DB",await UserModel.collection.findOne({_id:t.session.id}));try{let o=await h(),a=await d(o);console.log(await a),s.status(201).json({data:{message:"success",playlist_id:a}})}catch(r){s.status(500).json({error:{message:"Internal server error"}}),console.error("Error fetching tracks"),console.error(r)}async function i(e,s,o){let a=await UserModel.collection.findOne({_id:t.session.id});if(!a){console.log("User not found");return}try{let r=await fetch(`https://api.spotify.com/${e}`,{headers:{Authorization:`Bearer ${await a.access_token}`},method:s,body:JSON.stringify(o)});return await r.json()}catch(i){return console.error("spotify API could not be reached"),console.error(i),null}}async function n(){try{let e=await i("v1/me/top/tracks?limit=50","GET");console.log(e);let t=[];if(e)for(let s=0;s<50;s++){let o=await e.items[s].id;t.push(await o)}return t}catch(a){return console.log(a),null}}async function l(e,t,s,o,a=20){try{let r=i(`v1/recommendations?seed_tracks=${e.map((t,s)=>s!==e.length-1?`${t}%2C`:t)}&target_danceability=${t}&target_energy=${s}&limit=${a}`.replaceAll(",",""),"GET"),n=[];for(let l=0;l<a;l++)n.push({name:(await r).tracks[l].name},{artist:(await r).tracks[l].album.artists[0].name},{image:(await r).tracks[l].album.images[1].url},{link:(await r).tracks[l].external_urls},{uri:(await r).tracks[l].uri});return n}catch(c){return console.log(c.response),console.log("Recommened tracks could not be fetched"),null}}async function c(){try{let e=await i("v1/me","GET");return{name:await e.display_name,email:await e.email}}catch(t){return console.error(t),null}}async function d(e){let t=(await c()).name;if(!t&&!e)throw Error("Username or track recommedations could not be retrieved");console.log(t);let s,o={name:`Playlist for ${t} by TuneWeather`,description:"A Playlist by the TuneWeather App",public:!1},a=await i("v1/me/playlists","POST",o),r;if(e)r=e.map(e=>void 0!==e.uri?e.uri:"").filter(e=>""!==e),console.log(e),s=await a.id,console.log("playlist id",s),console.log(r);else{console.log("Could not create playlist");return}try{return await i(`v1/playlists/${s}/tracks?uris=${r.join(",")}`,"POST"),console.log("Items have been added"),s}catch(n){return console.log(n),null}}async function u(){try{let s=await UserModel.collection.findOne({_id:t.sessionID}),o=await e.get(`https://api.openweathermap.org/data/2.5/weather?lat=${await s.latitude}&lon=${await s.longitude}&appid=${WEATHERAPI_TOKEN}`),a=o.data.weather.description,r=o.data.main.temp;return await g(a,r-273)}catch(i){return console.error(i),console.error("Weather data could not be fetched"),null}}async function p(e){try{let t=await openai.chat.completions.create({messages:[{role:"system",content:`${e}`}],model:"gpt-4o"});return t.choices[0].message.content}catch(s){return console.error(s),null}}async function g(e,t){if(!e&&!t)throw Error("Cannot retrieve track features: Weather information is missing");try{let s=await p(`what danceability, energy, and valence do ${await e} weather conditions with a temperature of ${await t}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users.`);return s=s.replace("```","").replace("json","").replace("```","").trim(),JSON.parse(s)}catch(o){return console.log(o),null}}async function m(){let e=await i("v1/browse/new-releases?limit=10","GET");e=(e=(await e).albums.items).map(e=>e.id);let t=new URLSearchParams({ids:e}),s=await i(`v1/albums?${t}`,"GET");return s=(s=(await s).albums).map(e=>e.tracks.items[0].id),console.log(`New releases ${s}`),s}async function h(){let e=await u();e||(console.error("No track features could be generated."),e={"track-features":{danceability:.6,energy:.7,valence:.5}}),console.log(e);try{let t=await n(),s=[];t||(console.error("Top tracks could not be fetched, moving to backup method"),t=await m(),console.log(`Backup tracks: ${t}`));for(let o=0;o<5;o++)s.push(t[Math.floor(Math.random()*t.length)]);console.log(s);let a=e["audio-features"].danceability,r=e["audio-features"].energy,i=e["audio-features"].valence;return await l(s,a,r,i)}catch(c){return console.log(c),null}}}),app.listen(PORT,()=>{console.log(`Server is running on http://localhost:${PORT}`)});
+"use strict";
+
+import axios from "axios";
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import * as querystring from "node:querystring";
+import mongoose from "mongoose";
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import OpenAI from "openai";
+import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser";
+
+const env = dotenv.config();
+
+const client_id = process.env.client_id;
+const client_secret = process.env.client_secret;
+const WEATHERAPI_TOKEN = process.env.WEATHERAPI_TOKEN;
+const session_secret = process.env.session_secret;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const server_url = process.env.server_url;
+const client_url = process.env.client_url;
+
+const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+const PORT = process.env.PORT || 5001;
+const app = express();
+const mongoURI =
+    "mongodb+srv://tuneweather:YQMsoAyqdsIhbQ0U@tuneweather.tozzrsv.mongodb.net/?retryWrites=true&w=majority&appName=tuneweather";
+let userLocation;
+let lat;
+let lon;
+let currentUserSession;
+
+mongoose.connect(mongoURI, {}).then((res) => {
+    console.log("MongoDB connected");
+});
+
+const UserSchema = new mongoose.Schema({
+    access_token: String,
+    refresh_token: String,
+    expires_in: Number,
+    date_issued: Number,
+    latitude: String,
+    longitude: String,
+    isLoggedIn: Boolean,
+    needsRefresh: Boolean,
+});
+const UserModel = mongoose.model("Users", UserSchema);
+app.use(cookieParser());
+app.use(
+    session({
+        secret: session_secret,
+        resave: false,
+        saveUninitialized: true,
+        store: MongoStore.create({
+            mongoUrl: mongoURI,
+        }),
+        cookie: {
+            sameSite: "none",
+            secure: true,
+            httpOnly: true,
+        },
+    }),
+);
+app.use(
+    cors({
+        origin: [
+            `https://tuneweather.com`,
+            `https://www.tuneweather.com`,
+            `https://api.tuneweather.com`,
+        ],
+        credentials: true,
+        allowedHeaders: ["Content-Type", "Authorization"],
+        exposedHeaders: ["Set-Cookie"],
+    }),
+);
+app.options("*", cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(
+    rateLimit({
+        windowMs: 60 * 1000,
+        max: 10,
+        handler: (req, res) => {
+            res.status(429).json({
+                error: {
+                    status: 429,
+                    message: "Rate limit exceeded",
+                },
+            });
+        },
+    }),
+);
+
+app.use((req, res, next) => {
+    console.log("Session data :", req.sessionID);
+    next();
+});
+
+app.set("trust proxy", 1);
+
+//TESTING POINT
+
+const validateUser = async (req, res, next) => {
+    const requestId = req.sessionID;
+    console.log("REQUEST COOKIE ID: ", requestId);
+    if (!requestId) {
+        res.status(403).json({
+            error: {
+                message: "No session id provided",
+            },
+        });
+    } else {
+        console.log("Request made from ID:", requestId);
+        const user = await UserModel.collection.findOne({ _id: requestId });
+        if (!user) {
+            console.log("User does not exist");
+            res.status(403).json({
+                error: {
+                    session: req.sessionID || "hello",
+                    message: "User not found for the given session",
+                },
+            });
+        } else {
+            if (!user.isLoggedIn || user.needsRefresh) {
+                console.error("user access has expired");
+                res.status(403).json({
+                    error: {
+                        message: "Your access has expired, please login",
+                    },
+                });
+            } else {
+                console.log("User has passed validation check");
+                next();
+            }
+        }
+    }
+};
+
+// Check if token is expired
+const checkTokenExpired = async (req, res, next) => {
+    console.log("User at token expiry check: ", req.sessionID);
+    const currentUser = await UserModel.collection.findOne({
+        _id: req.session.id,
+    });
+    if (currentUser) {
+        let dateDiff = Date.now() - currentUser.date_issued;
+        console.log("Date difference:", dateDiff);
+        if (dateDiff >= currentUser.expires_in) {
+            await UserModel.collection.updateOne(
+                { _id: req.sessionID },
+                {
+                    $set: {
+                        needsRefresh: true,
+                        isLoggedIn: false,
+                    },
+                },
+            );
+            console.error("Token expired, redirecting to login.");
+            res.json({
+                error: {
+                    status: 401,
+                    message: "Your token has expired, please login again",
+                    redirect_url: "http://localhost:5001/login",
+                },
+            });
+        } else {
+            next();
+        }
+    } else {
+        console.error("Issue at token expiry");
+        res.status(401).json({
+            error: {
+                status: 401,
+                message: "Unauthorized, please login",
+            },
+        });
+        // res.redirect(`${server_url}/login`);
+    }
+};
+
+app.delete("/logout", async (req, res) => {
+    const currUser = await UserModel.collection.findOne({ _id: req.sessionID });
+    if (currUser) {
+        await UserModel.collection.deleteOne({ _id: req.sessionID });
+    }
+    req.session.destroy();
+    res.status(200).json({ message: "User deleted" });
+});
+
+const redirect_uri = `${server_url}/callback`;
+app.post("/login", async (req, res) => {
+    console.log("saved user session", req.sessionID);
+    const currUser = await UserModel.collection.findOne({
+        _id: req.sessionID,
+    });
+    if (!currUser) {
+        await UserModel.collection.insertOne({ _id: req.sessionID });
+    } else {
+        console.log("CURRENT USER REFRESH STATUS", currUser.needsRefresh);
+        if (!currUser.needsRefresh && currUser.isLoggedIn) {
+            console.log("user is authorized (cookie)");
+            res.status(200).json({
+                data: {
+                    status: 200,
+                    message: "User is logged in",
+                },
+            });
+            return;
+        }
+    }
+
+    console.log("User is not authorized");
+
+    const scope =
+        "user-read-private playlist-read-private playlist-modify-private user-top-read";
+    const authUrl = "https://accounts.spotify.com/authorize";
+    const params = new URLSearchParams({
+        response_type: "code",
+        client_id: client_id,
+        scope: scope,
+        redirect_uri: redirect_uri,
+    });
+    const redirectLink = `${authUrl}?${params}`;
+    console.log(redirectLink);
+    res.status(200).json({ redirectLink: redirectLink });
+});
+
+app.get("/callback", async (req, res) => {
+    console.log(`session id at oath flow ${JSON.stringify(req.cookies)}`);
+    const authCode = req.query.code;
+    const tokenUrl = "https://accounts.spotify.com/api/token";
+    const basicToken = new Buffer.from(client_id + ":" + client_secret)
+        .toString("base64")
+        .replace("=", "");
+    const authOptions = {
+        method: "post",
+        url: tokenUrl,
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Basic ${basicToken}`,
+        },
+        data: {
+            code: authCode,
+            redirect_uri: redirect_uri,
+            grant_type: "authorization_code",
+        },
+    };
+
+    try {
+        const response = await axios(authOptions);
+        const body = response.data;
+        const access_token = body.access_token;
+        const refresh_token = body.refresh_token;
+        const expires_in = body.expires_in * 1000;
+        console.log("Access token:", access_token);
+        console.table(body);
+        const existingUser = await UserModel.collection.findOne({
+            _id: req.sessionID,
+        });
+        await UserModel.collection.updateOne(
+            {
+                _id: req.sessionID,
+            },
+            {
+                $set: {
+                    access_token: access_token,
+                    refresh_token: refresh_token,
+                    expires_in: expires_in,
+                    date_issued: Date.now(),
+                    isLoggedIn: true,
+                    needsRefresh: false,
+                },
+            },
+        );
+    } catch (error) {
+        console.error(error.response ? error.response.status : error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+    res.redirect(`${client_url}/playlist`);
+});
+
+app.get("/playlist", async (req, res) => {
+    await UserModel.collection.insertOne({ _id: req.session.id }).then(() => {
+        req.session.isAuth = false;
+        console.log("session id at playlist", req.session.id);
+        res.send({
+            data: {
+                code: 201,
+                session_id: req.session.id,
+            },
+        });
+    });
+});
+
+app.post("/location", async (req, res) => {
+    console.log("Query at location enpoint", req.query);
+    const currentUser = await UserModel.collection.findOne({
+        _id: req.sessionID,
+    });
+    lat = req.query.latitude;
+    lon = req.query.longitude;
+    console.log(lat, lon);
+    if (!lat || !lon) {
+        res.status(418).json("Error: Coordinates not provided");
+    } else {
+        console.log("User coords: " + lat, lon);
+        const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}`,
+        );
+        const userLocation = (await response.json()).locality;
+        console.log(userLocation);
+
+        if (currentUser) {
+            if (currentUser.latitude && currentUser.longitude) {
+                console.log("location exists");
+            } else {
+                await UserModel.collection.updateOne(
+                    { _id: req.sessionID },
+                    { $set: { latitude: lat, longitude: lon } },
+                );
+                console.log("Existing user's location updated");
+            }
+        } else {
+            await UserModel.collection.insertOne({
+                _id: req.sessionID,
+                latitude: lat,
+                longitude: lon,
+            });
+            console.log(`New user created with id: ${req.sessionID}`);
+            req.session.location = true;
+        }
+    }
+});
+
+app.get(
+    "/tracks",
+    validateUser,
+    checkTokenExpired,
+    ///////////////// testing ////////////////////
+    async (req, res) => {
+        console.log("session ID at /tracks: ", req.session.id);
+        console.log(
+            "session stored in DB",
+            await UserModel.collection.findOne({ _id: req.session.id }),
+        );
+        ////////////// testing ////////////////////
+        try {
+            const response = await runOperations();
+            const playlistId = await createPlaylist(response);
+            console.log(await playlistId);
+            res.status(201).json({
+                data: {
+                    message: "success",
+                    playlist_id: playlistId,
+                },
+            });
+        } catch (e) {
+            res.status(500).json({
+                error: {
+                    message: "Internal server error",
+                },
+            });
+            console.error("Error fetching tracks");
+            console.error(e);
+        }
+
+        async function fetchSpotifyApi(endpoint, method, body) {
+            const currUser = await UserModel.collection.findOne({
+                _id: req.session.id,
+            });
+            if (!currUser) {
+                console.log("User not found");
+                return;
+            }
+            try {
+                const response = await fetch(`https://api.spotify.com/${endpoint}`, {
+                    headers: {
+                        Authorization: `Bearer ${await currUser.access_token}`,
+                    },
+                    method,
+                    body: JSON.stringify(body),
+                });
+                return await response.json();
+            } catch (err) {
+                console.error("spotify API could not be reached");
+                console.error(err);
+                return null;
+            }
+        }
+
+        // Getting user's top tracks
+        async function getTopTrackIds() {
+            try {
+                const topTracks = await fetchSpotifyApi(
+                    `v1/me/top/tracks?limit=50`,
+                    "GET",
+                );
+                console.log(topTracks);
+                let arrOfTopTrackID = [];
+                if (topTracks) {
+                    for (let i = 0; i < 50; i++) {
+                        let trackId = await topTracks["items"][i]["id"];
+                        arrOfTopTrackID.push(await trackId);
+                    }
+                }
+                return arrOfTopTrackID;
+            } catch (err) {
+                console.log(err);
+                return null;
+            }
+        }
+
+        // Function to get track recommendations
+        async function getRecommendedTracks(
+            seedTracks,
+            danceability,
+            energy,
+            valence,
+            limit = 20,
+        ) {
+            try {
+                const response = fetchSpotifyApi(
+                    `v1/recommendations?seed_tracks=${seedTracks.map((trackId, index) => {
+                        return index !== seedTracks.length - 1 ? `${trackId}%2C` : trackId;
+                    })}&target_danceability=${danceability}&target_energy=${energy}&limit=${limit}`.replaceAll(
+                        ",",
+                        "",
+                    ),
+                    "GET",
+                );
+                let recommendedTracks = [];
+                for (let i = 0; i < limit; i++) {
+                    recommendedTracks.push(
+                        { name: (await response).tracks[i].name },
+                        { artist: (await response).tracks[i].album.artists[0].name },
+                        { image: (await response).tracks[i].album.images[1].url },
+                        { link: (await response).tracks[i].external_urls },
+                        { uri: (await response).tracks[i].uri },
+                    );
+                }
+
+                return recommendedTracks;
+            } catch (err) {
+                console.log(err.response);
+                console.log("Recommened tracks could not be fetched");
+                return null;
+            }
+        }
+
+        async function getCurrentUserInfo() {
+            try {
+                const result = await fetchSpotifyApi(`v1/me`, "GET");
+                return {
+                    name: await result.display_name,
+                    email: await result.email,
+                    // userId: await result.id,
+                    // userProfileImage: (await result).images.url,
+                };
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
+        }
+
+        async function createPlaylist(tracks) {
+            const userName = (await getCurrentUserInfo()).name;
+            if (!userName && !tracks) {
+                throw new Error(
+                    "Username or track recommedations could not be retrieved",
+                );
+                return;
+            }
+            console.log(userName);
+            let pid;
+            const targetUrl = "v1/me/playlists";
+            const payload = {
+                name: `Playlist for ${userName} by TuneWeather`,
+                description: "A Playlist by the TuneWeather App",
+                public: false,
+            };
+            const request = await fetchSpotifyApi(targetUrl, "POST", payload);
+
+            let trackUris;
+            if (tracks) {
+                trackUris = tracks
+                    .map((track) => {
+                        return typeof track.uri !== "undefined" ? track.uri : "";
+                    })
+                    .filter((uri) => uri !== "");
+                console.log(tracks);
+                pid = await request.id;
+                console.log("playlist id", pid);
+                console.log(trackUris);
+            } else {
+                console.log("Could not create playlist");
+                return;
+            }
+
+            try {
+                await fetchSpotifyApi(
+                    `v1/playlists/${pid}/tracks?uris=${trackUris.join(",")}`,
+                    "POST",
+                );
+                console.log("Items have been added");
+                return pid;
+            } catch (e) {
+                console.log(e);
+                return null;
+            }
+        }
+
+        //Getting weather conditions at client location
+        async function getWeatherConditions() {
+            try {
+                const currUser = await UserModel.collection.findOne({
+                    _id: req.sessionID,
+                });
+                const result = await axios.get(
+                    `https://api.openweathermap.org/data/2.5/weather?lat=${await currUser.latitude}&lon=${await currUser.longitude}&appid=${WEATHERAPI_TOKEN}`,
+                );
+                const conditionsToPassToLLM = result.data.weather.description;
+                const tempToPassToLLM = result.data.main.temp;
+                return await getTrackFeatures(
+                    conditionsToPassToLLM,
+                    tempToPassToLLM - 273,
+                );
+            } catch (err) {
+                console.error(err);
+                console.error("Weather data could not be fetched");
+                return null;
+            }
+        }
+
+        async function queryOpenAiApi(messageStr) {
+            try {
+                const completion = await openai.chat.completions.create({
+                    messages: [{ role: "system", content: `${messageStr}` }],
+                    model: "gpt-4o",
+                });
+
+                return completion.choices[0]["message"]["content"];
+            } catch (e) {
+                console.error(e);
+                return null;
+            }
+        }
+
+        // Gets track features with weather at clients location
+        async function getTrackFeatures(condition, temp) {
+            if (!condition && !temp) {
+                throw new Error(
+                    "Cannot retrieve track features: Weather information is missing",
+                );
+                return;
+            }
+            try {
+                let moods = await queryOpenAiApi(
+                    `what danceability, energy, and valence do ${await condition} weather conditions with a temperature of ${await temp}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users.`,
+                );
+                moods = moods
+                    .replace("```", "")
+                    .replace("json", "")
+                    .replace("```", "")
+                    .trim();
+                return JSON.parse(moods);
+            } catch (e) {
+                console.log(e);
+                return null;
+            }
+        }
+
+        async function getBackupReleases() {
+            let newReleases = await fetchSpotifyApi("v1/browse/new-releases?limit=10", "GET");
+            newReleases = (await newReleases).albums.items;
+            newReleases = newReleases.map((x) => x.id);
+            const params = new URLSearchParams({
+                ids: newReleases,
+            });
+            let newTracks = await fetchSpotifyApi(`v1/albums?${params}`, "GET");
+            newTracks = (await newTracks).albums;
+            newTracks = newTracks.map((x) => x.tracks.items[0].id);
+            console.log(`New releases ${newTracks}`);
+            return newTracks;
+        }
+
+        // Runs the server functions
+        async function runOperations() {
+            let trackFeatures = await getWeatherConditions();
+            if (!trackFeatures) {
+                console.error("No track features could be generated.");
+                trackFeatures = {
+                    "audio-features": {
+                        danceability: 0.6,
+                        energy: 0.7,
+                        valence: 0.5,
+                    },
+                };
+            }
+            console.log(trackFeatures);
+            try {
+                let arrOfTrackIds = await getTopTrackIds();
+                let randomTracks = [];
+                if (!arrOfTrackIds) {
+                    console.error("Top tracks could not be fetched, moving to backup method");
+                    arrOfTrackIds = await getBackupReleases();
+                    console.log(`Backup tracks: ${arrOfTrackIds}`)
+                }
+                for (let i = 0; i < 5; i++) {
+                    randomTracks.push(
+                        arrOfTrackIds[Math.floor(Math.random() * arrOfTrackIds.length)],
+                    );
+                }
+                // TODO: remove log
+                console.log(randomTracks);
+                const db = trackFeatures["audio-features"].danceability;
+                const eg = trackFeatures["audio-features"].energy;
+                const vl = trackFeatures["audio-features"].valence;
+                return await getRecommendedTracks(randomTracks, db, eg, vl);
+
+            } catch (e) {
+                console.log(e);
+                return null;
+            }
+        }
+    },
+);
+
+// use spotify API
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
