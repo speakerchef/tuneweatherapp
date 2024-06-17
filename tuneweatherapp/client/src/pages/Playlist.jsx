@@ -70,6 +70,9 @@ const Playlist = () => {
                     const data = await res.json();
                     setApiData(await data.data.city)
                 } catch (e) {
+                    toast.error("We could not get your location. Please reload the page or enable location access.", {
+                        position: 'top-right'
+                    });
                     console.error("Error sending location", e);
                 } finally {
                 }
@@ -81,7 +84,7 @@ const Playlist = () => {
             console.log("API DATA", apiData)
         }).catch(e => {
             console.error(e)
-            toast.error("We could not get your location. Please reload the page and try again!", {
+            toast.error("We could not get your location. Please reload the page or enable location access.", {
                 position: 'top-right'
             });
         });
@@ -97,14 +100,7 @@ const Playlist = () => {
     }, [!hasError])
 
     useEffect(() => {
-        setLocationLoaded(false)
-        if (!locationLoaded) {
-            setTimeout(() => {
-                toast.error("We could not get your location, please allow location access or reload the page!", {
-                    position: 'top-right'
-                })
-            }, 10000)
-        }
+
     }, []);
 
     const clickHandler = async () => {
