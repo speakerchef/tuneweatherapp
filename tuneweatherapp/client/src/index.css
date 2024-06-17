@@ -5,7 +5,7 @@
 
 @media  {
     body{
-        background-image: url("./assets/bg.svg");
+        background-image: url("./assets/bg.png");
         background-repeat: no-repeat;
         background-position: center;
         background-attachment: fixed;
@@ -15,10 +15,10 @@
 }
 
 .ppDivs h3, h4, h5{
-    @apply font-bold uppercase text-sm mb-4 text-gray-800 text-center
+    @apply font-bold uppercase text-sm text-indigo-700 text-center
 }
 .ppDivs h3 {
-    @apply font-extrabold text-[1.0rem] text-center mt-12 underline
+    @apply font-extrabold text-[1.0rem] text-center mb-4 mt-12 underline
 }
 
 .ppDivs {

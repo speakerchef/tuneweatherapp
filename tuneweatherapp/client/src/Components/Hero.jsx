@@ -15,7 +15,7 @@ const Hero = ({mainHeaderHidden, iframeHidden, dashboardHeaderHidden, playlistSe
               </p>
             </div>
             <div className="sm:mx-12 md:mx-8 lg:mx-12 mt-8 mb-12 xl:mx-24">
-              <h2 className={`${mainHeaderHidden ? "hidden" : ""} text-5xl -mt-14 -mb-8 text-left tracking-tight text-gray-800 font-extrabold sm:-mx-4 sm:text-5xl slg:text-7xl lg:text-7xl lg:mx-7 md:text-center md:text-6xl lg:text-center xl:text-center xl:text-7xl xxl:text-8xl mx-4`}>
+              <h2 className={`${mainHeaderHidden ? "hidden" : ""} text-5xl -mt-14 -mb-8 text-left tracking-tight text-gray-900 font-extrabold sm:-mx-4 sm:text-5xl slg:text-7xl lg:text-7xl lg:mx-7 md:text-center md:text-6xl lg:text-center xl:text-center xl:text-7xl xxl:text-8xl mx-4`}>
                 Welcome to <strong className="bg-gradient-to-r from-vibrantMagenta to-indigo-700 text-transparent opacity-90 bg-clip-text">Tune Weather.</strong> A product that lets <strong className="text-tuneWeatherCream">nature</strong> decide what <strong className="text-tuneWeatherCream">tune</strong> you listen to
               </h2>
             </div>

@@ -2,10 +2,12 @@ import React from 'react';
 import Buttons from "../Components/Buttons.jsx";
 import NavBar from "../Components/NavBar.jsx";
 import robotImage from "../assets/robot-8189.svg"
+import Footer from "../Components/Footer.jsx";
 
 const NotFound = () => {
     return (
         <>
+            <div className="flex flex-col min-h-screen">
             <NavBar/>
             <div>
                 <div className=" flex flex-col bg-darkerTransparentIndigoBlue mx-auto w-full pb-20">
@@ -25,6 +27,8 @@ const NotFound = () => {
                     </div>
                     {/*<Buttons/>*/}
                 </div>
+            </div>
+            <Footer/>
             </div>
         </>
     );

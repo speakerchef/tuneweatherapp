@@ -6,6 +6,7 @@ import Spinner from "../Components/Spinner.jsx";
 import ErrorModal from "../Components/ErrorModal.jsx";
 export let loginCondition;
 import { FaComputer } from "react-icons/fa6";
+import Footer from "../Components/Footer.jsx";
 
 const Playlist = () => {
     const [getPlaylist, setGetPlaylist] = useState(5);
@@ -149,6 +150,7 @@ const Playlist = () => {
 
     return (
       <>
+          <div className="flex flex-col min-h-screen">
         <NavBar isLoggedIn={loginCondition} />
         <Hero
           mainHeaderHidden={true}
@@ -215,6 +217,8 @@ const Playlist = () => {
             </div>
           )}
         </div>
+          <Footer />
+          </div>
       </>
     );
 };

@@ -13,8 +13,8 @@ const PrivacyPolicy = ({isHidden, clickHandler}) => {
           </div>
 
           <div className="ppDivs">
-            <div className='-mt-12 date'>
-              <p>EFFECTIVE DATE: 25TH JUNE 2024</p>
+            <div className='-mt-12 date '>
+              <p style={{color: "rgb(67 56 202)"}}>EFFECTIVE DATE: 25TH JUNE 2024</p>
             </div>
             <h3>1. Introduction</h3>
             <p>
@@ -100,11 +100,8 @@ const PrivacyPolicy = ({isHidden, clickHandler}) => {
           <div className="ppDivs">
             <h3>7. USER RIGHTS</h3>
             <h5>You have the right to:</h5>
-            <ul>
-              <li>Request the deletion of your data by logging out.</li>
-              <li>
-                Disconnect your Spotify account from our Service by logging out.
-              </li>
+            <ul style={{listStyle: 'inside'}}>
+              <li>Delete your location data by logging out.</li>
             </ul>
           </div>
           <div className="ppDivs">
@@ -118,10 +115,13 @@ const PrivacyPolicy = ({isHidden, clickHandler}) => {
           </div>
           <div className="ppDivs">
             <h3>9. CONTACT US</h3>
-            <p>
+            <p style={{marginBottom: '0.1rem'}}>
               If you have any questions about this Privacy Policy, please
-              contact us at: - Email: tuneweather@gmail.com
+              contact us at:
             </p>
+              <p>
+                  <strong>Email:</strong> <strong className="text-indigo-700">tuneweather@gmail.com</strong>
+              </p>
           </div>
         </div>
       </div>
