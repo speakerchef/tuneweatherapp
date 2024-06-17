@@ -78,7 +78,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
     rateLimit({
         windowMs: 60 * 1000,
-        max: 10,
+        max: 50,
         handler: (req, res) => {
             res.status(429).json({
                 error: {
@@ -417,16 +417,15 @@ app.get(
             valence,
             limit = 20,
         ) {
+            const params = new URLSearchParams({
+                seed_tracks: seedTracks,
+                target_danceability: danceability,
+                targe_energy: energy,
+                target_valence: valence,
+                limit: limit
+            });
             try {
-                const response = fetchSpotifyApi(
-                    `v1/recommendations?seed_tracks=${seedTracks.map((trackId, index) => {
-                        return index !== seedTracks.length - 1 ? `${trackId}%2C` : trackId;
-                    })}&target_danceability=${danceability}&target_energy=${energy}&limit=${limit}`.replaceAll(
-                        ",",
-                        "",
-                    ),
-                    "GET",
-                );
+                const response = fetchSpotifyApi(`v1/recommendations?${params}`, "GET",);
                 let recommendedTracks = [];
                 for (let i = 0; i < limit; i++) {
                     recommendedTracks.push(

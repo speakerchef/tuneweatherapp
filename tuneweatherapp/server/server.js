@@ -324,27 +324,28 @@ app.post("/login", async (e, t) => {
     }
 
     async function l(e, t, s, o, a = 20) {
+      let i = new URLSearchParams({
+        seed_tracks: e,
+        target_danceability: t,
+        targe_energy: s,
+        target_valence: o,
+        limit: a,
+      });
       try {
-        let i = r(
-            `v1/recommendations?seed_tracks=${e.map((t, s) => (s !== e.length - 1 ? `${t}%2C` : t))}&target_danceability=${t}&target_energy=${s}&limit=${a}`.replaceAll(
-              ",",
-              "",
-            ),
-            "GET",
-          ),
-          n = [];
-        for (let l = 0; l < a; l++)
-          n.push(
-            { name: (await i).tracks[l].name },
-            { artist: (await i).tracks[l].album.artists[0].name },
-            { image: (await i).tracks[l].album.images[1].url },
-            { link: (await i).tracks[l].external_urls },
-            { uri: (await i).tracks[l].uri },
+        let n = r(`v1/recommendations?${i}`, "GET"),
+          l = [];
+        for (let c = 0; c < a; c++)
+          l.push(
+            { name: (await n).tracks[c].name },
+            { artist: (await n).tracks[c].album.artists[0].name },
+            { image: (await n).tracks[c].album.images[1].url },
+            { link: (await n).tracks[c].external_urls },
+            { uri: (await n).tracks[c].uri },
           );
-        return n;
-      } catch (c) {
+        return l;
+      } catch (d) {
         return (
-          console.log(c.response),
+          console.log(d.response),
           console.log("Recommened tracks could not be fetched"),
           null
         );
