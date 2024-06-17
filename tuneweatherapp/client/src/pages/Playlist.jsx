@@ -148,60 +148,74 @@ const Playlist = () => {
     }, 60000);
 
     return (
-        <>
-            <NavBar isLoggedIn={loginCondition}/>
-            <Hero
-                mainHeaderHidden={true}
-                dashboardHeaderHidden={true}
-                headerText={headerText}
-                subHeaderHidden={subHeaderHidden}
-            />
-            <div className="flex flex-col items-center -mt-44 justify-between rounded-2xl">
-                {hasError && <ErrorModal errorText={errorText} />}
-                { loading && showLoading ? (
-                    <Spinner />
-                ) : !loading && (
-                    <div>
-                        <iframe
-                            src={`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`}
-                            width="100%"
-                            // height="480px"
-                            // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
-                            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                            loading="lazy"
-                            className="flex min-h-[680px] min-w-[368px] -mb-12 sm:min-w-[480px] mt-16 sm:mt-10 md:mt-10 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
-                        />
-                    </div>
-                )}
-            </div>
+      <>
+        <NavBar isLoggedIn={loginCondition} />
+        <Hero
+          mainHeaderHidden={true}
+          dashboardHeaderHidden={true}
+          headerText={headerText}
+          subHeaderHidden={subHeaderHidden}
+        />
+        <div className="flex flex-col items-center -mt-44 justify-between rounded-2xl">
+          {hasError && <ErrorModal errorText={errorText} />}
+          {loading && showLoading ? (
+            <Spinner />
+          ) : (
+            !loading && (
+              <div>
+                <iframe
+                  src={`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`}
+                  width="100%"
+                  // height="480px"
+                  // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
+                  allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                  loading="lazy"
+                  className="flex min-h-[680px] min-w-[368px] -mb-12 sm:min-w-[480px] mt-16 sm:mt-10 md:mt-10 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
+                />
+              </div>
+            )
+          )}
+        </div>
 
-            <section id="hero" className="flex flex-col-reverse mx-16 mt-14 md:mt-12 mb-8">
-                <div
-                    id="headText"
-                    className="flex flex-col items-center justify-between rounded-2xl"
-                >
-                    <div className="relative bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-4 mt-4  rounded-lg shadow-lg">
-                        <p className="text-black">
-                            You can make more playlists. There is a limit
-                            of 5 playlists per minute! You have {getPlaylist} {getPlaylist !== 1 ? 'playlists': 'playlist'} left.
-                        </p>
-                    </div>
-                </div>
-            </section>
-            <div className=" -translate-x-30 m-auto pb-20">
-                {/*Button to link spotify*/}
-                {!locationLoaded ? <h3 className="animate-ping text-black">Getting your location...</h3> : (<div className="flex-col mt-6 flex items-center text-center">
-                    <div className="text-center   ">
-                        <button
-                            onClick={clickHandler}
-                            className={`text-md bg-indigo-700 py-3.5 rounded-2xl hover:bg-indigo-400 transition-all duration-100 ease-in px-8 active:bg-darkerTransparentIndigoBlue active:ring-indigo-700 font-bold md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
-                        >
-                            Get Playlist
-                        </button>
-                    </div>
-                </div>)}
+        <section
+          id="hero"
+          className="flex flex-col-reverse mx-16 mt-14 md:mt-12 mb-8"
+        >
+          <div
+            id="headText"
+            className="flex flex-col items-center justify-between rounded-2xl"
+          >
+            <div className="relative bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-4 mt-4  rounded-lg shadow-lg">
+              <p className="text-black">
+                You can make more playlists. There is a limit of 5 playlists per
+                minute! You have {getPlaylist}{" "}
+                {getPlaylist !== 1 ? "playlists" : "playlist"} left.
+              </p>
             </div>
-        </>
+          </div>
+        </section>
+        <div className=" -translate-x-30 m-auto pb-20">
+          {/*Button to link spotify*/}
+          {!locationLoaded ? (
+            <div className="text-center">
+              <h3 className="animate-pulse text-black">
+                Getting your location...
+              </h3>
+            </div>
+          ) : (
+            <div className="flex-col mt-6 flex items-center text-center">
+              <div className="text-center   ">
+                <button
+                  onClick={clickHandler}
+                  className={`text-md bg-indigo-700 py-3.5 rounded-2xl hover:bg-indigo-400 transition-all duration-100 ease-in px-8 active:bg-darkerTransparentIndigoBlue active:ring-indigo-700 font-bold md:text-lg lg:text-xl lg:px-8 lg:py-4 xl:px-9 xl:py-5`}
+                >
+                  Get Playlist
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </>
     );
 };
 
