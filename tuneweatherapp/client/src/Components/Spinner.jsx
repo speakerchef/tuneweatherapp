@@ -4,7 +4,6 @@ import { ScaleLoader} from "react-spinners";
 const cssOverride = {
     display: 'block',
     margin: '0 auto',
-    borderColor: '#553bff',
     marginTop: '4rem',
     marginBottom: '-3rem',
 }
@@ -13,7 +12,7 @@ const Spinner = ({loading}) => {
     return (
         <div>
             <ScaleLoader
-            color={'#553bff'}
+            className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-700 to-vibrantMagenta"
             loading={loading}
             cssOverride={cssOverride}
             size={150}
