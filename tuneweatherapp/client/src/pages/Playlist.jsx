@@ -177,8 +177,10 @@ const Playlist = () => {
     <>
       <ToastContainer
       theme="dark"/>
+
       <div className="flex flex-col min-h-screen">
         <NavBar isLoggedIn={loginCondition} />
+        {hasError && <ErrorModal errorText={errorText} />}
         <div className="bg-translucentDarkerTransparentIndigoBlue contain-content shadow-xl shadow-gray-800 m-8 backdrop-filter backdrop-blur-lg rounded-2xl">
           <Hero
             mainHeaderHidden={true}
@@ -187,7 +189,7 @@ const Playlist = () => {
             subHeaderHidden={subHeaderHidden}
           />
           <div className="flex flex-col items-center -mt-44 justify-between rounded-2xl">
-            {hasError && <ErrorModal errorText={errorText} />}
+
             {loading && showLoading ? (
               <Spinner />
             ) : !loading && (
