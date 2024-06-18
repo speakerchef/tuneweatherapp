@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import Hero from "../Components/Hero.jsx";
-import NavBar from "../Components/NavBar.jsx";
-import Button from "../Components/Button.jsx";
-import Spinner from "../Components/Spinner.jsx";
-import ErrorModal from "../Components/ErrorModal.jsx";
+import Hero from "../components/Hero.jsx";
+import NavBar from "../components/NavBar.jsx";
+import Button from "../components/Button.jsx";
+import Spinner from "../components/Spinner.jsx";
+import ErrorModal from "../components/ErrorModal.jsx";
 export let loginCondition;
 import { FaComputer } from "react-icons/fa6";
-import Footer from "../Components/Footer.jsx";
+import Footer from "../components/Footer.jsx";
 import {toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 

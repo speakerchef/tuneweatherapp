@@ -1,12 +1,12 @@
 import React, {useState} from "react";
-import Hero from "../Components/Hero.jsx";
-import NavBar from "../Components/NavBar.jsx";
-import Button from "../Components/Button.jsx";
+import Hero from "../components/Hero.jsx";
+import NavBar from "../components/NavBar.jsx";
+import Button from "../components/Button.jsx";
 import { FaSpotify, FaCloudRain, FaMusic } from "react-icons/fa6";
 import bgImage from "../assets/bg.svg";
-import PrivacyPolicy from "../Components/PrivacyPolicy.jsx";
-import Footer from "../Components/Footer.jsx";
-import HowItWorks from "../Components/HowItWorks.jsx";
+import PrivacyPolicy from "../components/PrivacyPolicy.jsx";
+import Footer from "../components/Footer.jsx";
+import HowItWorks from "../components/HowItWorks.jsx";
 
 const Home = () => {
     const [privacyHidden, setPrivacyHidden] = useState(true);

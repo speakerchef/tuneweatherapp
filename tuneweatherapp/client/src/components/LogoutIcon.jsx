@@ -20,7 +20,7 @@ const LogoutIcon = ({ isLoggedIn }) => {
   };
 
   return (
-    <div className={`relative group inline invisible md:visible`}>
+    <div className={`relative group md:inline hidden`}>
       <FaSignOutAlt
         className="text-darkMagenta text-md  cursor-pointer transition-all hover:text-gray-600"
         onMouseOver={logoutHover}

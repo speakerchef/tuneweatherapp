@@ -1,8 +1,8 @@
 import React from 'react';
-import Buttons from "../Components/Buttons.jsx";
-import NavBar from "../Components/NavBar.jsx";
+import Buttons from "../components/Buttons.jsx";
+import NavBar from "../components/NavBar.jsx";
 import robotImage from "../assets/robot-8189.svg"
-import Footer from "../Components/Footer.jsx";
+import Footer from "../components/Footer.jsx";
 
 const NotFound = () => {
     return (

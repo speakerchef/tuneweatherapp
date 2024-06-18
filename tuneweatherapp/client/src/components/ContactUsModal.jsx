@@ -3,6 +3,7 @@ import {FaArrowRight, FaWindowClose} from "react-icons/fa";
 import {FaX} from "react-icons/fa6";
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {IoClose} from "react-icons/io5";
 
 const ContactUsModal = ({closeModal, modalHandler}) => {
 
@@ -43,17 +44,17 @@ const ContactUsModal = ({closeModal, modalHandler}) => {
             <ToastContainer
             theme='dark'
             />
-            <div className={`flex justify-center items-center ${closeModal ? 'hidden' : ''}`}>
-                <div id="contactFormModal" className="fixed z-10 inset-0 overflow-y-auto ">
+            <div className={`flex  justify-center items-center ${closeModal ? 'hidden' : ''}`}>
+                <div id="contactFormModal" className="fixed z-30 inset-0 overflow-y-auto md:mx-0   -mx-24">
                     <div className="flex items-center justify-center min-h-screen">
-                        <div className="bg-darkerTransparentIndigoBlue w-1/2 p-6 rounded-xl shadow-md">
-                            <div className="flex justify-end">
-                                <button id="closeContactForm" className="text-gray-700 text-xl hover:text-indigo-700 active:text-red-600 transition-all"
+                        <div className="bg-darkerTransparentIndigoBlue md:max-w-[480px] w-1/2 p-6 rounded-xl shadow-md">
+                            <div className="flex hover:opacity-80 transition-all duration-75 active:opacity-70 justify-end">
+                                <button id="closeContactForm" className=" text-4xl transition-all"
                                 onClick={modalHandler}>
-                                    <FaX/>
+                                    <IoClose className="bg-gradient-to-r rounded from-indigo-700 to-darkMagenta "/>
                                 </button>
                             </div>
-                            <h2 className="text-2xl text-indigo-700 font-bold mb-4">Contact Us</h2>
+                            <h2 className="text-2xl bg-gradient-to-r from-indigo-700 to-vibrantMagenta bg-clip-text text-transparent font-bold mb-4">Contact Us</h2>
 
                             <form onSubmit={onSubmit}>
                                 <div className="mb-4">
@@ -75,7 +76,7 @@ const ContactUsModal = ({closeModal, modalHandler}) => {
                                               className="w-full p-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-1 ring-indigo-700 transition-all"></textarea>
                                 </div>
                                 <button type="submit"
-                                        className="bg-indigo-700 text-white  py-2 px-4 rounded hover:bg-indigo-600 active:bg-indigo-950 transition-all">
+                                        className="bg-gradient-to-r from-indigo-700 to-darkMagenta font-bold text-white  py-2 px-4 rounded hover:bg-indigo-600 active:bg-indigo-950 transition-all">
                                     Submit <FaArrowRight className="inline mb-0.5 text-sm"/>
                                 </button>
                             </form>

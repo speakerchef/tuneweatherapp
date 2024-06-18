@@ -11,14 +11,14 @@ const NavBarLogo = () => {
   return (
     <div
       id="productName"
-      className="flex relative flex-row  ml-2 sm:ml-4 mt-0.5 sm:text-2xl mb-1 items-center"
+      className="flex relative flex-row  md:py-4 ml-2 sm:ml-4 sm:text-2xl mb-1 items-center"
     >
       {/*<a href="#" className="hover:ring-1 hover:ring-indigo-700 hover:rounded-full transition-all duration-300"> <img src={logo} alt="tune weather logo" className="size-14 mx-4 "/></a>*/}
       <a
         onMouseEnter={homeHover}
         onMouseLeave={() => setHomeHidden(true)}
         href="/"
-        className={`text-lg mx-4  hover:cursor-pointer hover:opacity-50 transition-all font-extrabold sm:text-md  md:text-xl lg:text-2xl`}
+        className={`text-xl mx-4 mt-1 hover:cursor-pointer hover:opacity-50 transition-all font-extrabold sm:text-xl  md:text-xl lg:text-2xl`}
       >
         <strong className="text-indigo-700">Tune</strong>{" "}
         <strong className="text-white font-bold">Weather</strong>

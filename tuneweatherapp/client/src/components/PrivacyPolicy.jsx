@@ -1,14 +1,15 @@
 import React from 'react';
+import {IoClose} from "react-icons/io5";
 
 const PrivacyPolicy = ({isHidden, clickHandler}) => {
     return (
-      <div className={`${isHidden && isHidden ? 'hidden':''} fixed z-20 mt-12 justify-center flex inset-0 overflow-y-auto`} >
+      <div className={`${isHidden && isHidden ? 'hidden':''} fixed z-30 mt-12 justify-center flex inset-0 overflow-y-auto`} >
         <div className="relative bg-white p-4 md:p-8 lg:p-10 w-full max-w-screen-sm md:max-w-screen-md lg:max-w-screen-md m-4 rounded-2xl overflow-y-auto">
           <div className="absolute top-7 right-6 text-3xl">
-            <button className={` hover:text-gray-700 active:text-red-600 transition-all`}
+            <button className={`bg-indigo-700 rounded active:opacity-70 hover:opacity-80 transition-all`}
                     onClick={clickHandler}
             >
-              🅧
+              <IoClose/>
             </button>
           </div>
 
