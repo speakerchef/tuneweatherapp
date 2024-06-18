@@ -7,6 +7,7 @@ import bgImage from "../assets/bg.svg";
 import PrivacyPolicy from "../components/PrivacyPolicy.jsx";
 import Footer from "../components/Footer.jsx";
 import HowItWorks from "../components/HowItWorks.jsx";
+import {ToastContainer} from "react-toastify";
 
 const Home = () => {
     const [privacyHidden, setPrivacyHidden] = useState(true);
@@ -15,6 +16,10 @@ const Home = () => {
     }
     return (
       <>
+          <ToastContainer
+          theme="dark"
+
+          />
         <div className="flex flex-col min-h-screen">
           <div className="relative grid w-full items-center">
             <NavBar />

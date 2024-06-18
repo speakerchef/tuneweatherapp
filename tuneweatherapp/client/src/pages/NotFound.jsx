@@ -3,10 +3,12 @@ import Buttons from "../components/Buttons.jsx";
 import NavBar from "../components/NavBar.jsx";
 import robotImage from "../assets/robot-8189.svg"
 import Footer from "../components/Footer.jsx";
+import {ToastContainer} from "react-toastify";
 
 const NotFound = () => {
     return (
         <>
+            <ToastContainer/>
             <div className="flex flex-col min-h-screen">
             <NavBar/>
             <div>

@@ -4,6 +4,8 @@ import {FaX} from "react-icons/fa6";
 import {toast, ToastContainer} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {IoClose} from "react-icons/io5";
+import ToastNotification from "./ToastNotification.jsx";
+
 
 const ContactUsModal = ({closeModal, modalHandler}) => {
 
@@ -25,25 +27,19 @@ const ContactUsModal = ({closeModal, modalHandler}) => {
             body: json
         }).then((res) => res.json());
 
-        if (res.success) {
-            toast.success("Message Sent!", {
-                position: "top-right",
+        if (await res.success) {
+            toast.success("Message sent!", {
             })
             modalHandler()
             console.log("Message Sent", res);
             return
         } else {
-            toast.error("Message could not be sent, please try again!" ,{
-                position: 'top-right'
-            })
-            }
+            toast.error("Could not send your message. Please try again.")
+        }
     };
 
     return (
         <>
-            <ToastContainer
-            theme='dark'
-            />
             <div className={`flex  justify-center items-center ${closeModal ? 'hidden' : ''}`}>
                 <div id="contactFormModal" className="fixed z-30 inset-0 overflow-y-auto md:mx-0   -mx-24">
                     <div className="flex items-center justify-center min-h-screen">

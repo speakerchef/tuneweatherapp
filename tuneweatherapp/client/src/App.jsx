@@ -8,6 +8,8 @@ import NotFound from "./pages/NotFound.jsx";
 import Playlist from "./pages/Playlist.jsx";
 import axios from "axios";
 import PrivacyPolicy from "./components/PrivacyPolicy.jsx";
+import 'react-toastify/dist/ReactToastify.css';
+import {ToastContainer} from "react-toastify"
 
 const App = () => {
 
