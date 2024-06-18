@@ -106,7 +106,7 @@ k.post("/login", async (e, o) => {
     response_type: "code",
     client_id: u,
     scope:
-      "user-read-private playlist-read-private playlist-modify-private user-top-read",
+      "user-read-private playlist-modify-private user-top-read",
     redirect_uri: $,
   })}`;
   console.log(s), o.status(200).json({ redirectLink: s });

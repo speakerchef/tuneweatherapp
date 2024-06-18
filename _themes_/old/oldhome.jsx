@@ -1,7 +1,7 @@
 // import React, { useEffect, useState } from "react";
-// import Hero from "../Components/Hero.jsx";
-// import NavBar from "../Components/NavBar.jsx";
-// import Button from "../Components/Button.jsx";
+// import Hero from "../components/Hero.jsx";
+// import NavBar from "../components/NavBar.jsx";
+// import Button from "../components/Button.jsx";
 // import {FaComputer, FaMusic, FaCloudRain, FaSpotify} from "react-icons/fa6";
 // import bgImage from "../assets/bg.svg";
 //
