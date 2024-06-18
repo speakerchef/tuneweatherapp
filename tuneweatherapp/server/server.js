@@ -112,7 +112,7 @@ k.post("/login", async (e, o) => {
   console.log(s), o.status(200).json({ redirectLink: s });
 }),
   k.get("/callback", async (o, t) => {
-    console.log(`session id at oath flow ${JSON.stringify(o.cookies)}`);
+    console.log(`session id at oauth flow ${JSON.stringify(o.cookies)}`);
     const s = o.query.code,
       n = {
         method: "post",
