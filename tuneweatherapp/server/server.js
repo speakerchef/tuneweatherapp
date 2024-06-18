@@ -363,6 +363,7 @@ app.get(
                 if(!data){
                     console.log(await response)
                 } else {
+                    console.log(await response)
                     return data
                 }
             } catch (err) {
