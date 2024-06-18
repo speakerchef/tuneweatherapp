@@ -175,7 +175,8 @@ const Playlist = () => {
 
   return (
     <>
-      <ToastContainer />
+      <ToastContainer
+      theme="dark"/>
       <div className="flex flex-col min-h-screen">
         <NavBar isLoggedIn={loginCondition} />
         <div className="bg-translucentDarkerTransparentIndigoBlue contain-content shadow-xl shadow-gray-800 m-8 backdrop-filter backdrop-blur-lg rounded-2xl">
@@ -199,7 +200,7 @@ const Playlist = () => {
                     // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                     loading="lazy"
-                    className="flex min-h-[680px] contain-content min-w-[368px] md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-16 sm:mt-16 md:mt-10 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
+                    className="flex min-h-[680px] contain-content min-w-[350px] md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-16 sm:mt-16 md:mt-10 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
                   />
                 </div>
               )
