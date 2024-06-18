@@ -47,7 +47,7 @@ const NavBar = ({ isLoggedIn }) => {
       <ContactUsModal closeModal={closeModal} modalHandler={contactUsHandler} />
       <PrivacyPolicy isHidden={privacyHidden} clickHandler={clickHandler} />
 
-      <nav className="flex flex-row bg-darkerTransparentIndigoBlue  z-0 py-4 md:p-0 items-center">
+      <nav className="flex flex-row bg-darkerTransparentIndigoBlue w-full z-0 py-4 md:p-0 items-center">
         {/* Position the logo on the left */}
         <div className="flex flex-row items-center justify-start flex-1">
           <NavBarLogo/>

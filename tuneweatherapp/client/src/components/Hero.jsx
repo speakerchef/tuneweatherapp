@@ -3,7 +3,7 @@ import Buttons from "./Buttons.jsx";
 
 const Hero = ({mainHeaderHidden, iframeHidden, dashboardHeaderHidden, playlistSectionHeadersHidden, headerText, subHeaderHidden, pid}) => {
   return (
-      <div className="flex flex-col mt-12 bg-transparent mx-auto w-full px-4">
+      <div className="flex flex-col mt-12 bg-transparent mx-auto w-full px-4 overflow-x-hidden">
         <section id="hero" className="flex flex-col-reverse my-16 mx-auto">
           <div id="headText" className="flex flex-col items-center justify-between rounded-2xl -my-8 md:-my-4">
             <div className={`${playlistSectionHeadersHidden ? "hidden" : ""}  sm:mx-12 md:mx-8 lg:mx-12 mt-8 mb-20 xl:mx-242`}>
