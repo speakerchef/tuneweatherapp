@@ -359,7 +359,12 @@ app.get(
                     method,
                     body: JSON.stringify(body),
                 });
-                return await response.json();
+                const data = await response.json();
+                if(!data){
+                    console.log(await response)
+                } else {
+                    return data
+                }
             } catch (err) {
                 console.error("spotify API could not be reached");
                 console.error(err);
