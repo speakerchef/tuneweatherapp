@@ -142,12 +142,11 @@ const Playlist = () => {
           setHasError(true);
         } else {
           playlist_id = data.data.playlist_id;
-          playlist_id = "";
           if (!playlist_id) {
             toast.info(
               "If the preview does not load, please consider trying again after disabling adblock or other extreme privacy features.",
               {
-                delay: 4000,
+                delay: 7000,
               },
             );
           }
@@ -179,7 +178,7 @@ const Playlist = () => {
       <ToastContainer />
       <div className="flex flex-col min-h-screen">
         <NavBar isLoggedIn={loginCondition} />
-        <div className="bg-translucentDarkerTransparentIndigoBlue shadow-xl shadow-gray-800 m-8 backdrop-filter backdrop-blur-lg rounded-2xl">
+        <div className="bg-translucentDarkerTransparentIndigoBlue contain-content shadow-xl shadow-gray-800 m-8 backdrop-filter backdrop-blur-lg rounded-2xl">
           <Hero
             mainHeaderHidden={true}
             dashboardHeaderHidden={true}
@@ -190,8 +189,8 @@ const Playlist = () => {
             {hasError && <ErrorModal errorText={errorText} />}
             {loading && showLoading ? (
               <Spinner />
-            ) : (
-              !loading && (
+            ) : !loading && (
+              (
                 <div>
                   <iframe
                     src={`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`}
@@ -200,7 +199,7 @@ const Playlist = () => {
                     // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                     loading="lazy"
-                    className="flex min-h-[680px] min-w-[368px] -mb-12 sm:min-w-[480px] mt-16 sm:mt-10 md:mt-10 flex-col md:min-h-[768px] md:min-w-[768px] lg:min-h-[768px] lg:min-w-[1024px] xl:min-w-[1440px]"
+                    className="flex min-h-[680px] contain-content min-w-[368px] md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-16 sm:mt-16 md:mt-10 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
                   />
                 </div>
               )
