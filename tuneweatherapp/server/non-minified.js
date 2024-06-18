@@ -91,17 +91,15 @@ app.use(
 );
 
 app.use((req, res, next) => {
-    console.log("Session data :", req.sessionID);
+    console.log("Request made from: ", req.sessionID);
     next();
 });
 
 app.set("trust proxy", 1);
 
-//TESTING POINT
 
 const validateUser = async (req, res, next) => {
     const requestId = req.sessionID;
-    console.log("REQUEST COOKIE ID: ", requestId);
     if (!requestId) {
         res.status(403).json({
             error: {
@@ -109,13 +107,12 @@ const validateUser = async (req, res, next) => {
             },
         });
     } else {
-        console.log("Request made from ID:", requestId);
         const user = await UserModel.collection.findOne({ _id: requestId });
         if (!user) {
-            console.log("User does not exist");
+            console.error("User does not exist");
             res.status(403).json({
                 error: {
-                    session: req.sessionID || "hello",
+                    session: req.sessionID,
                     message: "User not found for the given session",
                 },
             });
@@ -173,7 +170,6 @@ const checkTokenExpired = async (req, res, next) => {
                 message: "Unauthorized, please login",
             },
         });
-        // res.redirect(`${server_url}/login`);
     }
 };
 
@@ -181,9 +177,12 @@ app.delete("/logout", async (req, res) => {
     const currUser = await UserModel.collection.findOne({ _id: req.sessionID });
     if (currUser) {
         await UserModel.collection.deleteOne({ _id: req.sessionID });
+        console.log(`User session ${req.sessionID} deleted`)
+        req.session.destroy();
+        res.status(200).json({ message: "User deleted" });
+    }else {
+        console.log("User does not exist");
     }
-    req.session.destroy();
-    res.status(200).json({ message: "User deleted" });
 });
 
 const redirect_uri = `${server_url}/callback`;
@@ -195,7 +194,6 @@ app.post("/login", async (req, res) => {
     if (!currUser) {
         await UserModel.collection.insertOne({ _id: req.sessionID });
     } else {
-        console.log("CURRENT USER REFRESH STATUS", currUser.needsRefresh);
         if (!currUser.needsRefresh && currUser.isLoggedIn) {
             console.log("user is authorized (cookie)");
             res.status(200).json({
@@ -251,11 +249,7 @@ app.get("/callback", async (req, res) => {
         const access_token = body.access_token;
         const refresh_token = body.refresh_token;
         const expires_in = body.expires_in * 1000;
-        console.log("Access token:", access_token);
         console.table(body);
-        const existingUser = await UserModel.collection.findOne({
-            _id: req.sessionID,
-        });
         await UserModel.collection.updateOne(
             {
                 _id: req.sessionID,
@@ -278,18 +272,6 @@ app.get("/callback", async (req, res) => {
     res.redirect(`${client_url}/playlist`);
 });
 
-app.get("/playlist", async (req, res) => {
-    await UserModel.collection.insertOne({ _id: req.session.id }).then(() => {
-        req.session.isAuth = false;
-        console.log("session id at playlist", req.session.id);
-        res.send({
-            data: {
-                code: 201,
-                session_id: req.session.id,
-            },
-        });
-    });
-});
 
 app.post("/location", async (req, res) => {
     console.log("Query at location enpoint", req.query);
@@ -337,7 +319,6 @@ app.get(
     checkTokenExpired,
     ///////////////// testing ////////////////////
     async (req, res) => {
-        console.log("session ID at /tracks: ", req.session.id);
         console.log(
             "session stored in DB",
             await UserModel.collection.findOne({ _id: req.session.id }),
@@ -346,7 +327,6 @@ app.get(
         try {
             const response = await runOperations();
             const playlistId = await createPlaylist(response);
-            console.log(await playlistId);
             res.status(201).json({
                 data: {
                     message: "success",
@@ -394,7 +374,6 @@ app.get(
                     `v1/me/top/tracks?limit=50`,
                     "GET",
                 );
-                console.log(topTracks);
                 let arrOfTopTrackID = [];
                 if (topTracks) {
                     for (let i = 0; i < 50; i++) {
@@ -463,7 +442,7 @@ app.get(
         async function createPlaylist(tracks) {
             const userName = (await getCurrentUserInfo()).name;
             if (!userName && !tracks) {
-                throw new Error(
+                console.error(
                     "Username or track recommedations could not be retrieved",
                 );
                 return;
@@ -487,7 +466,6 @@ app.get(
                     .filter((uri) => uri !== "");
                 pid = await request.id;
                 console.log("playlist id", pid);
-                console.log(trackUris);
             } else {
                 console.log("Could not create playlist");
                 return;
@@ -545,7 +523,7 @@ app.get(
         // Gets track features with weather at clients location
         async function getTrackFeatures(condition, temp) {
             if (!condition && !temp) {
-                throw new Error(
+                console.error(
                     "Cannot retrieve track features: Weather information is missing",
                 );
                 return;
@@ -620,7 +598,6 @@ app.get(
     },
 );
 
-// use spotify API
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
