@@ -227,11 +227,10 @@ const Playlist = () => {
               id="headText"
               className="flex flex-col items-center justify-between rounded-2xl"
             >
-              <div className="relative bg-black bg-opacity-0 backdrop-filter backdrop-blur-lg p-4 mt-4  rounded-lg shadow-lg">
+              <div className="relative bg-black bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 mt-4  rounded-lg shadow-lg">
                 <p className="text-indigo-700">
-                  You can make more playlists. There is a limit of 5 playlists
-                  per minute! You have {getPlaylist}{" "}
-                  {getPlaylist !== 1 ? "playlists" : "playlist"} left.
+                  You can make more with a limit of 5 playlists
+                  per minute! You have {getPlaylist}{" "}left.
                 </p>
               </div>
             </div>
