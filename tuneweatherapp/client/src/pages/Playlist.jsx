@@ -7,7 +7,7 @@ import ErrorModal from "../Components/ErrorModal.jsx";
 export let loginCondition;
 import { FaComputer } from "react-icons/fa6";
 import Footer from "../Components/Footer.jsx";
-import {toast, ToastContainer} from "react-toastify";
+import {toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Playlist = () => {
@@ -84,9 +84,7 @@ const Playlist = () => {
             console.log("API DATA", apiData)
         }).catch(e => {
             console.error(e)
-            toast.error("We could not get your location. Please reload the page or enable location access.", {
-                position: 'top-right'
-            });
+
         });
         if (latitude && longitude) {
             setLocationLoaded(true)
@@ -134,13 +132,8 @@ const Playlist = () => {
                     console.error("Something went wrong")
                     console.log(data.error);
                     loginCondition = false;
-                    toast.error("Something went wrong :(", {
-                        position: "top-right",
-                        className: "error-toast"
-                    });
                     setErrorText("There was an issue connecting your account. Please try again. Click OK to continue")
                     setHasError(true);
-                    return;
                 } else {
                     playlist_id = data.data.playlist_id;
                     console.log("playlist ID",playlist_id)
@@ -151,15 +144,9 @@ const Playlist = () => {
                     setHeaderText(true)
                     toast.success("Playlist Created!", {
                         position: "top-right",
-                        className: "success-toast"
                     })
-                    return
                 }
             } catch (e) {
-                toast.error("Something went wrong :(", {
-                    position: "top-right",
-                    className: "error-toast"
-                });
                 setErrorText("Sorry, we were unable to create your playlist. Please try again later.")
                 setHasError(true);
                 console.log(e);
