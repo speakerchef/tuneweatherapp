@@ -2,17 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+    overflow-x: hidden;
+}
 
-@media  {
     html{
         background-image: url("./assets/bg.png");
         background-repeat: no-repeat;
         background-position: center;
         background-attachment: fixed;
         background-size: cover;
+        overflow-x: hidden;
     }
 
-}
 
 .ppDivs h3, h4, h5{
     @apply font-bold uppercase text-sm text-indigo-700 text-center
