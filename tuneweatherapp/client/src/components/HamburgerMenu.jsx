@@ -15,7 +15,7 @@ const HamburgerMenu = ({menuHidden, contactHandler, privacyHandler}) => {
 
     return (
         <>
-            <div className={`md:hidden flex ${menuHidden && 'hidden'} flex-col top-0 justify-self-center absolute -auto z-20 shadow-2xl py-12 shadow-black mt-12 w-full h- bg-darkerTransparentIndigoBlue overflow-y-auto`}>
+            <div className={`md:hidden flex ${menuHidden && 'hidden'} flex-col top-0 justify-self-center absolute -auto z-20 shadow-2xl py-12 shadow-black mt-14 w-full h- bg-darkerTransparentIndigoBlue overflow-y-auto`}>
                 <div className="bg-gradient-to-b flex flex-col items-center from-indigo-700 to-darkMagenta bg-clip-text text-transparent">
                     <button
                         onClick={contactHandler}

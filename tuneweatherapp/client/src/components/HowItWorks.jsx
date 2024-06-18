@@ -32,7 +32,7 @@ const HowItWorks = () => {
           </div>
           <div className="relative sm:text-[1rem] text-md bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg text-[0.9rem] p-6 md:p-8 md:text-md lg:text-lg lg:p-10 rounded-2xl shadow-lg">
             <h3 className="text-xl pb-4 font-semibold text-white">
-              <PiPlaylistFill className="text-black -ml-0.5 text-[2rem]" />
+              <PiPlaylistFill className="text-black  text-[2rem]" />
             </h3>
             <p className="text-gray-900">
               We deliver a curated playlist for you
