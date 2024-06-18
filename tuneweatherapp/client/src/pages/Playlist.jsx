@@ -11,6 +11,7 @@ import Footer from "../components/Footer.jsx";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import theme from "tailwindcss/defaultTheme.js";
+import {FaInfoCircle} from "react-icons/fa";
 
 const Playlist = () => {
   const [getPlaylist, setGetPlaylist] = useState(5);
@@ -175,10 +176,9 @@ const Playlist = () => {
 
   return (
     <>
-      <ToastContainer
-      theme="dark"/>
+      <ToastContainer theme="dark" />
 
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col  min-h-screen">
         <NavBar isLoggedIn={loginCondition} />
         {hasError && <ErrorModal errorText={errorText} />}
         <div className="bg-translucentDarkerTransparentIndigoBlue contain-content shadow-md shadow-gray-950 m-8 backdrop-filter backdrop-blur-lg rounded-2xl">
@@ -189,11 +189,21 @@ const Playlist = () => {
             subHeaderHidden={subHeaderHidden}
           />
           <div className="flex flex-col items-center -mt-44 justify-between rounded-2xl">
+            {!loading && (
+              <div className="flex contain-content max-w-screen-md md:mb-0 -mb-8 px-12">
+                <h3 className="text-gray-500 text-center mt-16">
+                  <FaInfoCircle className="inline mb-1 mr-1" /> Disclaimer: The
+                  recommendations may not be 100% accurate to the weather
+                  conditions as they are partly influenced by your listening
+                  activity.
+                </h3>
+              </div>
+            )}
 
             {loading && showLoading ? (
               <Spinner />
-            ) : !loading && (
-              (
+            ) : (
+              !loading && (
                 <div className="flex items-center justify-center">
                   <iframe
                     src={`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`}
@@ -202,7 +212,7 @@ const Playlist = () => {
                     // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                     loading="lazy"
-                    className="flex min-h-[680px] contain-content min-w-screen px-4  md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-16 sm:mt-16 md:mt-10 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
+                    className="flex min-h-[680px] contain-content min-w-screen px-4  md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-16 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
                   />
                 </div>
               )
