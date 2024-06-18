@@ -142,9 +142,6 @@ const Playlist = () => {
                     setLoading(false)
                     setSubHeaderHidden(false)
                     setHeaderText(true)
-                    toast.success("Playlist Created!", {
-                        position: "top-right",
-                    })
                 }
             } catch (e) {
                 setErrorText("Sorry, we were unable to create your playlist. Please try again later.")
