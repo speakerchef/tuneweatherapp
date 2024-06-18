@@ -575,7 +575,7 @@ app.get(
             try {
                 let arrOfTrackIds = await getTopTrackIds();
                 let randomTracks = [];
-                if (!arrOfTrackIds) {
+                if (!arrOfTrackIds || 'undefined' in arrOfTrackIds) {
                     console.error("Top tracks could not be fetched, moving to backup method");
                     arrOfTrackIds = await getBackupReleases();
                 }
