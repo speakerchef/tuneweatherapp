@@ -229,7 +229,7 @@ const Playlist = () => {
               </h3>
             </div>
           ) : (
-            <div className="flex-col my-6 flex  text-center">
+            <div className="flex-col my-6 mb-20 flex  text-center">
               <div className="text-center   ">
                 <button
                   onClick={clickHandler}
