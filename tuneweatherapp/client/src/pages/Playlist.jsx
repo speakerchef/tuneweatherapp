@@ -171,12 +171,14 @@ const Playlist = () => {
             autoClose: 1500
           });
           setIFrame(playlist_id);
-          setPlaylistLink(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
-          const win = window.open(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
           setSubHeaderHidden(false);
           setLoading(false);
           setSubHeaderHidden(false);
           setHeaderText(true);
+          console.log(`playlist link without check: https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
+          !loading && console.log(`Link after check: https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
+          !loading && setPlaylistLink(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
+          !loading && window.open(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
         }
       } catch (e) {
         setErrorText(
