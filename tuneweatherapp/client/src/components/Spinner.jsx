@@ -4,7 +4,7 @@ import { ScaleLoader} from "react-spinners";
 const cssOverride = {
     display: 'block',
     margin: '0 auto',
-    marginTop: '4rem',
+    marginTop: '5rem',
     marginBottom: '-3rem',
 }
 
