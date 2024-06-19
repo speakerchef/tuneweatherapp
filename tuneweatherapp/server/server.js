@@ -53,6 +53,7 @@ k.use(d()),
         "https://tuneweather.com",
         "https://www.tuneweather.com",
         "https://api.tuneweather.com",
+        "https://tuneweather.netlify.app"
       ],
       credentials: !0,
       allowedHeaders: ["Content-Type", "Authorization"],
