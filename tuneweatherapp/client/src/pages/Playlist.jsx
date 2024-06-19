@@ -170,6 +170,7 @@ const Playlist = () => {
             autoClose: 1500
           });
           setIFrame(playlist_id);
+          const win = window.open('https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0')
           setSubHeaderHidden(false);
           setLoading(false);
           setSubHeaderHidden(false);
