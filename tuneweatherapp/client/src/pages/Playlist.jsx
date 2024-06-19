@@ -175,10 +175,7 @@ const Playlist = () => {
           setLoading(false);
           setSubHeaderHidden(false);
           setHeaderText(true);
-          console.log(`playlist link without check: https://open.spotify.com/embed/playlist/${playlist_id}?utm_source=generator&theme=0`)
-
-          !loading && setPlaylistLink(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
-          !loading && window.open(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
+          window.open(`https://open.spotify.com/embed/playlist/${playlist_id}?utm_source=generator&theme=0`)
         }
       } catch (e) {
         setErrorText(
@@ -225,7 +222,19 @@ const Playlist = () => {
             {loading && showLoading ? (
               <Spinner />
             ) : (
-              !loading && console.log(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
+              !loading && (
+                <div className="flex items-center justify-center">
+                  <iframe
+                    src={`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`}
+                    width="100%"
+                    // height="480px"
+                    // style={{display: "flex", flexDirection: 'column', minWidth: '768px', minHeight: '480px'}}
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                    loading="lazy"
+                    className="flex min-h-[680px] contain-content min-w-screen px-4  md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-16 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
+                  />
+                </div>
+              )
             )}
           </div>
 
@@ -241,8 +250,7 @@ const Playlist = () => {
                 <p className="text-indigo-700">
                   You can make more with a limit of 5 playlists
                   per minute! You have {getPlaylist}{" "}left.
-                </p>
-                <p><a href={playlistLink}>Click here</a> if the preview does not work.</p>
+                <a href={playlistLink}>Click here</a> if the preview does not work.</p>
               </div>
             </div>
           </section>
