@@ -217,7 +217,7 @@ const Playlist = () => {
                   recommendations may not be 100% accurate to the weather
                   conditions as they are partly influenced by your listening
                   activity.
-                  {!loading && (<p><button onClick={iframeReload}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the preview does not work.</p>)}
+                  {!loading && (<p className="font-bold"><button onClick={iframeReload}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the playlist preview does not work.</p>)}
                 </h3>
               </div>
             )}
