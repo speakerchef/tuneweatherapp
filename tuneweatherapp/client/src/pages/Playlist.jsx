@@ -29,6 +29,7 @@ const Playlist = () => {
   const [errorCount, setErrorCount] = useState(0);
   const [locationTimer, setLocationTimer] = useState(0);
   const [locationErrorShown, setLocationErrorShown] = useState(false);
+  const [playlistLink, setPlaylistLink] = useState("");
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -170,7 +171,8 @@ const Playlist = () => {
             autoClose: 1500
           });
           setIFrame(playlist_id);
-          const win = window.open('https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0')
+          setPlaylistLink(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
+          const win = window.open(`https://open.spotify.com/embed/playlist/${iFrame}?utm_source=generator&theme=0`)
           setSubHeaderHidden(false);
           setLoading(false);
           setSubHeaderHidden(false);
