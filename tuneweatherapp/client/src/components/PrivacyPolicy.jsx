@@ -15,7 +15,7 @@ const PrivacyPolicy = ({isHidden, clickHandler}) => {
 
           <div className="ppDivs">
             <div className='-mt-12 date '>
-              <p style={{color: "rgb(67 56 202)"}}>EFFECTIVE DATE: 25TH JUNE 2024</p>
+              <p style={{color: "rgb(67 56 202)"}}>EFFECTIVE DATE: 20TH JUNE 2024</p>
             </div>
             <h3>1. Introduction</h3>
             <p>
@@ -79,8 +79,7 @@ const PrivacyPolicy = ({isHidden, clickHandler}) => {
             <h3>4. DATA DELETION</h3>
             <p>
               We are committed to ensuring your data privacy and security. Upon
-              logging out of the Service, all location data is deleted from our
-              databases
+              logging out of the Service, all data associated with you will be deleted from our databases.
             </p>
           </div>
           <div className="ppDivs">
@@ -94,15 +93,14 @@ const PrivacyPolicy = ({isHidden, clickHandler}) => {
             <h3>6. SHARING YOUR INFORMATION</h3>
             <p>
               We do not share your personal information with any third parties.
-              Your data is used solely to provide the functionalities described
-              in this policy.
+              Your data is used solely to provide the functionalities of our Service
             </p>
           </div>
           <div className="ppDivs">
             <h3>7. USER RIGHTS</h3>
             <h5>You have the right to:</h5>
             <ul style={{listStyle: 'inside'}}>
-              <li>Delete your location data by logging out.</li>
+              <li>Request the deletion of your location data and access token generated for your session by logging out.</li>
             </ul>
           </div>
           <div className="ppDivs">

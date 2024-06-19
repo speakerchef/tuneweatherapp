@@ -28,7 +28,6 @@ a.connect(y, {}).then((e) => {
 });
 const x = new a.Schema({
     access_token: String,
-    refresh_token: String,
     expires_in: Number,
     date_issued: Number,
     latitude: String,
@@ -53,7 +52,7 @@ k.use(d()),
         "https://tuneweather.com",
         "https://www.tuneweather.com",
         "https://api.tuneweather.com",
-        "https://tuneweather.netlify.app"
+        "https://tuneweather.netlify.app" //Old URL
       ],
       credentials: !0,
       allowedHeaders: ["Content-Type", "Authorization"],
@@ -67,11 +66,11 @@ k.use(d()),
     l({
       windowMs: 6e4,
       max: 50,
-      handler: (e, o) => {
-        o.status(429).json({
-          error: { status: 429, message: "Rate limit exceeded" },
-        });
-      },
+      message: {
+          status: 429,
+          message: "You have exceeded your quota",
+          try_again: "1 minute from error"
+      }
     }),
   ),
   k.use((e, o, t) => {
@@ -127,7 +126,6 @@ k.post("/login", async (e, o) => {
     try {
       const t = (await e(n)).data,
         s = t.access_token,
-        a = t.refresh_token,
         r = 1e3 * t.expires_in;
       console.table(t),
         await O.collection.updateOne(
@@ -135,7 +133,6 @@ k.post("/login", async (e, o) => {
           {
             $set: {
               access_token: s,
-              refresh_token: a,
               expires_in: r,
               date_issued: Date.now(),
               isLoggedIn: !0,

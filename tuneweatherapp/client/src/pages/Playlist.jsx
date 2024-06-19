@@ -17,18 +17,18 @@ const Playlist = () => {
   const [getPlaylist, setGetPlaylist] = useState(5);
   const [headerText, setHeaderText] = useState(false);
   const [subHeaderHidden, setSubHeaderHidden] = useState(true);
-  const [showIframe, setShowIframe] = useState(false);
   const [iFrame, setIFrame] = useState("");
   const [loading, setLoading] = useState(true);
   const [showLoading, setShowLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [toggle, setToggle] = useState(false);
   const [errorText, setErrorText] = useState("");
   const [latitude, setLatitude] = useState("");
   const [longitude, setLongitude] = useState("");
   const [locationLoaded, setLocationLoaded] = useState(false);
   const [apiData, setApiData] = useState("");
-  const [errorLocation, setErrorLocation] = useState(false);
+  const [errorCount, setErrorCount] = useState(0);
+  const [locationTimer, setLocationTimer] = useState(0);
+  const [locationErrorShown, setLocationErrorShown] = useState(false);
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -56,6 +56,13 @@ const Playlist = () => {
     });
   }, [locationLoaded]);
 
+
+  setInterval(() =>{
+    if (locationTimer < 5) {
+      setLocationTimer(prev => prev + 1)
+    }
+  } , 3000)
+
   useEffect(() => {
     const sendUserLocation = async () => {
       if (latitude && longitude) {
@@ -71,16 +78,8 @@ const Playlist = () => {
           const data = await res.json();
           setApiData(await data.data.city);
         } catch (e) {
-          toast.error(
-            "We could not get your location. Please reload the page or enable location access.",
-            {
-              theme: "dark",
-            },
-          );
           console.error("Error sending location", e);
-        } finally {
         }
-      } else {
       }
     };
 
@@ -101,7 +100,19 @@ const Playlist = () => {
     setSubHeaderHidden(false);
   }, [!hasError]);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (errorCount === 5 || errorCount === 7 || errorCount === 10){
+      toast.info("If you are facing issues consistently please consider contacting us through our contact form. Sorry for any inconvenience caused.")
+    }
+    if (errorCount > 10){
+      toast.info("If you are facing issues consistently please consider contacting us through our contact form. Sorry for any inconvenience caused.")
+      setErrorCount(0)
+      setTimeout(() => {
+        window.location.reload()
+      }, 5000)
+    }
+
+  }, [errorCount]);
 
   const clickHandler = async () => {
     setHeaderText(false);
@@ -141,6 +152,7 @@ const Playlist = () => {
             "There was an issue connecting your account. Please try again. Click OK to continue",
           );
           setHasError(true);
+          setErrorCount(prev => prev + 1);
         } else {
           playlist_id = data.data.playlist_id;
           if (!playlist_id) {
@@ -150,6 +162,7 @@ const Playlist = () => {
                 delay: 7000,
               },
             );
+            setErrorCount(prev => prev + 1);
           }
           console.log("playlist ID", playlist_id);
           toast.success("Playlist created!");
@@ -163,6 +176,7 @@ const Playlist = () => {
         setErrorText(
           "Sorry, we were unable to create your playlist. Please try again later.",
         );
+        setErrorCount(prev => prev + 1);
         setHasError(true);
         console.log(e);
       } finally {
@@ -237,13 +251,15 @@ const Playlist = () => {
           </section>
           <div className=" -translate-x-30 ">
             {/*Button to link spotify*/}
-            {!locationLoaded ? (
+            {!locationLoaded ? !locationErrorShown && locationTimer > 5 ? toast.error("We could not get your location, please allow location access and refresh the page.", {
+              delay: 10000
+            }) && setLocationErrorShown(true) : (
               <div className="text-center">
                 <h3 className="animate-pulse mb-10 bg-gradient-to-r from-indigo-700 to-vibrantMagenta bg-clip-text text-transparent">
                   Getting your location...
                 </h3>
               </div>
-            ) : (
+            ) :  (
               <div className="flex-col my-6 mb-16 flex  text-center">
                 <div className="text-center   ">
                   <button
