@@ -114,6 +114,10 @@ const Playlist = () => {
 
   }, [errorCount]);
 
+  function iframeReload() {
+    document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
+  }
+
   const clickHandler = async () => {
     setHeaderText(false);
     setSubHeaderHidden(false);
@@ -230,7 +234,7 @@ const Playlist = () => {
                     className="flex min-h-[680px] contain-content min-w-screen px-4  md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-16 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
                   />
                 </div>
-              )
+              ) && iframeReload
             )}
           </div>
 
@@ -246,7 +250,7 @@ const Playlist = () => {
                 <p className="text-indigo-700">
                   You can make more with a limit of 5 playlists
                   per minute! You have {getPlaylist}{" "}left.
-                  {!loading && (<p><button onClick={() => document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the preview does not work.</p>)}
+                  {!loading && (<p><button onClick={iframeReload}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the preview does not work.</p>)}
                 </p>
 
               </div>
