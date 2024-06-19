@@ -24,7 +24,7 @@ body {
 }
 
 .ppDivs {
-    @apply  my-12 bg-white rounded-lg px-3 font-serif;
+    @apply  my-12 bg-white rounded-lg px-3 font-sans;
 }
 .ppDivs p {
     @apply mb-4 text-gray-800 tracking-wide leading-tight;
