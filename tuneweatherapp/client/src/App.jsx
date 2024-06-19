@@ -10,6 +10,7 @@ import axios from "axios";
 import PrivacyPolicy from "./components/PrivacyPolicy.jsx";
 import 'react-toastify/dist/ReactToastify.css';
 import {ToastContainer} from "react-toastify"
+import Spinner from './components/Spinner.jsx'
 
 const App = () => {
 
@@ -22,6 +23,7 @@ const App = () => {
                     <Route path="/" element={<Home/>} />
                     <Route path="/playlist" element={<Playlist/>} />
                     <Route path="*" element={<NotFound/>} />
+                    <Route path="/spinner" element={<Spinner/>} />
                 </Routes>
             </BrowserRouter>
         </>
