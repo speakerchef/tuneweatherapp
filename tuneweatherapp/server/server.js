@@ -283,7 +283,7 @@ k.post("/login", async (e, o) => {
                         return console.error(e), null;
                       }
                     })(
-                      `what danceability, energy, and valence do ${await e} weather conditions with a temperature of ${await o}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users.`,
+                      `what danceability, energy, and valence do ${await e} weather conditions with a temperature of ${await o}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users. Cloudy, rainy, stormy weather and all weather associated with those conditions will tend to have lower danceability energy and valence values. Sunny, clear, hot weather will tend to have higher values overall. Make your recommendations based on this informations.`,
                     );
                     return (
                       (t = t
