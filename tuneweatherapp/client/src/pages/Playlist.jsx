@@ -252,7 +252,8 @@ const Playlist = () => {
           <div className=" -translate-x-30 ">
             {/*Button to link spotify*/}
             {!locationLoaded ? !locationErrorShown && locationTimer > 5 ? toast.error("We could not get your location, please allow location access and refresh the page.", {
-              delay: 10000
+              delay: 10000,
+              autoClose: false
             }) && setLocationErrorShown(true) : (
               <div className="text-center">
                 <h3 className="animate-pulse mb-10 bg-gradient-to-r from-indigo-700 to-vibrantMagenta bg-clip-text text-transparent">
