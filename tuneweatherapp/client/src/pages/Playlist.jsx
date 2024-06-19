@@ -250,7 +250,7 @@ const Playlist = () => {
                 <p className="text-indigo-700">
                   You can make more with a limit of 5 playlists
                   per minute! You have {getPlaylist}{" "}left.
-                <a href={playlistLink}>Click here</a> if the preview does not work.</p>
+                <a href={`https://open.spotify.com/embed/playlist/${iFrame}`}> <strong className="text-darkMagenta">Click here</strong></a> if the preview does not work.</p>
               </div>
             </div>
           </section>
