@@ -217,22 +217,22 @@ const Playlist = () => {
                   recommendations may not be 100% accurate to the weather
                   conditions as they are partly influenced by your listening
                   activity.
-                  {!loading && (<p className="font-bold"><button onClick={iframeReload}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the playlist preview does not work.</p>)}
+                  {!loading && (<p className="mt-4 font-bold"><button onClick={iframeReload}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the playlist preview does not work.</p>)}
                 </h3>
               </div>
             )}
 
             {loading && showLoading ? (
               <Spinner />
-            ) : (
-              !loading && (
+            ) :!loading &&  (
+               (
                 <div className="flex items-center justify-center">
                   <iframe
                       id="playlist-iframe"
                     src={`https://open.spotify.com/embed/playlist/${iFrame}`}
                     width="100%"
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    className="flex min-h-[680px] contain-content min-w-screen px-4  md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-16 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
+                    className="flex min-h-[680px] contain-content min-w-screen px-4  md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-14 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
                   />
                 </div>
               )
