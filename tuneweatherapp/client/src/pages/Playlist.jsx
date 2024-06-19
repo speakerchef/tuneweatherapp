@@ -61,7 +61,7 @@ const Playlist = () => {
     if (locationTimer < 5) {
       setLocationTimer(prev => prev + 1)
     }
-  } , 3000)
+  } , 6000)
 
   useEffect(() => {
     const sendUserLocation = async () => {
@@ -159,13 +159,16 @@ const Playlist = () => {
             toast.info(
               "If the preview does not load, please consider trying again after disabling adblock or other extreme privacy features.",
               {
-                autoClose: false
+                autoClose: false,
+                transition: 'slide'
               },
             );
             setErrorCount(prev => prev + 1);
           }
           console.log("playlist ID", playlist_id);
-          toast.success("Playlist created!");
+          toast.success("Playlist created!", {
+            autoClose: 1500
+          });
           setIFrame(playlist_id);
           setSubHeaderHidden(false);
           setLoading(false);
@@ -252,7 +255,6 @@ const Playlist = () => {
           <div className=" -translate-x-30 ">
             {/*Button to link spotify*/}
             {!locationLoaded ? !locationErrorShown && locationTimer > 5 ? toast.error("We could not get your location, please allow location access and refresh the page.", {
-              delay: 10000,
               autoClose: false
             }) && setLocationErrorShown(true) : (
               <div className="text-center">
