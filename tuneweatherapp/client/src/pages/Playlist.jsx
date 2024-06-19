@@ -159,7 +159,7 @@ const Playlist = () => {
             toast.info(
               "If the preview does not load, please consider trying again after disabling adblock or other extreme privacy features.",
               {
-                delay: 7000,
+                autoClose: false
               },
             );
             setErrorCount(prev => prev + 1);
