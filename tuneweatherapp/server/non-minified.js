@@ -327,7 +327,7 @@ app.get(
         try {
             const response = await runOperations();
             const playlistId = await createPlaylist(response);
-            res.status(201).json({
+            await res.status(201).json({
                 data: {
                     message: "success",
                     playlist_id: await playlistId,

@@ -226,15 +226,16 @@ const Playlist = () => {
 
             {loading && showLoading ? (
               <Spinner />
-            ) : (!loading && document.onload) && (
+            ) : !loading && (
                (
                 <div className="flex items-center justify-center">
                   <iframe
-                      id="playlist-iframe"
+                    id="playlist-iframe"
                     src={`https://open.spotify.com/embed/playlist/${iFrame}`}
                     width="100%"
+                    loading="lazy"
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    className="flex min-h-[680px] contain-content min-w-screen px-4  md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-14 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
+                    className="flex min-h-[680px] contain-content min-w-screen px-4 md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-14 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
                   />
                 </div>
               )

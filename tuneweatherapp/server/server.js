@@ -28,6 +28,7 @@ a.connect(y, {}).then((e) => {
 });
 const x = new a.Schema({
     access_token: String,
+    refresh_token: String,
     expires_in: Number,
     date_issued: Number,
     latitude: String,
@@ -52,7 +53,6 @@ k.use(d()),
         "https://tuneweather.com",
         "https://www.tuneweather.com",
         "https://api.tuneweather.com",
-        "https://tuneweather.netlify.app" //Old URL
       ],
       credentials: !0,
       allowedHeaders: ["Content-Type", "Authorization"],
@@ -66,11 +66,11 @@ k.use(d()),
     l({
       windowMs: 6e4,
       max: 50,
-      message: {
-          status: 429,
-          message: "You have exceeded your quota",
-          try_again: "1 minute from error"
-      }
+      handler: (e, o) => {
+        o.status(429).json({
+          error: { status: 429, message: "Rate limit exceeded" },
+        });
+      },
     }),
   ),
   k.use((e, o, t) => {
@@ -105,14 +105,13 @@ k.post("/login", async (e, o) => {
   const s = `https://accounts.spotify.com/authorize?${new URLSearchParams({
     response_type: "code",
     client_id: u,
-    scope:
-      "user-read-private playlist-modify-private user-top-read",
+    scope: "user-read-private playlist-modify-private user-top-read",
     redirect_uri: $,
   })}`;
   console.log(s), o.status(200).json({ redirectLink: s });
 }),
   k.get("/callback", async (o, t) => {
-    console.log(`session id at oauth flow ${JSON.stringify(o.cookies)}`);
+    console.log(`session id at oath flow ${JSON.stringify(o.cookies)}`);
     const s = o.query.code,
       n = {
         method: "post",
@@ -126,6 +125,7 @@ k.post("/login", async (e, o) => {
     try {
       const t = (await e(n)).data,
         s = t.access_token,
+        a = t.refresh_token,
         r = 1e3 * t.expires_in;
       console.table(t),
         await O.collection.updateOne(
@@ -133,6 +133,7 @@ k.post("/login", async (e, o) => {
           {
             $set: {
               access_token: s,
+              refresh_token: a,
               expires_in: r,
               date_issued: Date.now(),
               isLoggedIn: !0,
@@ -280,7 +281,7 @@ k.post("/login", async (e, o) => {
                         return console.error(e), null;
                       }
                     })(
-                      `what danceability, energy, and valence do ${await e} weather conditions with a temperature of ${await o}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users. Cloudy, rainy, stormy weather and all weather associated with those conditions will tend to have lower danceability energy and valence values. Sunny, clear, hot weather will tend to have higher values overall. Make your recommendations based on this informations.`,
+                      `what danceability, energy, and valence do ${await e} weather conditions with a temperature of ${await o}c evoke? Give me results in a JSON format that i can pass to spotify's api to give me music recommendations based on the audio features. Only return the JSON file with the audio features and no additional text or links. Make sure to ALWAYS title the features field "audio-features". Also, I would like you to base the values not explicity based on the weather condition and temperature provided, but also based on me being able to provide accurate recommendations to the users.`,
                     );
                     return (
                       (t = t
@@ -422,7 +423,9 @@ k.post("/login", async (e, o) => {
               return console.log(e), null;
             }
           })(n);
-        t.status(201).json({ data: { message: "success", playlist_id: a } });
+        await t
+          .status(201)
+          .json({ data: { message: "success", playlist_id: await a } });
       } catch (e) {
         t.status(500).json({ error: { message: "Internal server error" } }),
           console.error("Error fetching tracks"),
@@ -434,11 +437,13 @@ k.post("/login", async (e, o) => {
         if (n)
           try {
             const o = await fetch(`https://api.spotify.com/${e}`, {
-              headers: { Authorization: `Bearer ${await n.access_token}` },
-              method: t,
-              body: JSON.stringify(s),
-            });
-            return await o.json();
+                headers: { Authorization: `Bearer ${await n.access_token}` },
+                method: t,
+                body: JSON.stringify(s),
+              }),
+              a = await o.json();
+            if (a) return a;
+            console.log(await o);
           } catch (e) {
             return (
               console.error("spotify API could not be reached"),
