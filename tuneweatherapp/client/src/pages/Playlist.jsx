@@ -231,7 +231,7 @@ const Playlist = () => {
                 <div className="flex items-center justify-center">
                   <iframe
                     id="playlist-iframe"
-                    src={`https://open.spotify.com/embded/playlist/6MdLxCy6Vt5X729Ss5Av37`}
+                    src={`https://open.spotify.com/embded/playlist/${iFrame}`}
                     width="100%"
                     loading="lazy"
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
