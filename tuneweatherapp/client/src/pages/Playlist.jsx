@@ -117,7 +117,7 @@ const Playlist = () => {
   }, [errorCount]);
 
   function iframeReload() {
-    document.getElementById("playlist-iframe").src = `https://open.spotify.com/playlist/${iFrame}?go=1&sp_cid=3131f649-b3f8-4ead-abd4-54b04f518960&utm_source=embed_player_p&utm_medium=desktop&nd=1&dlsi=8ad6329261fa4df6`
+    document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
   }
 
   const clickHandler = async () => {
@@ -226,7 +226,7 @@ const Playlist = () => {
 
             {loading && showLoading ? (
               <Spinner />
-            ) : (!loading && iFrame) && (
+            ) : (!loading && document.onload) && (
                (
                 <div className="flex items-center justify-center">
                   <iframe
