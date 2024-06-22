@@ -63,6 +63,8 @@ const Playlist = () => {
     }
   } , 6000)
 
+  // url https://open.spotify.com/playlist/5Oxb13g6CvTrpXqsfNaPjm?go=1&sp_cid=3131f649-b3f8-4ead-abd4-54b04f518960&utm_source=embed_player_p&utm_medium=desktop&nd=1&dlsi=8ad6329261fa4df6
+
   useEffect(() => {
     const sendUserLocation = async () => {
       if (latitude && longitude) {
@@ -115,7 +117,7 @@ const Playlist = () => {
   }, [errorCount]);
 
   function iframeReload() {
-    document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
+    document.getElementById("playlist-iframe").src = `https://open.spotify.com/playlist/${iFrame}?go=1&sp_cid=3131f649-b3f8-4ead-abd4-54b04f518960&utm_source=embed_player_p&utm_medium=desktop&nd=1&dlsi=8ad6329261fa4df6`
   }
 
   const clickHandler = async () => {
@@ -224,12 +226,12 @@ const Playlist = () => {
 
             {loading && showLoading ? (
               <Spinner />
-            ) :!loading &&  (
+            ) : (!loading && iFrame) && (
                (
                 <div className="flex items-center justify-center">
                   <iframe
                       id="playlist-iframe"
-                    src={`https://open.spotify.com/embed/playlist/${iFrame}`}
+                    src={`https://open.spotify.com/playlist/${iFrame}?go=1&sp_cid=3131f649-b3f8-4ead-abd4-54b04f518960&utm_source=embed_player_p&utm_medium=desktop&nd=1&dlsi=8ad6329261fa4df6`}
                     width="100%"
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                     className="flex min-h-[680px] contain-content min-w-screen px-4  md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-14 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"

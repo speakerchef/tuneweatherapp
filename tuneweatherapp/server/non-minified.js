@@ -330,7 +330,7 @@ app.get(
             res.status(201).json({
                 data: {
                     message: "success",
-                    playlist_id: playlistId,
+                    playlist_id: await playlistId,
                 },
             });
         } catch (e) {
