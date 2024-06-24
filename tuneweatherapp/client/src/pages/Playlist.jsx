@@ -192,6 +192,10 @@ const Playlist = () => {
     }
   };
 
+  useEffect(() => {
+    iframeReload()
+  }, [iFrame]);
+
   setInterval(() => {
     setGetPlaylist(5);
   }, 60000);
