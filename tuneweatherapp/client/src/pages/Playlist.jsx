@@ -28,6 +28,7 @@ const Playlist = () => {
   const [errorCount, setErrorCount] = useState(0);
   const [locationTimer, setLocationTimer] = useState(0);
   const [locationErrorShown, setLocationErrorShown] = useState(false);
+  const [iFrameLoaded, setIFrameLoaded] = useState(false);
 
   const playlistIFrame = useRef(null);
 
@@ -131,6 +132,7 @@ const Playlist = () => {
 
 
   const clickHandler = async () => {
+    setIFrameLoaded(false)
     setHeaderText(false);
     setSubHeaderHidden(false);
     let playlist_id = "";
@@ -190,6 +192,9 @@ const Playlist = () => {
           setLoading(false);
           setSubHeaderHidden(false);
           setHeaderText(true);
+          setTimeout(() => {
+            setIFrameLoaded(true)
+          }, 2000)
         }
       } catch (e) {
         setErrorText(
@@ -246,18 +251,20 @@ const Playlist = () => {
 
             {loading && showLoading ? (
               <Spinner />
-            ) : !loading && (
-               (
+            ) : (
+              !loading && (
                 <div className="flex items-center justify-center">
-                  <iframe
+                  {iFrameLoaded && (
+                    <iframe
                       ref={playlistIFrame}
-                    id="playlist-iframe"
-                    src={`https://open.spotify.com/embed/playlist/${iFrame}`}
-                    width="100%"
-                    loading="lazy"
-                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-                    className="flex min-h-[680px] contain-content min-w-screen px-4 md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-14 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
-                  />
+                      id="playlist-iframe"
+                      src={`https://open.spotify.com/embed/playlist/${iFrame}`}
+                      width="100%"
+                      loading="lazy"
+                      allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                      className="flex min-h-[680px] contain-content min-w-screen px-4 md:min-w-[680px] sm:min-w-[400px] -mb-12  mt-14 sm:mt-16 md:mt-8 flex-col md:min-h-[768px] lg:min-h-[768px] lg:min-w-[880px] xl:min-w-[1280px]"
+                    />
+                  )}
                 </div>
               )
             )}
