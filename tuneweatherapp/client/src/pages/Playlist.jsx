@@ -189,12 +189,12 @@ const Playlist = () => {
           });
           setIFrame(playlist_id);
           setSubHeaderHidden(false);
-          setLoading(false);
           setSubHeaderHidden(false);
           setHeaderText(true);
           setTimeout(() => {
             setIFrameLoaded(true)
-          }, 2000)
+            setLoading(false);
+          }, 1000)
         }
       } catch (e) {
         setErrorText(
