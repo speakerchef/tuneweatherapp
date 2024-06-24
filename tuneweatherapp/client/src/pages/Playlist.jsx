@@ -118,9 +118,9 @@ const Playlist = () => {
   }, [errorCount]);
 
   function iframeReload() {
-    playlistIFrame.src = `https://open.spotify.com/embed/playlist/3cEYpjA9oz9GiPac4AsH4n`;
+    playlistIFrame.current.src = `https://open.spotify.com/embed/playlist/3cEYpjA9oz9GiPac4AsH4n`;
     // document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
-    console.log(playlistIFrame)
+    console.log(playlistIFrame.current)
     console.log(document.getElementById("playlist-iframe"))
 
         //= `https://open.spotify.com/embed/playlist/3cEYpjA9oz9GiPac4AsH4n`;
