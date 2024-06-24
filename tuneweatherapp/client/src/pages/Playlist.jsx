@@ -184,10 +184,10 @@ const Playlist = () => {
             setErrorCount(prev => prev + 1);
           }
           setIFrame(playlist_id);
-          setSubHeaderHidden(false);
-          setSubHeaderHidden(false);
-          setHeaderText(true);
           setTimeout(() => {
+            setSubHeaderHidden(false);
+            setSubHeaderHidden(false);
+            setHeaderText(true);
             console.log("playlist ID", playlist_id);
             toast.success("Playlist created!", {
               autoClose: 1500
