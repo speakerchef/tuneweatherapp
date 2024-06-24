@@ -120,10 +120,12 @@ const Playlist = () => {
   function iframeReload() {
     playlistIFrame.src = `https://open.spotify.com/embed/playlist/3cEYpjA9oz9GiPac4AsH4n`;
     // document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
-    console.log(playlistIFrame.src)
+    console.log(playlistIFrame)
+    console.log(document.getElementById("playlist-iframe"))
 
         //= `https://open.spotify.com/embed/playlist/3cEYpjA9oz9GiPac4AsH4n`;
   }
+
 
 
   const clickHandler = async () => {
@@ -225,7 +227,17 @@ const Playlist = () => {
                   recommendations may not be 100% accurate to the weather
                   conditions as they are partly influenced by your listening
                   activity.
-                  {(<p className="mt-4 font-bold"><button onClick={iframeReload}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the playlist preview does not work.</p>)}
+                  {
+                    <p className="mt-4 font-bold">
+                      <button onClick={iframeReload}>
+                        {" "}
+                        <strong className="text-purple-800 hover:underline hover:cursor-pointer">
+                          Click here
+                        </strong>
+                      </button>{" "}
+                      if the playlist preview does not work.
+                    </p>
+                  }
                 </h3>
               </div>
             )}
@@ -259,24 +271,30 @@ const Playlist = () => {
             >
               <div className="relative bg-black text-center bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 mt-4  rounded-lg shadow-lg">
                 <p className="text-indigo-700">
-                  You can make more with a limit of 5 playlists
-                  per minute! You have {getPlaylist}{" "}left.
+                  You can make more with a limit of 5 playlists per minute! You
+                  have {getPlaylist} left.
                 </p>
-
               </div>
             </div>
           </section>
           <div className=" -translate-x-30 ">
             {/*Button to link spotify*/}
-            {!locationLoaded ? !locationErrorShown && locationTimer > 5 ? toast.error("We could not get your location, please allow location access and refresh the page.", {
-              autoClose: false
-            }) && setLocationErrorShown(true) : (
-              <div className="text-center">
-                <h3 className="animate-pulse mb-10 bg-gradient-to-r from-indigo-700 to-vibrantMagenta bg-clip-text text-transparent">
-                  Getting your location...
-                </h3>
-              </div>
-            ) :  (
+            {!locationLoaded ? (
+              !locationErrorShown && locationTimer > 5 ? (
+                toast.error(
+                  "We could not get your location, please allow location access and refresh the page.",
+                  {
+                    autoClose: false,
+                  },
+                ) && setLocationErrorShown(true)
+              ) : (
+                <div className="text-center">
+                  <h3 className="animate-pulse mb-10 bg-gradient-to-r from-indigo-700 to-vibrantMagenta bg-clip-text text-transparent">
+                    Getting your location...
+                  </h3>
+                </div>
+              )
+            ) : (
               <div className="flex-col my-6 mb-16 flex  text-center">
                 <div className="text-center   ">
                   <button
