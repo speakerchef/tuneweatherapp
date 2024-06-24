@@ -29,7 +29,7 @@ const Playlist = () => {
   const [locationTimer, setLocationTimer] = useState(0);
   const [locationErrorShown, setLocationErrorShown] = useState(false);
 
-  const playlistIFrame = useRef(playlistIFrame);
+  const playlistIFrame = useRef(null);
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -118,9 +118,13 @@ const Playlist = () => {
   }, [errorCount]);
 
   function iframeReload() {
+    playlistIFrame.src = `https://open.spotify.com/embed/playlist/3cEYpjA9oz9GiPac4AsH4n`;
     // document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
-    playlistIFrame.src = `https://open.spotify.com/embed/playlist/${iFrame}`;
+    console.log(playlistIFrame.src)
+
+        //= `https://open.spotify.com/embed/playlist/3cEYpjA9oz9GiPac4AsH4n`;
   }
+
 
   const clickHandler = async () => {
     setHeaderText(false);
@@ -221,7 +225,7 @@ const Playlist = () => {
                   recommendations may not be 100% accurate to the weather
                   conditions as they are partly influenced by your listening
                   activity.
-                  {!loading && (<p className="mt-4 font-bold"><button onClick={iframeReload}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the playlist preview does not work.</p>)}
+                  {(<p className="mt-4 font-bold"><button onClick={iframeReload}> <strong className="text-purple-800 hover:underline hover:cursor-pointer">Click here</strong></button> if the playlist preview does not work.</p>)}
                 </h3>
               </div>
             )}
