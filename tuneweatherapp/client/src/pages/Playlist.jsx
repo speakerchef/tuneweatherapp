@@ -183,18 +183,18 @@ const Playlist = () => {
             );
             setErrorCount(prev => prev + 1);
           }
-          console.log("playlist ID", playlist_id);
-          toast.success("Playlist created!", {
-            autoClose: 1500
-          });
           setIFrame(playlist_id);
           setSubHeaderHidden(false);
           setSubHeaderHidden(false);
           setHeaderText(true);
           setTimeout(() => {
+            console.log("playlist ID", playlist_id);
+            toast.success("Playlist created!", {
+              autoClose: 1500
+            });
             setIFrameLoaded(true)
             setLoading(false);
-          }, 1000)
+          }, 2000)
         }
       } catch (e) {
         setErrorText(
