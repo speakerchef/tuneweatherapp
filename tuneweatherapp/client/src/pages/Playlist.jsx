@@ -10,7 +10,6 @@ import { FaComputer } from "react-icons/fa6";
 import Footer from "../components/Footer.jsx";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import theme from "tailwindcss/defaultTheme.js";
 import {FaInfoCircle} from "react-icons/fa";
 
 const Playlist = () => {
@@ -231,7 +230,7 @@ const Playlist = () => {
                 <div className="flex items-center justify-center">
                   <iframe
                     id="playlist-iframe"
-                    src={`https://open.spotify.com/embded/playlist/${iFrame}`}
+                    src={`https://open.spotify.com/embed/playlist/${iFrame}`}
                     width="100%"
                     loading="lazy"
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
