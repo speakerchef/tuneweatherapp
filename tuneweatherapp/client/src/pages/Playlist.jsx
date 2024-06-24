@@ -194,7 +194,7 @@ const Playlist = () => {
             });
             setIFrameLoaded(true)
             setLoading(false);
-          }, 2000)
+          }, 1100)
         }
       } catch (e) {
         setErrorText(
