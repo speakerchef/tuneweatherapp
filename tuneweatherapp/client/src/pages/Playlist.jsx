@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Hero from "../components/Hero.jsx";
 import NavBar from "../components/NavBar.jsx";
 import Button from "../components/Button.jsx";
@@ -28,6 +28,8 @@ const Playlist = () => {
   const [errorCount, setErrorCount] = useState(0);
   const [locationTimer, setLocationTimer] = useState(0);
   const [locationErrorShown, setLocationErrorShown] = useState(false);
+
+  const playlistIFrame = useRef(playlistIFrame);
 
   useEffect(() => {
     const getUserLocation = async () => {
@@ -116,7 +118,8 @@ const Playlist = () => {
   }, [errorCount]);
 
   function iframeReload() {
-    document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
+    // document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
+    playlistIFrame.src = `https://open.spotify.com/embed/playlist/${iFrame}`;
   }
 
   const clickHandler = async () => {
@@ -192,10 +195,6 @@ const Playlist = () => {
     }
   };
 
-  useEffect(() => {
-    iframeReload()
-  }, [iFrame]);
-
   setInterval(() => {
     setGetPlaylist(5);
   }, 60000);
@@ -233,6 +232,7 @@ const Playlist = () => {
                (
                 <div className="flex items-center justify-center">
                   <iframe
+                      ref={playlistIFrame}
                     id="playlist-iframe"
                     src={`https://open.spotify.com/embed/playlist/${iFrame}`}
                     width="100%"
