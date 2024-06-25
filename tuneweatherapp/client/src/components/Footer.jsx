@@ -75,8 +75,8 @@ const Footer = () => {
           </a>
         </div>
       </footer>
-      <div className="bg-gradient-to-r from-indigo-700 to-vibrantMagenta text-darkerTransparentIndigoBlue flex justify-center text-sm">
-        <p>Copyright 2024 © All rights reserved - TuneWeather</p>
+      <div className="bg-darkerTransparentIndigoBlue text-darkMagenta flex justify-center text-[0.7rem]">
+        <p className="p-2">Copyright 2024 © All rights reserved - TuneWeather</p>
       </div>
     </div>
   );
