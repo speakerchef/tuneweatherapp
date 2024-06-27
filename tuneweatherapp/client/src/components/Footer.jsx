@@ -74,10 +74,10 @@ const Footer = () => {
             </div>
           </a>
         </div>
-      </footer>
       <div className="bg-darkerTransparentIndigoBlue text-darkMagenta flex justify-center text-[0.7rem]">
         <p>Copyright 2024 © All rights reserved - TuneWeather</p>
       </div>
+      </footer>
     </div>
   );
 };
