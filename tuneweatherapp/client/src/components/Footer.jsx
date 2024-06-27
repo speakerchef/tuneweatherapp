@@ -36,9 +36,9 @@ const Footer = () => {
       <footer
         className={`relative ${z ? "-z-10" : ""} p-2 bg-darkerTransparentIndigoBlue -mb-2 text-indigo-700 text-center  text-[0.8rem] w-full mt-auto`}
       >
-        <div className="socialIcons flex-col  font-thin  flex text-[0.95rem]  mt-2 items-center">
+        <div className="socialIcons flex-col  font-thin  flex text-[0.95\\5rem]  mt-2 items-center">
           <a onClick={() => setCloseModal(!closeModal)}>
-            <div className="p-4 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
+            <div className="p-2 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
               <h3>
                 <FaEnvelope className="inline mr-2 mb-1" />
                 Contact Us
@@ -48,7 +48,7 @@ const Footer = () => {
           {/*<div className="lg:py-8 px-20 py-[0.05rem] flex flex-col md:flex-row lg:px-[0.05rem] bg-indigo-700" />*/}
           <div className=" px-20 md:px-28 lg:px-36 xl:px-48 py-[0.05rem] flex flex-col  bg-indigo-700" />
           <a href="/">
-            <div className="p-4 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
+            <div className="p-2 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
               <h3>
                 <FaHouse className="inline mr-2 mb-1" />
                 Home
@@ -57,7 +57,7 @@ const Footer = () => {
           </a>
           <div className=" px-20 md:px-28 lg:px-36 xl:px-48 py-[0.05rem] flex flex-col  bg-indigo-700" />
           <a onClick={clickHandler}>
-            <div className="p-4 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
+            <div className="p-2 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
               <h3>
                 <FaBook className="inline mr-2 mb-1" />
                 Privacy Policy
@@ -66,7 +66,7 @@ const Footer = () => {
           </a>
           <div className=" px-20 md:px-28 lg:px-36 xl:px-48 py-[0.05rem] flex flex-col  bg-indigo-700" />
           <a href="https://github.com/speakerchef/tuneweatherapp">
-            <div className="p-4 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
+            <div className="p-2 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
               <h3>
                 <FaGithubSquare className="inline mr-2 mb-1" />
                 GitHub
