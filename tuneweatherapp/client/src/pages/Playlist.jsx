@@ -65,7 +65,6 @@ const Playlist = () => {
     }
   } , 6000)
 
-  // url https://open.spotify.com/playlist/5Oxb13g6CvTrpXqsfNaPjm?go=1&sp_cid=3131f649-b3f8-4ead-abd4-54b04f518960&utm_source=embed_player_p&utm_medium=desktop&nd=1&dlsi=8ad6329261fa4df6
 
   useEffect(() => {
     const sendUserLocation = async () => {
@@ -120,11 +119,6 @@ const Playlist = () => {
 
   function iframeReload() {
     playlistIFrame.current.src = `https://open.spotify.com/embed/playlist/${iFrame}`;
-    // document.getElementById("playlist-iframe").src = `https://open.spotify.com/embed/playlist/${iFrame}`
-    console.log(playlistIFrame.current)
-    console.log(document.getElementById("playlist-iframe"))
-
-        //= `https://open.spotify.com/embed/playlist/3cEYpjA9oz9GiPac4AsH4n`;
   }
 
 
@@ -193,7 +187,7 @@ const Playlist = () => {
             });
             setIFrameLoaded(true)
             setLoading(false);
-          }, 1500)
+          }, 1800)
         }
       } catch (e) {
         setErrorText(
