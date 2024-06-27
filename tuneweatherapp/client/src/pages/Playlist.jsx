@@ -115,8 +115,8 @@ const Playlist = () => {
       setErrorCount(0)
       const windowReloadTimeout = setTimeout(() => {
         window.location.reload()
+        clearTimeout(windowReloadTimeout)
       }, 5000)
-      clearTimeout(windowReloadTimeout)
     }
 
   }, [errorCount]);
@@ -187,8 +187,8 @@ const Playlist = () => {
             });
             setIFrameLoaded(true)
             setLoading(false);
+            clearTimeout(iFrameLoaderTimeout)
           }, 1800)
-          clearTimeout(iFrameLoaderTimeout)
         }
       } catch (e) {
         setErrorText(
