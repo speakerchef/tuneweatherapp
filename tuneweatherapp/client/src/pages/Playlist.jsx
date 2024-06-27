@@ -59,11 +59,14 @@ const Playlist = () => {
   }, [locationLoaded]);
 
 
-  setInterval(() =>{
+  const locationTimerInterval = setInterval(() =>{
     if (locationTimer < 5) {
       setLocationTimer(prev => prev + 1)
+    } else {
+      clearInterval(locationTimerInterval);
     }
   } , 6000)
+
 
 
   useEffect(() => {
@@ -105,14 +108,15 @@ const Playlist = () => {
 
   useEffect(() => {
     if (errorCount === 5 || errorCount === 7 || errorCount === 10){
-      toast.info("If you are facing issues consistently please consider contacting us through our contact form. Sorry for any inconvenience caused.")
+      toast.info("If you are consistently facing issues, please consider contacting us through our contact form.")
     }
     if (errorCount > 10){
-      toast.info("If you are facing issues consistently please consider contacting us through our contact form. Sorry for any inconvenience caused.")
+      toast.info("If you are consistently facing issues, please consider contacting us through our contact form.")
       setErrorCount(0)
-      setTimeout(() => {
+      const windowReloadTimeout = setTimeout(() => {
         window.location.reload()
       }, 5000)
+      clearTimeout(windowReloadTimeout)
     }
 
   }, [errorCount]);
@@ -120,10 +124,6 @@ const Playlist = () => {
   function iframeReload() {
     playlistIFrame.current.src = `https://open.spotify.com/embed/playlist/${iFrame}`;
   }
-
-
-
-
 
   const clickHandler = async () => {
     setIFrameLoaded(false)
@@ -177,7 +177,7 @@ const Playlist = () => {
             setErrorCount(prev => prev + 1);
           }
           setIFrame(playlist_id);
-          setTimeout(() => {
+          const iFrameLoaderTimeout = setTimeout(() => {
             setSubHeaderHidden(false);
             setSubHeaderHidden(false);
             setHeaderText(true);
@@ -188,6 +188,7 @@ const Playlist = () => {
             setIFrameLoaded(true)
             setLoading(false);
           }, 1800)
+          clearTimeout(iFrameLoaderTimeout)
         }
       } catch (e) {
         setErrorText(
@@ -201,7 +202,7 @@ const Playlist = () => {
     }
   };
 
-  setInterval(() => {
+  const playlistCounterReset = setInterval(() => {
     setGetPlaylist(5);
   }, 60000);
 
