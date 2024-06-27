@@ -34,9 +34,9 @@ const Footer = () => {
       <ContactUsModal closeModal={closeModal} modalHandler={contactUsHandler} />
       <PrivacyPolicy isHidden={privacyHidden} clickHandler={clickHandler} />
       <footer
-        className={`relative ${z ? "-z-10" : ""} p-2 bg-darkerTransparentIndigoBlue -mb-2 text-indigo-700 text-center  text-[0.8rem] w-full mt-auto`}
+        className={`relative ${z ? "-z-10" : ""} p-2 bg-darkerTransparentIndigoBlue -mb-2 text-indigo-700 text-center  text-[0.5rem] w-full mt-auto`}
       >
-        <div className="socialIcons flex-col  font-thin  flex text-[0.5rem]  mt-2 items-center">
+        <div className="socialIcons flex-col  font-thin  flex text-[0.8rem]  mt-2 items-center">
           <a onClick={() => setCloseModal(!closeModal)}>
             <div className="p-2 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
               <h3>

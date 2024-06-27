@@ -8,7 +8,7 @@ body {
 
     html{
         background-color: #030C13FF;
-        /*background-image: url("./assets/bg.webp");*/
+        background-image: url("./assets/bg.webp");
         background-repeat: no-repeat;
         background-position: center;
         background-attachment: fixed;
@@ -18,10 +18,10 @@ body {
 
 
 .ppDivs h3, h4, h5{
-    @apply font-bold uppercase text-sm text-indigo-700 text-center
+    @apply font-bold uppercase text-sm text-indigo-700 text-center;
 }
 .ppDivs h3 {
-    @apply font-extrabold text-[1.0rem] text-center mb-4 mt-12 underline
+    @apply font-extrabold text-[1.0rem] text-center mb-4 mt-12 underline;
 }
 
 .ppDivs {
