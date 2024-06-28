@@ -36,7 +36,7 @@ const Footer = () => {
       <footer
         className={`relative ${z ? "-z-10" : ""} p-2 bg-darkerTransparentIndigoBlue -mb-2 text-indigo-700 text-center  text-[0.5rem] w-full mt-auto`}
       >
-        <div className="socialIcons flex-col  font-thin  flex text-[0.8rem]  mt-2 items-center">
+        <div className="socialIcons flex-col    flex text-[0.8rem]  mt-2 items-center">
           <a onClick={() => setCloseModal(!closeModal)}>
             <div className="p-2 transition-all border-indigo-700 hover:border-0 duration-100 hover:cursor-pointer px-12 active:bg-indigo-700 active:text-darkerTransparentIndigoBlue">
               <h3>
@@ -74,10 +74,10 @@ const Footer = () => {
             </div>
           </a>
         </div>
-      <div className="bg-darkerTransparentIndigoBlue text-darkMagenta flex justify-center text-[0.7rem]">
+      </footer>
+      <div className="bg-darkerTransparentIndigoBlue text-darkMagenta flex py-4 justify-center text-[0.7rem]">
         <p>Copyright 2024 © All rights reserved - TuneWeather</p>
       </div>
-      </footer>
     </div>
   );
 };
